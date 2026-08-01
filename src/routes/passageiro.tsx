@@ -70,7 +70,7 @@ function Passageiro() {
   );
 
   const viagem = viagens.find((v) => v.id === selecionada) ?? null;
-  const veiculo = viagem ? frota.find((f) => f.id === viagem.veiculoId)! : frota[2];
+  const veiculo = viagem ? frota.find((f) => f.id === viagem.veiculoId)! : frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
 
