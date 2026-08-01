@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MotoristaRoute = MotoristaRouteImport.update({
+  id: '/motorista',
+  path: '/motorista',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PassageiroRoute = PassageiroRouteImport.update({
@@ -25,27 +31,31 @@ const PassageiroRoute = PassageiroRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/passageiro'
+  fullPaths: '/' | '/motorista' | '/passageiro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/passageiro'
-  id: '__root__' | '/' | '/passageiro'
+  to: '/' | '/motorista' | '/passageiro'
+  id: '__root__' | '/' | '/motorista' | '/passageiro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/motorista': {
+      id: '/motorista'
+      path: '/motorista'
+      fullPath: '/motorista'
+      preLoaderRoute: typeof MotoristaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/passageiro': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
 }
 export const routeTree = rootRouteImport
