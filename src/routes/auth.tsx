@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bus, Loader2 } from "lucide-react";
+import { Bus, Loader2, MailCheck, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
+import { enviarCodigoSms, verificarCodigoSms } from "@/lib/telefone.functions";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
