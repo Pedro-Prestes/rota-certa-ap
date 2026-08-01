@@ -30,6 +30,9 @@ import {
   type Pagamento,
   type StatusPagamento,
 } from "@/lib/pagamentos";
+import { CheckoutCorrida } from "@/components/CheckoutCorrida";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { cobrancaOnlineDisponivel } from "@/lib/stripe";
 
 export const Route = createFileRoute("/_authenticated/pagamentos")({
   head: () => ({
@@ -106,6 +109,8 @@ function Pagamentos() {
   const [editandoPagamento, setEditandoPagamento] = useState<
     { corridaId: string; pagamento: Pagamento | null } | null
   >(null);
+  const [cobrando, setCobrando] = useState<{ corridaId: string; valorBase: number } | null>(null);
+  const onlineDisponivel = cobrancaOnlineDisponivel();
 
   const corridas = useQuery({
     queryKey: ["corridas", user?.id],
@@ -194,6 +199,7 @@ function Pagamentos() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
       <TopNav />
       <main className="mx-auto max-w-6xl px-5 py-10">
         <div className="flex flex-wrap items-center gap-4">
@@ -366,12 +372,22 @@ function Pagamentos() {
                       </div>
                     );
                   })}
-                  <button
-                    onClick={() => setEditandoPagamento({ corridaId: c.id, pagamento: null })}
-                    className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold"
-                  >
-                    <Wallet className="size-4" /> Lançar pagamento
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setEditandoPagamento({ corridaId: c.id, pagamento: null })}
+                      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold"
+                    >
+                      <Wallet className="size-4" /> Lançar pagamento
+                    </button>
+                    {onlineDisponivel && r.pendente > 0.004 && (
+                      <button
+                        onClick={() => setCobrando({ corridaId: c.id, valorBase: r.pendente })}
+                        className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
+                      >
+                        <QrCode className="size-4" /> Cobrar online (Pix ou cartão)
+                      </button>
+                    )}
+                  </div>
                 </div>
               </article>
             );
@@ -388,6 +404,14 @@ function Pagamentos() {
             setEditandoCorrida(null);
             invalidar();
           }}
+        />
+      )}
+
+      {cobrando && (
+        <CheckoutCorrida
+          corridaId={cobrando.corridaId}
+          valorBase={cobrando.valorBase}
+          onFechar={() => setCobrando(null)}
         />
       )}
 
