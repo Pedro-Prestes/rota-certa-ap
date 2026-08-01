@@ -409,6 +409,17 @@ function AuthPage() {
                   </button>
                 </>
               )}
+              {modo === "recuperar" && (
+                <>
+                  <button
+                    onClick={() => setModo("telefone")}
+                    className="text-muted-foreground underline-offset-4 hover:underline"
+                  >
+                    Não tenho acesso ao e-mail — recuperar por SMS
+                  </button>
+                  <br />
+                </>
+              )}
               {modo !== "entrar" && (
                 <button
                   onClick={() => setModo("entrar")}
@@ -417,6 +428,7 @@ function AuthPage() {
                   Já tenho conta — entrar
                 </button>
               )}
+
             </div>
           </>
         )}
