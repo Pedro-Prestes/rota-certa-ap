@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins_master: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       codigos_sms: {
         Row: {
           codigo_hash: string
