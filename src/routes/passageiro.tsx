@@ -298,7 +298,7 @@ function Passageiro() {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-border bg-[var(--gradient-night)] p-5 text-primary-foreground shadow-[var(--shadow-lift)]">
+            <div className="rounded-3xl border border-border surface-night p-5 text-primary-foreground shadow-[var(--shadow-lift)]">
               <h2 className="flex items-center gap-2 text-sm font-bold">
                 <Wallet className="size-4 text-accent" /> Reserva
               </h2>

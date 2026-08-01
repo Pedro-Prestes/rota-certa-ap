@@ -201,7 +201,7 @@ function Home() {
                 ))}
               </ul>
             </div>
-            <div className="rounded-3xl border border-border bg-[var(--gradient-night)] p-8 text-primary-foreground shadow-[var(--shadow-lift)]">
+            <div className="rounded-3xl border border-border surface-night p-8 text-primary-foreground shadow-[var(--shadow-lift)]">
               <p className="text-xs font-semibold uppercase tracking-widest text-accent">
                 Equação da tarifa
               </p>

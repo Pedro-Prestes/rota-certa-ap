@@ -215,7 +215,7 @@ function AbaRotas() {
         </ul>
       </div>
 
-      <aside className="rounded-3xl border border-border bg-[var(--gradient-night)] p-6 text-primary-foreground shadow-[var(--shadow-lift)] lg:sticky lg:top-24 lg:self-start">
+      <aside className="rounded-3xl border border-border surface-night p-6 text-primary-foreground shadow-[var(--shadow-lift)] lg:sticky lg:top-24 lg:self-start">
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Brain className="size-4 text-accent" /> Tarifa sugerida pela IA
         </h2>

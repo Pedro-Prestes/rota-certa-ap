@@ -164,3 +164,8 @@
     letter-spacing: -0.02em;
   }
 }
+
+@utility surface-night {
+  background-image: var(--gradient-night);
+  color: var(--color-primary-foreground);
+}
