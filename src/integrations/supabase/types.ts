@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      codigos_sms: {
+        Row: {
+          codigo_hash: string
+          created_at: string
+          expira_em: string
+          id: string
+          telefone: string
+          tentativas: number
+          usado: boolean
+        }
+        Insert: {
+          codigo_hash: string
+          created_at?: string
+          expira_em: string
+          id?: string
+          telefone: string
+          tentativas?: number
+          usado?: boolean
+        }
+        Update: {
+          codigo_hash?: string
+          created_at?: string
+          expira_em?: string
+          id?: string
+          telefone?: string
+          tentativas?: number
+          usado?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
