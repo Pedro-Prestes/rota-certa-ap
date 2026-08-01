@@ -187,33 +187,106 @@ function AuthPage() {
             ? "Entrar no RotaViva"
             : modo === "cadastrar"
               ? "Criar conta"
-              : "Recuperar senha"}
+              : modo === "telefone"
+                ? "Entrar por telefone"
+                : "Recuperar senha"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {modo === "recuperar"
             ? "Informe o e-mail cadastrado e enviaremos um link para definir uma nova senha."
-            : "Um acesso, dois perfis: passageiro para reservar assentos, motorista para publicar rotas."}
+            : modo === "telefone"
+              ? "Enviamos um código de 6 dígitos por SMS para o telefone cadastrado na sua conta. Serve para entrar e também para recuperar o acesso quando você não lembra a senha."
+              : "Um acesso, dois perfis: passageiro para reservar assentos, motorista para publicar rotas."}
         </p>
 
         {aguardandoEmail ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-sm">
-            <p className="font-semibold">Confira seu e-mail</p>
-            <p className="mt-2 text-muted-foreground">
-              Enviamos um link de confirmação para <strong>{email}</strong>. Depois de confirmar,
-              volte aqui e faça login.
+            <p className="flex items-center gap-2 font-semibold">
+              <MailCheck className="size-4 text-accent" /> Confirme seu e-mail
             </p>
+            <p className="mt-2 text-muted-foreground">
+              Enviamos um link de confirmação para <strong>{email}</strong>. A conta só é liberada
+              depois da confirmação — isso protege a plataforma contra cadastros falsos.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setAguardandoEmail(false);
+                  setModo("entrar");
+                }}
+                className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+              >
+                Ir para o login
+              </button>
+              <button
+                onClick={reenviarConfirmacao}
+                disabled={ocupado || !email}
+                className="rounded-full border border-border px-5 py-2 text-sm font-semibold disabled:opacity-60"
+              >
+                Reenviar e-mail
+              </button>
+            </div>
+          </div>
+        ) : modo === "telefone" ? (
+          <div className="mt-7">
+            <form
+              onSubmit={codigoEnviado ? confirmarCodigoSms : pedirCodigoSms}
+              className="space-y-3"
+            >
+              <input
+                className={campo}
+                type="tel"
+                placeholder="Telefone com DDD (ex.: 96 99999-0000)"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                disabled={codigoEnviado}
+                required
+              />
+              {codigoEnviado && (
+                <input
+                  className={campo}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="Código de 6 dígitos"
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
+                  required
+                />
+              )}
+              <button
+                type="submit"
+                disabled={ocupado}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
+              >
+                {ocupado ? <Loader2 className="size-4 animate-spin" /> : <Smartphone className="size-4" />}
+                {codigoEnviado ? "Confirmar código" : "Receber código por SMS"}
+              </button>
+            </form>
+            {codigoEnviado && (
+              <button
+                onClick={() => {
+                  setCodigoEnviado(false);
+                  setCodigo("");
+                }}
+                className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Trocar número ou reenviar código
+              </button>
+            )}
             <button
               onClick={() => {
-                setAguardandoEmail(false);
                 setModo("entrar");
+                setCodigoEnviado(false);
+                setCodigo("");
               }}
-              className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+              className="mt-6 block text-sm text-accent underline-offset-4 hover:underline"
             >
-              Ir para o login
+              Voltar para e-mail e senha
             </button>
           </div>
         ) : (
           <>
+
             {modo === "cadastrar" && (
               <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
                 {(["passageiro", "motorista"] as const).map((p) => (
