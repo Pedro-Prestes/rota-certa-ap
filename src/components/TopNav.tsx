@@ -7,6 +7,13 @@ const links = [
   { to: "/passageiro", label: "Sou passageiro" },
   { to: "/motorista", label: "Sou motorista" },
   { to: "/pagamentos", label: "Pagamentos" },
+  { to: "/verificacao", label: "Idoneidade" },
+  { to: "/auditoria", label: "Auditoria" },
+] as const;
+
+const linksAdmin = [
+  { to: "/contabil", label: "Contábil" },
+  { to: "/admin", label: "Admin" },
 ] as const;
 
 export function TopNav() {
@@ -41,18 +48,20 @@ export function TopNav() {
               {l.label}
             </Link>
           ))}
-          {ehAdmin && (
-            <Link
-              to="/admin"
-              className={`hidden rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:inline-block ${
-                path === "/admin"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
-            >
-              Admin
-            </Link>
-          )}
+          {ehAdmin &&
+            linksAdmin.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`hidden rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:inline-block ${
+                  path === l.to
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
           {!carregando &&
             (user ? (
               <Link

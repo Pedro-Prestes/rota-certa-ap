@@ -12,12 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CheckoutRetornoRouteImport } from './routes/checkout-retorno'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
+import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
+import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +36,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRetornoRoute = CheckoutRetornoRouteImport.update({
+  id: '/checkout-retorno',
+  path: '/checkout-retorno',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MotoristaRoute = MotoristaRouteImport.update({
@@ -53,9 +63,19 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   id: '/conta',
   path: '/conta',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedContabilRoute = AuthenticatedContabilRouteImport.update({
+  id: '/contabil',
+  path: '/contabil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
@@ -63,80 +83,124 @@ const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
   path: '/pagamentos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVerificacaoRoute =
+  AuthenticatedVerificacaoRouteImport.update({
+    id: '/verificacao',
+    path: '/verificacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/conta': typeof AuthenticatedContaRoute
+  '/contabil': typeof AuthenticatedContabilRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
+  '/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/conta': typeof AuthenticatedContaRoute
+  '/contabil': typeof AuthenticatedContabilRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
+  '/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
+  '/_authenticated/contabil': typeof AuthenticatedContabilRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
+  '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
     | '/admin'
+    | '/auditoria'
     | '/conta'
+    | '/contabil'
     | '/pagamentos'
+    | '/verificacao'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
     | '/admin'
+    | '/auditoria'
     | '/conta'
+    | '/contabil'
     | '/pagamentos'
+    | '/verificacao'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/auditoria'
     | '/_authenticated/conta'
+    | '/_authenticated/contabil'
     | '/_authenticated/pagamentos'
+    | '/_authenticated/verificacao'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -160,6 +224,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout-retorno': {
+      id: '/checkout-retorno'
+      path: '/checkout-retorno'
+      fullPath: '/checkout-retorno'
+      preLoaderRoute: typeof CheckoutRetornoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/motorista': {
@@ -190,11 +261,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/auditoria': {
+      id: '/_authenticated/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuthenticatedAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/conta': {
       id: '/_authenticated/conta'
       path: '/conta'
       fullPath: '/conta'
       preLoaderRoute: typeof AuthenticatedContaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contabil': {
+      id: '/_authenticated/contabil'
+      path: '/contabil'
+      fullPath: '/contabil'
+      preLoaderRoute: typeof AuthenticatedContabilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pagamentos': {
@@ -204,19 +289,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPagamentosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/verificacao': {
+      id: '/_authenticated/verificacao'
+      path: '/verificacao'
+      fullPath: '/verificacao'
+      preLoaderRoute: typeof AuthenticatedVerificacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
+  AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
+  AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
+  AuthenticatedContabilRoute: AuthenticatedContabilRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
+  AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -226,10 +331,22 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CheckoutRetornoRoute: CheckoutRetornoRoute,
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
