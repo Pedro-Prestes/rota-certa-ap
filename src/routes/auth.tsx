@@ -59,7 +59,14 @@ function AuthPage() {
     try {
       if (modo === "entrar") {
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-        if (error) throw error;
+        if (error) {
+          if (/not confirmed|confirm/i.test(error.message)) {
+            setAguardandoEmail(true);
+            toast.error("Confirme seu e-mail antes de entrar.");
+            return;
+          }
+          throw error;
+        }
         toast.success("Bem-vindo de volta!");
         navigate({ to: "/conta", replace: true });
       } else if (modo === "cadastrar") {
@@ -98,6 +105,58 @@ function AuthPage() {
       setOcupado(false);
     }
   }
+
+  async function reenviarConfirmacao() {
+    setOcupado(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/conta` },
+    });
+    setOcupado(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Novo e-mail de confirmação enviado.");
+  }
+
+  async function pedirCodigoSms(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      await enviarCodigoSms({ data: { telefone } });
+      setCodigoEnviado(true);
+      toast.success("Se o número estiver cadastrado, você receberá um código por SMS.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível enviar o SMS.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function confirmarCodigoSms(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      const { tokenHash, email: emailConta } = await verificarCodigoSms({
+        data: { telefone, codigo },
+      });
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "magiclink",
+      });
+      if (error) throw error;
+      setEmail(emailConta);
+      toast.success("Telefone confirmado. Você está conectado.");
+      navigate({ to: "/conta", replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Código inválido.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
 
   async function entrarComGoogle() {
     setOcupado(true);
