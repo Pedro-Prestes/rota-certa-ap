@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins_master: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       codigos_sms: {
         Row: {
           codigo_hash: string
@@ -249,7 +267,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "passageiro" | "motorista"
+      app_role: "passageiro" | "motorista" | "admin"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
       status_pagamento: "pendente" | "pago" | "estornado" | "cancelado"
     }
@@ -379,7 +397,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["passageiro", "motorista"],
+      app_role: ["passageiro", "motorista", "admin"],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
       status_pagamento: ["pendente", "pago", "estornado", "cancelado"],
     },

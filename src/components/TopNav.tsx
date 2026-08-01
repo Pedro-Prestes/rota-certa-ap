@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Bus, CircleUserRound } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, usePerfis } from "@/hooks/use-auth";
 
 const links = [
   { to: "/", label: "Visão geral" },
@@ -12,6 +12,8 @@ const links = [
 export function TopNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { user, carregando } = useAuth();
+  const perfis = usePerfis(user?.id);
+  const ehAdmin = perfis.includes("admin");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur">
@@ -39,6 +41,18 @@ export function TopNav() {
               {l.label}
             </Link>
           ))}
+          {ehAdmin && (
+            <Link
+              to="/admin"
+              className={`hidden rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:inline-block ${
+                path === "/admin"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              }`}
+            >
+              Admin
+            </Link>
+          )}
           {!carregando &&
             (user ? (
               <Link
