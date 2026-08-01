@@ -249,7 +249,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "passageiro" | "motorista"
+      app_role: "passageiro" | "motorista" | "admin"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
       status_pagamento: "pendente" | "pago" | "estornado" | "cancelado"
     }
@@ -379,7 +379,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["passageiro", "motorista"],
+      app_role: ["passageiro", "motorista", "admin"],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
       status_pagamento: ["pendente", "pago", "estornado", "cancelado"],
     },
