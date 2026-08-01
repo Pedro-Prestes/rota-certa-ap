@@ -165,7 +165,9 @@
   }
 }
 
-@utility surface-night {
-  background-image: var(--gradient-night);
-  color: var(--color-primary-foreground);
+@layer components {
+  .surface-night {
+    background-image: var(--gradient-night);
+    color: var(--primary-foreground);
+  }
 }

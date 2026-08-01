@@ -105,7 +105,7 @@ function AbaRotas() {
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <label>
             <span className={rotulo}>Ponto de origem</span>
-            <select className={campo} defaultValue="Macapá (sede)">
+            <select className={campo} defaultValue="Macapá (sede) · sede">
               {localidadesAP.map((l) => (
                 <option key={l.nome}>
                   {l.nome} · {l.tipo}
@@ -115,7 +115,7 @@ function AbaRotas() {
           </label>
           <label>
             <span className={rotulo}>Ponto de destino</span>
-            <select className={campo} defaultValue="Mazagão Velho">
+            <select className={campo} defaultValue="Mazagão Velho · vilarejo">
               {localidadesAP.map((l) => (
                 <option key={l.nome}>
                   {l.nome} · {l.tipo}
