@@ -6,6 +6,7 @@ const links = [
   { to: "/", label: "Visão geral" },
   { to: "/passageiro", label: "Sou passageiro" },
   { to: "/motorista", label: "Sou motorista" },
+  { to: "/pagamentos", label: "Pagamentos" },
 ] as const;
 
 export function TopNav() {

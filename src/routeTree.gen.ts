@@ -16,6 +16,7 @@ import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
+import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +52,11 @@ const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/conta': typeof AuthenticatedContaRoute
+  '/pagamentos': typeof AuthenticatedPagamentosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/conta': typeof AuthenticatedContaRoute
+  '/pagamentos': typeof AuthenticatedPagamentosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,14 +85,27 @@ export interface FileRoutesById {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
+  '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/motorista' | '/passageiro' | '/reset-password' | '/conta'
+    | '/'
+    | '/auth'
+    | '/motorista'
+    | '/passageiro'
+    | '/reset-password'
+    | '/conta'
+    | '/pagamentos'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/motorista' | '/passageiro' | '/reset-password' | '/conta'
+    | '/'
+    | '/auth'
+    | '/motorista'
+    | '/passageiro'
+    | '/reset-password'
+    | '/conta'
+    | '/pagamentos'
   id:
     | '__root__'
     | '/'
@@ -94,6 +115,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/_authenticated/conta'
+    | '/_authenticated/pagamentos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,15 +178,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pagamentos': {
+      id: '/_authenticated/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof AuthenticatedPagamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
+  AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContaRoute: AuthenticatedContaRoute,
+  AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
