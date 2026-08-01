@@ -18,6 +18,7 @@ import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
+import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -65,6 +66,11 @@ const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContabilRoute = AuthenticatedContabilRouteImport.update({
+  id: '/contabil',
+  path: '/contabil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
   id: '/pagamentos',
   path: '/pagamentos',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/conta': typeof AuthenticatedContaRoute
+  '/contabil': typeof AuthenticatedContabilRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/conta': typeof AuthenticatedContaRoute
+  '/contabil': typeof AuthenticatedContabilRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
+  '/_authenticated/contabil': typeof AuthenticatedContabilRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/conta'
+    | '/contabil'
     | '/pagamentos'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/conta'
+    | '/contabil'
     | '/pagamentos'
     | '/api/public/payments/webhook'
   id:
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/conta'
+    | '/_authenticated/contabil'
     | '/_authenticated/pagamentos'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -231,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/contabil': {
+      id: '/_authenticated/contabil'
+      path: '/contabil'
+      fullPath: '/contabil'
+      preLoaderRoute: typeof AuthenticatedContabilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pagamentos': {
       id: '/_authenticated/pagamentos'
       path: '/pagamentos'
@@ -251,12 +270,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
+  AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
+  AuthenticatedContabilRoute: AuthenticatedContabilRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
 }
 
