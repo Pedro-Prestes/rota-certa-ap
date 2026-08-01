@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bus } from "lucide-react";
+import { Bus, CircleUserRound } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const links = [
   { to: "/", label: "Visão geral" },
@@ -9,6 +10,7 @@ const links = [
 
 export function TopNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const { user, carregando } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur">
@@ -27,7 +29,7 @@ export function TopNav() {
             <Link
               key={l.to}
               to={l.to}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`hidden rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:inline-block ${
                 path === l.to
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -36,6 +38,22 @@ export function TopNav() {
               {l.label}
             </Link>
           ))}
+          {!carregando &&
+            (user ? (
+              <Link
+                to="/conta"
+                className="ml-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold"
+              >
+                <CircleUserRound className="size-4" /> Minha conta
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="ml-2 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground"
+              >
+                Entrar
+              </Link>
+            ))}
         </div>
       </nav>
     </header>
