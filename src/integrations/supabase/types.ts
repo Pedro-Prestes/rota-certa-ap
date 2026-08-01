@@ -32,6 +32,50 @@ export type Database = {
         }
         Relationships: []
       }
+      blockchain_blocos: {
+        Row: {
+          corrida_id: string | null
+          created_at: string
+          dados: Json
+          evento: string
+          hash: string
+          hash_anterior: string
+          id: string
+          indice: number
+          registrado_por: string | null
+        }
+        Insert: {
+          corrida_id?: string | null
+          created_at?: string
+          dados?: Json
+          evento: string
+          hash: string
+          hash_anterior: string
+          id?: string
+          indice?: number
+          registrado_por?: string | null
+        }
+        Update: {
+          corrida_id?: string | null
+          created_at?: string
+          dados?: Json
+          evento?: string
+          hash?: string
+          hash_anterior?: string
+          id?: string
+          indice?: number
+          registrado_por?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blockchain_blocos_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       codigos_sms: {
         Row: {
           codigo_hash: string
@@ -137,6 +181,182 @@ export type Database = {
         }
         Relationships: []
       }
+      custos_terceiros: {
+        Row: {
+          categoria: string
+          competencia: string
+          created_at: string
+          descricao: string
+          fornecedor: string
+          id: string
+          recorrente: boolean
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          categoria?: string
+          competencia?: string
+          created_at?: string
+          descricao?: string
+          fornecedor: string
+          id?: string
+          recorrente?: boolean
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          categoria?: string
+          competencia?: string
+          created_at?: string
+          descricao?: string
+          fornecedor?: string
+          id?: string
+          recorrente?: boolean
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      estornos: {
+        Row: {
+          autorizado_por: string | null
+          corrida_id: string | null
+          created_at: string
+          devolve_taxa: boolean
+          id: string
+          integral: boolean
+          motivo: string
+          pagamento_id: string
+          processado_em: string | null
+          provedor: string | null
+          provedor_ref: string | null
+          status: Database["public"]["Enums"]["status_estorno"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          autorizado_por?: string | null
+          corrida_id?: string | null
+          created_at?: string
+          devolve_taxa?: boolean
+          id?: string
+          integral?: boolean
+          motivo?: string
+          pagamento_id: string
+          processado_em?: string | null
+          provedor?: string | null
+          provedor_ref?: string | null
+          status?: Database["public"]["Enums"]["status_estorno"]
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          autorizado_por?: string | null
+          corrida_id?: string | null
+          created_at?: string
+          devolve_taxa?: boolean
+          id?: string
+          integral?: boolean
+          motivo?: string
+          pagamento_id?: string
+          processado_em?: string | null
+          provedor?: string | null
+          provedor_ref?: string | null
+          status?: Database["public"]["Enums"]["status_estorno"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estornos_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estornos_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lancamentos_contabeis: {
+        Row: {
+          competencia: string
+          corrida_id: string | null
+          created_at: string
+          custo_id: string | null
+          descricao: string
+          detalhamento: Json
+          estorno_id: string | null
+          id: string
+          pagamento_id: string | null
+          tipo: Database["public"]["Enums"]["tipo_lancamento"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          competencia?: string
+          corrida_id?: string | null
+          created_at?: string
+          custo_id?: string | null
+          descricao?: string
+          detalhamento?: Json
+          estorno_id?: string | null
+          id?: string
+          pagamento_id?: string | null
+          tipo: Database["public"]["Enums"]["tipo_lancamento"]
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          competencia?: string
+          corrida_id?: string | null
+          created_at?: string
+          custo_id?: string | null
+          descricao?: string
+          detalhamento?: Json
+          estorno_id?: string | null
+          id?: string
+          pagamento_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_lancamento"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lancamentos_contabeis_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_contabeis_custo_id_fkey"
+            columns: ["custo_id"]
+            isOneToOne: false
+            referencedRelation: "custos_terceiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_contabeis_estorno_id_fkey"
+            columns: ["estorno_id"]
+            isOneToOne: false
+            referencedRelation: "estornos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_contabeis_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pagamentos: {
         Row: {
           autorizacao: string | null
@@ -205,6 +425,42 @@ export type Database = {
           },
         ]
       }
+      plataforma_config: {
+        Row: {
+          chave: string
+          created_at: string
+          descricao: string
+          id: string
+          repasse_motorista_percentual: number
+          taxa_fixa: number
+          taxa_percentual: number
+          updated_at: string
+          vigente_desde: string
+        }
+        Insert: {
+          chave: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          repasse_motorista_percentual?: number
+          taxa_fixa?: number
+          taxa_percentual?: number
+          updated_at?: string
+          vigente_desde?: string
+        }
+        Update: {
+          chave?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          repasse_motorista_percentual?: number
+          taxa_fixa?: number
+          taxa_percentual?: number
+          updated_at?: string
+          vigente_desde?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -232,6 +488,50 @@ export type Database = {
         }
         Relationships: []
       }
+      trajetos: {
+        Row: {
+          corrida_id: string
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          precisao_m: number | null
+          registrado_em: string
+          sequencia: number
+          velocidade_kmh: number | null
+        }
+        Insert: {
+          corrida_id: string
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          precisao_m?: number | null
+          registrado_em?: string
+          sequencia?: number
+          velocidade_kmh?: number | null
+        }
+        Update: {
+          corrida_id?: string
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          precisao_m?: number | null
+          registrado_em?: string
+          sequencia?: number
+          velocidade_kmh?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trajetos_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -253,6 +553,131 @@ export type Database = {
         }
         Relationships: []
       }
+      veiculos: {
+        Row: {
+          ano: number
+          assentos: number
+          carga_util_kg: number
+          categoria: string
+          chassi: string | null
+          cor: string | null
+          created_at: string
+          crlv_exercicio: number | null
+          crlv_situacao: string | null
+          id: string
+          marca: string
+          modelo: string
+          placa: string
+          renavam: string | null
+          status_verificacao: Database["public"]["Enums"]["status_verificacao"]
+          updated_at: string
+          user_id: string
+          volume_bagageiro_l: number
+        }
+        Insert: {
+          ano?: number
+          assentos?: number
+          carga_util_kg?: number
+          categoria?: string
+          chassi?: string | null
+          cor?: string | null
+          created_at?: string
+          crlv_exercicio?: number | null
+          crlv_situacao?: string | null
+          id?: string
+          marca?: string
+          modelo?: string
+          placa: string
+          renavam?: string | null
+          status_verificacao?: Database["public"]["Enums"]["status_verificacao"]
+          updated_at?: string
+          user_id: string
+          volume_bagageiro_l?: number
+        }
+        Update: {
+          ano?: number
+          assentos?: number
+          carga_util_kg?: number
+          categoria?: string
+          chassi?: string | null
+          cor?: string | null
+          created_at?: string
+          crlv_exercicio?: number | null
+          crlv_situacao?: string | null
+          id?: string
+          marca?: string
+          modelo?: string
+          placa?: string
+          renavam?: string | null
+          status_verificacao?: Database["public"]["Enums"]["status_verificacao"]
+          updated_at?: string
+          user_id?: string
+          volume_bagageiro_l?: number
+        }
+        Relationships: []
+      }
+      verificacoes_idoneidade: {
+        Row: {
+          alvo: Database["public"]["Enums"]["alvo_verificacao"]
+          consultado_em: string | null
+          created_at: string
+          documento: string
+          expira_em: string | null
+          id: string
+          nome_conferido: string | null
+          pendencias: Json
+          pontuacao: number | null
+          provedor: string
+          resultado: Json
+          status: Database["public"]["Enums"]["status_verificacao"]
+          updated_at: string
+          user_id: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          alvo: Database["public"]["Enums"]["alvo_verificacao"]
+          consultado_em?: string | null
+          created_at?: string
+          documento?: string
+          expira_em?: string | null
+          id?: string
+          nome_conferido?: string | null
+          pendencias?: Json
+          pontuacao?: number | null
+          provedor?: string
+          resultado?: Json
+          status?: Database["public"]["Enums"]["status_verificacao"]
+          updated_at?: string
+          user_id: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          alvo?: Database["public"]["Enums"]["alvo_verificacao"]
+          consultado_em?: string | null
+          created_at?: string
+          documento?: string
+          expira_em?: string | null
+          id?: string
+          nome_conferido?: string | null
+          pendencias?: Json
+          pontuacao?: number | null
+          provedor?: string
+          resultado?: Json
+          status?: Database["public"]["Enums"]["status_verificacao"]
+          updated_at?: string
+          user_id?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verificacoes_idoneidade_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -267,9 +692,30 @@ export type Database = {
       }
     }
     Enums: {
+      alvo_verificacao: "passageiro" | "motorista" | "veiculo"
       app_role: "passageiro" | "motorista" | "admin"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
+      status_estorno:
+        | "solicitado"
+        | "processando"
+        | "concluido"
+        | "falhou"
+        | "cancelado"
       status_pagamento: "pendente" | "pago" | "estornado" | "cancelado"
+      status_verificacao:
+        | "pendente"
+        | "em_analise"
+        | "aprovado"
+        | "reprovado"
+        | "expirado"
+      tipo_lancamento:
+        | "receita_bruta"
+        | "taxa_plataforma"
+        | "taxa_gateway"
+        | "repasse_motorista"
+        | "estorno"
+        | "custo_terceiro"
+        | "ajuste"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -397,9 +843,33 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      alvo_verificacao: ["passageiro", "motorista", "veiculo"],
       app_role: ["passageiro", "motorista", "admin"],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
+      status_estorno: [
+        "solicitado",
+        "processando",
+        "concluido",
+        "falhou",
+        "cancelado",
+      ],
       status_pagamento: ["pendente", "pago", "estornado", "cancelado"],
+      status_verificacao: [
+        "pendente",
+        "em_analise",
+        "aprovado",
+        "reprovado",
+        "expirado",
+      ],
+      tipo_lancamento: [
+        "receita_bruta",
+        "taxa_plataforma",
+        "taxa_gateway",
+        "repasse_motorista",
+        "estorno",
+        "custo_terceiro",
+        "ajuste",
+      ],
     },
   },
 } as const
