@@ -44,6 +44,149 @@ export type Database = {
         }
         Relationships: []
       }
+      corridas: {
+        Row: {
+          assentos: number
+          bagagem_l: number
+          comissao_percentual: number
+          created_at: string
+          data_corrida: string
+          desconto: number
+          destino: string
+          distancia_km: number
+          hora_chegada: string | null
+          hora_partida: string | null
+          id: string
+          motorista_nome: string
+          observacoes: string | null
+          origem: string
+          passageiro_nome: string
+          updated_at: string
+          user_id: string
+          valor_bagagem: number
+          valor_extras: number
+          valor_pedagios: number
+          valor_tarifa: number
+          veiculo: string | null
+        }
+        Insert: {
+          assentos?: number
+          bagagem_l?: number
+          comissao_percentual?: number
+          created_at?: string
+          data_corrida?: string
+          desconto?: number
+          destino?: string
+          distancia_km?: number
+          hora_chegada?: string | null
+          hora_partida?: string | null
+          id?: string
+          motorista_nome?: string
+          observacoes?: string | null
+          origem?: string
+          passageiro_nome?: string
+          updated_at?: string
+          user_id: string
+          valor_bagagem?: number
+          valor_extras?: number
+          valor_pedagios?: number
+          valor_tarifa?: number
+          veiculo?: string | null
+        }
+        Update: {
+          assentos?: number
+          bagagem_l?: number
+          comissao_percentual?: number
+          created_at?: string
+          data_corrida?: string
+          desconto?: number
+          destino?: string
+          distancia_km?: number
+          hora_chegada?: string | null
+          hora_partida?: string | null
+          id?: string
+          motorista_nome?: string
+          observacoes?: string | null
+          origem?: string
+          passageiro_nome?: string
+          updated_at?: string
+          user_id?: string
+          valor_bagagem?: number
+          valor_extras?: number
+          valor_pedagios?: number
+          valor_tarifa?: number
+          veiculo?: string | null
+        }
+        Relationships: []
+      }
+      pagamentos: {
+        Row: {
+          autorizacao: string | null
+          bandeira: string | null
+          chave_pix: string | null
+          corrida_id: string
+          created_at: string
+          forma: Database["public"]["Enums"]["forma_pagamento"]
+          id: string
+          observacoes: string | null
+          pago_em: string
+          parcelas: number
+          status: Database["public"]["Enums"]["status_pagamento"]
+          taxa_percentual: number
+          troco: number
+          updated_at: string
+          user_id: string
+          valor: number
+          valor_recebido: number | null
+        }
+        Insert: {
+          autorizacao?: string | null
+          bandeira?: string | null
+          chave_pix?: string | null
+          corrida_id: string
+          created_at?: string
+          forma: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          observacoes?: string | null
+          pago_em?: string
+          parcelas?: number
+          status?: Database["public"]["Enums"]["status_pagamento"]
+          taxa_percentual?: number
+          troco?: number
+          updated_at?: string
+          user_id: string
+          valor?: number
+          valor_recebido?: number | null
+        }
+        Update: {
+          autorizacao?: string | null
+          bandeira?: string | null
+          chave_pix?: string | null
+          corrida_id?: string
+          created_at?: string
+          forma?: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          observacoes?: string | null
+          pago_em?: string
+          parcelas?: number
+          status?: Database["public"]["Enums"]["status_pagamento"]
+          taxa_percentual?: number
+          troco?: number
+          updated_at?: string
+          user_id?: string
+          valor?: number
+          valor_recebido?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -107,6 +250,8 @@ export type Database = {
     }
     Enums: {
       app_role: "passageiro" | "motorista"
+      forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
+      status_pagamento: "pendente" | "pago" | "estornado" | "cancelado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -235,6 +380,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["passageiro", "motorista"],
+      forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
+      status_pagamento: ["pendente", "pago", "estornado", "cancelado"],
     },
   },
 } as const
