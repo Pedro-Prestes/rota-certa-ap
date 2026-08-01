@@ -7,6 +7,13 @@ const links = [
   { to: "/passageiro", label: "Sou passageiro" },
   { to: "/motorista", label: "Sou motorista" },
   { to: "/pagamentos", label: "Pagamentos" },
+  { to: "/verificacao", label: "Idoneidade" },
+  { to: "/auditoria", label: "Auditoria" },
+] as const;
+
+const linksAdmin = [
+  { to: "/contabil", label: "Contábil" },
+  { to: "/admin", label: "Admin" },
 ] as const;
 
 export function TopNav() {
