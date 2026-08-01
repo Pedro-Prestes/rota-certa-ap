@@ -29,7 +29,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Modo = "entrar" | "cadastrar" | "recuperar";
+type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone";
 type Perfil = "passageiro" | "motorista";
 
 function AuthPage() {
@@ -43,6 +43,9 @@ function AuthPage() {
   const [municipio, setMunicipio] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [aguardandoEmail, setAguardandoEmail] = useState(false);
+  const [codigoEnviado, setCodigoEnviado] = useState(false);
+  const [codigo, setCodigo] = useState("");
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
