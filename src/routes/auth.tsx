@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bus, Loader2 } from "lucide-react";
+import { Bus, Loader2, MailCheck, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
+import { enviarCodigoSms, verificarCodigoSms } from "@/lib/telefone.functions";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Modo = "entrar" | "cadastrar" | "recuperar";
+type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone";
 type Perfil = "passageiro" | "motorista";
 
 function AuthPage() {
@@ -41,6 +43,9 @@ function AuthPage() {
   const [municipio, setMunicipio] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [aguardandoEmail, setAguardandoEmail] = useState(false);
+  const [codigoEnviado, setCodigoEnviado] = useState(false);
+  const [codigo, setCodigo] = useState("");
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -54,7 +59,14 @@ function AuthPage() {
     try {
       if (modo === "entrar") {
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-        if (error) throw error;
+        if (error) {
+          if (/not confirmed|confirm/i.test(error.message)) {
+            setAguardandoEmail(true);
+            toast.error("Confirme seu e-mail antes de entrar.");
+            return;
+          }
+          throw error;
+        }
         toast.success("Bem-vindo de volta!");
         navigate({ to: "/conta", replace: true });
       } else if (modo === "cadastrar") {
@@ -94,6 +106,58 @@ function AuthPage() {
     }
   }
 
+  async function reenviarConfirmacao() {
+    setOcupado(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/conta` },
+    });
+    setOcupado(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Novo e-mail de confirmação enviado.");
+  }
+
+  async function pedirCodigoSms(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      await enviarCodigoSms({ data: { telefone } });
+      setCodigoEnviado(true);
+      toast.success("Se o número estiver cadastrado, você receberá um código por SMS.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível enviar o SMS.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function confirmarCodigoSms(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      const { tokenHash, email: emailConta } = await verificarCodigoSms({
+        data: { telefone, codigo },
+      });
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "magiclink",
+      });
+      if (error) throw error;
+      setEmail(emailConta);
+      toast.success("Telefone confirmado. Você está conectado.");
+      navigate({ to: "/conta", replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Código inválido.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+
   async function entrarComGoogle() {
     setOcupado(true);
     const result = await lovable.auth.signInWithOAuth("google", {
@@ -123,33 +187,106 @@ function AuthPage() {
             ? "Entrar no RotaViva"
             : modo === "cadastrar"
               ? "Criar conta"
-              : "Recuperar senha"}
+              : modo === "telefone"
+                ? "Entrar por telefone"
+                : "Recuperar senha"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {modo === "recuperar"
             ? "Informe o e-mail cadastrado e enviaremos um link para definir uma nova senha."
-            : "Um acesso, dois perfis: passageiro para reservar assentos, motorista para publicar rotas."}
+            : modo === "telefone"
+              ? "Enviamos um código de 6 dígitos por SMS para o telefone cadastrado na sua conta. Serve para entrar e também para recuperar o acesso quando você não lembra a senha."
+              : "Um acesso, dois perfis: passageiro para reservar assentos, motorista para publicar rotas."}
         </p>
 
         {aguardandoEmail ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-sm">
-            <p className="font-semibold">Confira seu e-mail</p>
-            <p className="mt-2 text-muted-foreground">
-              Enviamos um link de confirmação para <strong>{email}</strong>. Depois de confirmar,
-              volte aqui e faça login.
+            <p className="flex items-center gap-2 font-semibold">
+              <MailCheck className="size-4 text-accent" /> Confirme seu e-mail
             </p>
+            <p className="mt-2 text-muted-foreground">
+              Enviamos um link de confirmação para <strong>{email}</strong>. A conta só é liberada
+              depois da confirmação — isso protege a plataforma contra cadastros falsos.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setAguardandoEmail(false);
+                  setModo("entrar");
+                }}
+                className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+              >
+                Ir para o login
+              </button>
+              <button
+                onClick={reenviarConfirmacao}
+                disabled={ocupado || !email}
+                className="rounded-full border border-border px-5 py-2 text-sm font-semibold disabled:opacity-60"
+              >
+                Reenviar e-mail
+              </button>
+            </div>
+          </div>
+        ) : modo === "telefone" ? (
+          <div className="mt-7">
+            <form
+              onSubmit={codigoEnviado ? confirmarCodigoSms : pedirCodigoSms}
+              className="space-y-3"
+            >
+              <input
+                className={campo}
+                type="tel"
+                placeholder="Telefone com DDD (ex.: 96 99999-0000)"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                disabled={codigoEnviado}
+                required
+              />
+              {codigoEnviado && (
+                <input
+                  className={campo}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="Código de 6 dígitos"
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
+                  required
+                />
+              )}
+              <button
+                type="submit"
+                disabled={ocupado}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
+              >
+                {ocupado ? <Loader2 className="size-4 animate-spin" /> : <Smartphone className="size-4" />}
+                {codigoEnviado ? "Confirmar código" : "Receber código por SMS"}
+              </button>
+            </form>
+            {codigoEnviado && (
+              <button
+                onClick={() => {
+                  setCodigoEnviado(false);
+                  setCodigo("");
+                }}
+                className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Trocar número ou reenviar código
+              </button>
+            )}
             <button
               onClick={() => {
-                setAguardandoEmail(false);
                 setModo("entrar");
+                setCodigoEnviado(false);
+                setCodigo("");
               }}
-              className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+              className="mt-6 block text-sm text-accent underline-offset-4 hover:underline"
             >
-              Ir para o login
+              Voltar para e-mail e senha
             </button>
           </div>
         ) : (
           <>
+
             {modo === "cadastrar" && (
               <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
                 {(["passageiro", "motorista"] as const).map((p) => (
@@ -238,10 +375,19 @@ function AuthPage() {
                 >
                   Continuar com o Google
                 </button>
+                <button
+                  onClick={() => setModo("telefone")}
+                  disabled={ocupado}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold disabled:opacity-60"
+                >
+                  <Smartphone className="size-4" /> Entrar com código por SMS
+                </button>
                 <p className="mt-2 text-xs text-muted-foreground">
                   Contas criadas pelo Google entram como passageiro; o perfil de motorista pode ser
-                  ativado depois no cadastro de veículo.
+                  ativado depois no cadastro de veículo. O acesso por SMS usa o telefone informado
+                  no seu cadastro.
                 </p>
+
               </>
             )}
 
@@ -263,6 +409,17 @@ function AuthPage() {
                   </button>
                 </>
               )}
+              {modo === "recuperar" && (
+                <>
+                  <button
+                    onClick={() => setModo("telefone")}
+                    className="text-muted-foreground underline-offset-4 hover:underline"
+                  >
+                    Não tenho acesso ao e-mail — recuperar por SMS
+                  </button>
+                  <br />
+                </>
+              )}
               {modo !== "entrar" && (
                 <button
                   onClick={() => setModo("entrar")}
@@ -271,6 +428,7 @@ function AuthPage() {
                   Já tenho conta — entrar
                 </button>
               )}
+
             </div>
           </>
         )}
