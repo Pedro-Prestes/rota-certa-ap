@@ -23,11 +23,11 @@ export const Route = createFileRoute("/")({
         content:
           "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas entre sedes, distritos e vilarejos do Amapá. Para motoristas e passageiros.",
       },
-      { property: "og:title", content: "RotaViva — transporte agendado para comunidades do Amapá" },
+      { property: "og:title", content: "RotaViva — transporte intermunicipal agendado no Amapá" },
       {
         property: "og:description",
         content:
-          "Agenda de rotas, reserva de assento com pagamento antecipado, cálculo inteligente de bagagem e tarifas calibradas por IA.",
+          "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas entre sedes, distritos e vilarejos do Amapá. Para motoristas e passageiros.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
