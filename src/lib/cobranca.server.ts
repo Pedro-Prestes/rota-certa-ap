@@ -156,7 +156,9 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
           unit_amount: composicao.totalCentavos,
           product_data: {
             name: descricao,
-            description: `Serviço de transporte R$ ${composicao.base.toFixed(2)} + taxa administrativa R$ ${composicao.taxaAdministrativa.toFixed(2)}`,
+            description: `Serviço de transporte R$ ${composicao.base.toFixed(2)} + taxa administrativa R$ ${composicao.taxaAdministrativa.toFixed(2)}${
+              creditoUsado > 0 ? ` (créditos aplicados: R$ ${creditoUsado.toFixed(2)})` : ""
+            }`,
           },
         },
       },
@@ -171,7 +173,9 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
       baseCentavos: String(Math.round(composicao.base * 100)),
       taxaCentavos: String(Math.round(composicao.taxaAdministrativa * 100)),
       repasseCentavos: String(Math.round(composicao.repasseMotorista * 100)),
+      creditoCentavos: String(Math.round(creditoUsado * 100)),
     },
+
   };
 
   let session: Stripe.Checkout.Session;
