@@ -3,6 +3,26 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { createStripeClient, type StripeEnv } from "./stripe.server";
 import { registrarEvento } from "./blockchain.server";
 import { CONFIG_PADRAO, comporCobranca, type ConfigTaxa } from "./taxas";
+import { assinaturaVigente, carteiraDoUsuario } from "./assinatura.server";
+import { planoDoPrice } from "./planos";
+
+/**
+ * Configuração de taxa aplicável ao usuário: se ele tem plano ativo, valem os
+ * percentuais reduzidos do plano; caso contrário, a configuração da plataforma.
+ */
+export async function configDoUsuario(userId: string, env: StripeEnv): Promise<ConfigTaxa> {
+  const base = await carregarConfig();
+  const sub = await assinaturaVigente(userId, env);
+  const plano = sub ? planoDoPrice(sub.price_id) : undefined;
+  if (!plano) return base;
+  return {
+    ...base,
+    taxa_percentual: plano.taxa.taxa_percentual,
+    taxa_fixa: plano.taxa.taxa_fixa,
+    descricao: `Taxa administrativa reduzida do plano ${plano.nome}`,
+  };
+}
+
 
 const n = (v: unknown) => Number(v ?? 0) || 0;
 const arred = (v: number) => Math.round(v * 100) / 100;
@@ -107,11 +127,17 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
     if (!admin) throw new Error("Você não tem permissão para cobrar esta corrida.");
   }
 
-  const base = arred(dados.valorBase && dados.valorBase > 0 ? dados.valorBase : aberto);
-  if (base < 1) throw new Error("Não há saldo em aberto para cobrar nesta corrida.");
+  const baseTotal = arred(dados.valorBase && dados.valorBase > 0 ? dados.valorBase : aberto);
+  if (baseTotal < 1) throw new Error("Não há saldo em aberto para cobrar nesta corrida.");
 
-  const cfg = await carregarConfig();
+  // Créditos pré-pagos abatem a base, sempre deixando ao menos R$ 1 a cobrar.
+  const { saldo } = await carteiraDoUsuario(corrida.user_id, dados.environment);
+  const creditoUsado = arred(Math.max(0, Math.min(saldo, baseTotal - 1)));
+  const base = arred(baseTotal - creditoUsado);
+
+  const cfg = await configDoUsuario(corrida.user_id, dados.environment);
   const composicao = comporCobranca(base, cfg);
+
 
   const stripe = createStripeClient(dados.environment);
   const customer = await resolverCliente(stripe, { email: dados.email, userId: dados.userId });
@@ -130,7 +156,9 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
           unit_amount: composicao.totalCentavos,
           product_data: {
             name: descricao,
-            description: `Serviço de transporte R$ ${composicao.base.toFixed(2)} + taxa administrativa R$ ${composicao.taxaAdministrativa.toFixed(2)}`,
+            description: `Serviço de transporte R$ ${composicao.base.toFixed(2)} + taxa administrativa R$ ${composicao.taxaAdministrativa.toFixed(2)}${
+              creditoUsado > 0 ? ` (créditos aplicados: R$ ${creditoUsado.toFixed(2)})` : ""
+            }`,
           },
         },
       },
@@ -145,7 +173,9 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
       baseCentavos: String(Math.round(composicao.base * 100)),
       taxaCentavos: String(Math.round(composicao.taxaAdministrativa * 100)),
       repasseCentavos: String(Math.round(composicao.repasseMotorista * 100)),
+      creditoCentavos: String(Math.round(creditoUsado * 100)),
     },
+
   };
 
   let session: Stripe.Checkout.Session;
@@ -172,7 +202,7 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
     },
   });
 
-  return { clientSecret: session.client_secret ?? "", composicao };
+  return { clientSecret: session.client_secret ?? "", composicao, creditoUsado };
 }
 
 function formaDoCharge(charge: Stripe.Charge | null): "pix" | "credito" | "debito" {
@@ -244,6 +274,23 @@ export async function confirmarPagamentoSessao(session: any, env: StripeEnv) {
     console.error("Falha ao gravar pagamento:", error.message);
     return;
   }
+
+  // Créditos pré-pagos aplicados na corrida saem da carteira do usuário.
+  const creditoUsado = arred(Number(session.metadata?.creditoCentavos ?? 0) / 100);
+  if (creditoUsado > 0) {
+    await supabaseAdmin.from("carteira_transacoes").insert({
+      user_id: userId,
+      tipo: "debito_corrida",
+      valor: creditoUsado,
+      descricao: "Créditos aplicados no pagamento da corrida",
+      corrida_id: corridaId,
+      pagamento_id: pagamento.id,
+      referencia_externa: `sessao:${session.id}:debito`,
+      environment: env,
+    });
+  }
+
+
 
   const comp = competencia();
   const lancamentos = [

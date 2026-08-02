@@ -7,7 +7,9 @@ const links = [
   { to: "/passageiro", label: "Sou passageiro" },
   { to: "/motorista", label: "Sou motorista" },
   { to: "/pagamentos", label: "Pagamentos" },
+  { to: "/planos", label: "Planos" },
   { to: "/verificacao", label: "Idoneidade" },
+
   { to: "/auditoria", label: "Auditoria" },
 ] as const;
 
