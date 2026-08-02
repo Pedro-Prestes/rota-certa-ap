@@ -498,21 +498,28 @@ export async function creditarCompraCreditos(session: any, env: StripeEnv) {
 
 /** Saldo de créditos e extrato do usuário. */
 export async function carteiraDoUsuario(userId: string, env: StripeEnv) {
-  const { data } = await supabaseAdmin
-    .from("carteira_transacoes")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("environment", env)
-    .order("created_at", { ascending: false })
-    .limit(50);
-  const transacoes = data ?? [];
+  const [extrato, todas] = await Promise.all([
+    supabaseAdmin
+      .from("carteira_transacoes")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("environment", env)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabaseAdmin
+      .from("carteira_transacoes")
+      .select("tipo, valor")
+      .eq("user_id", userId)
+      .eq("environment", env),
+  ]);
   const saldo = arred(
-    transacoes.reduce(
+    (todas.data ?? []).reduce(
       (a, t) => a + (t.tipo === "debito_corrida" ? -Number(t.valor) : Number(t.valor)),
       0,
     ),
   );
-  return { saldo, transacoes };
+  return { saldo, transacoes: extrato.data ?? [] };
 }
+
 
 export const CATALOGO = { PLANOS, PACOTES_CREDITO };
