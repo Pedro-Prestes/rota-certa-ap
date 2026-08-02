@@ -3,6 +3,26 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { createStripeClient, type StripeEnv } from "./stripe.server";
 import { registrarEvento } from "./blockchain.server";
 import { CONFIG_PADRAO, comporCobranca, type ConfigTaxa } from "./taxas";
+import { assinaturaVigente, carteiraDoUsuario } from "./assinatura.server";
+import { planoDoPrice } from "./planos";
+
+/**
+ * Configuração de taxa aplicável ao usuário: se ele tem plano ativo, valem os
+ * percentuais reduzidos do plano; caso contrário, a configuração da plataforma.
+ */
+export async function configDoUsuario(userId: string, env: StripeEnv): Promise<ConfigTaxa> {
+  const base = await carregarConfig();
+  const sub = await assinaturaVigente(userId, env);
+  const plano = sub ? planoDoPrice(sub.price_id) : undefined;
+  if (!plano) return base;
+  return {
+    ...base,
+    taxa_percentual: plano.taxa.taxa_percentual,
+    taxa_fixa: plano.taxa.taxa_fixa,
+    descricao: `Taxa administrativa reduzida do plano ${plano.nome}`,
+  };
+}
+
 
 const n = (v: unknown) => Number(v ?? 0) || 0;
 const arred = (v: number) => Math.round(v * 100) / 100;
