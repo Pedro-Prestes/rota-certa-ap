@@ -275,6 +275,23 @@ export async function confirmarPagamentoSessao(session: any, env: StripeEnv) {
     return;
   }
 
+  // Créditos pré-pagos aplicados na corrida saem da carteira do usuário.
+  const creditoUsado = arred(Number(session.metadata?.creditoCentavos ?? 0) / 100);
+  if (creditoUsado > 0) {
+    await supabaseAdmin.from("carteira_transacoes").insert({
+      user_id: userId,
+      tipo: "debito_corrida",
+      valor: creditoUsado,
+      descricao: "Créditos aplicados no pagamento da corrida",
+      corrida_id: corridaId,
+      pagamento_id: pagamento.id,
+      referencia_externa: `sessao:${session.id}:debito`,
+      environment: env,
+    });
+  }
+
+
+
   const comp = competencia();
   const lancamentos = [
     {
