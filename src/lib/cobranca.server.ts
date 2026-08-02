@@ -202,7 +202,7 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
     },
   });
 
-  return { clientSecret: session.client_secret ?? "", composicao };
+  return { clientSecret: session.client_secret ?? "", composicao, creditoUsado };
 }
 
 function formaDoCharge(charge: Stripe.Charge | null): "pix" | "credito" | "debito" {
