@@ -107,11 +107,17 @@ export async function criarCheckoutCorrida(dados: EntradaCheckout) {
     if (!admin) throw new Error("Você não tem permissão para cobrar esta corrida.");
   }
 
-  const base = arred(dados.valorBase && dados.valorBase > 0 ? dados.valorBase : aberto);
-  if (base < 1) throw new Error("Não há saldo em aberto para cobrar nesta corrida.");
+  const baseTotal = arred(dados.valorBase && dados.valorBase > 0 ? dados.valorBase : aberto);
+  if (baseTotal < 1) throw new Error("Não há saldo em aberto para cobrar nesta corrida.");
 
-  const cfg = await carregarConfig();
+  // Créditos pré-pagos abatem a base, sempre deixando ao menos R$ 1 a cobrar.
+  const { saldo } = await carteiraDoUsuario(corrida.user_id, dados.environment);
+  const creditoUsado = arred(Math.max(0, Math.min(saldo, baseTotal - 1)));
+  const base = arred(baseTotal - creditoUsado);
+
+  const cfg = await configDoUsuario(corrida.user_id, dados.environment);
   const composicao = comporCobranca(base, cfg);
+
 
   const stripe = createStripeClient(dados.environment);
   const customer = await resolverCliente(stripe, { email: dados.email, userId: dados.userId });
