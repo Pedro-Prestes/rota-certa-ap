@@ -76,6 +76,60 @@ export type Database = {
           },
         ]
       }
+      carteira_transacoes: {
+        Row: {
+          corrida_id: string | null
+          created_at: string
+          descricao: string | null
+          environment: string
+          id: string
+          pagamento_id: string | null
+          referencia_externa: string | null
+          tipo: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          corrida_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          environment?: string
+          id?: string
+          pagamento_id?: string | null
+          referencia_externa?: string | null
+          tipo: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          corrida_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          environment?: string
+          id?: string
+          pagamento_id?: string | null
+          referencia_externa?: string | null
+          tipo?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carteira_transacoes_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carteira_transacoes_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       codigos_sms: {
         Row: {
           codigo_hash: string
@@ -357,6 +411,36 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          created_at: string
+          id: string
+          lida: boolean
+          mensagem: string
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lida?: boolean
+          mensagem: string
+          tipo?: string
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lida?: boolean
+          mensagem?: string
+          tipo?: string
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pagamentos: {
         Row: {
           autorizacao: string | null
@@ -485,6 +569,54 @@ export type Database = {
           nome_completo?: string
           telefone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          price_id: string
+          product_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          price_id: string
+          product_id: string
+          status?: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          price_id?: string
+          product_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -688,6 +820,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      saldo_carteira: {
+        Args: { _env?: string; _user_id: string }
+        Returns: number
+      }
+      tem_plano_ativo: {
+        Args: { _env?: string; _user_id: string }
         Returns: boolean
       }
     }
