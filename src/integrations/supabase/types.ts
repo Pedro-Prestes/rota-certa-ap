@@ -748,6 +748,54 @@ export type Database = {
         }
         Relationships: []
       }
+      verificacoes_biometricas: {
+        Row: {
+          concluido_em: string | null
+          created_at: string
+          id: string
+          imagem_hash: string | null
+          imagem_path: string | null
+          motivo: string | null
+          pendencias: string[]
+          perfil: string
+          prova_vida: Json
+          qualidade: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          concluido_em?: string | null
+          created_at?: string
+          id?: string
+          imagem_hash?: string | null
+          imagem_path?: string | null
+          motivo?: string | null
+          pendencias?: string[]
+          perfil?: string
+          prova_vida?: Json
+          qualidade?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          concluido_em?: string | null
+          created_at?: string
+          id?: string
+          imagem_hash?: string | null
+          imagem_path?: string | null
+          motivo?: string | null
+          pendencias?: string[]
+          perfil?: string
+          prova_vida?: Json
+          qualidade?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       verificacoes_idoneidade: {
         Row: {
           alvo: Database["public"]["Enums"]["alvo_verificacao"]
@@ -815,6 +863,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

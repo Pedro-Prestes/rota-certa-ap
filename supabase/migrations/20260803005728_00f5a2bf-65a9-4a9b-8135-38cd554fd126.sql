@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.biometria_aprovada(UUID) FROM authenticated;

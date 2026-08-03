@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Brain, Car, CheckCircle2, Plus, Route as RouteIcon } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP, viagens } from "@/lib/dados";
 import { anoMinimoPermitido, brl, calcularTarifa, veiculoElegivel } from "@/lib/logistica";
 
@@ -65,9 +66,11 @@ function Motorista() {
         </div>
 
         <div className="mt-7">
-          {aba === "rotas" && <AbaRotas />}
-          {aba === "veiculo" && <AbaVeiculo />}
-          {aba === "avisos" && <AbaAvisos />}
+          <PortaoBiometriaMotorista>
+            {aba === "rotas" && <AbaRotas />}
+            {aba === "veiculo" && <AbaVeiculo />}
+            {aba === "avisos" && <AbaAvisos />}
+          </PortaoBiometriaMotorista>
         </div>
       </main>
     </div>

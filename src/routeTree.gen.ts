@@ -18,6 +18,7 @@ import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
+import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
@@ -69,6 +70,11 @@ const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   path: '/auditoria',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
+  id: '/biometria',
+  path: '/biometria',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   id: '/conta',
   path: '/conta',
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
+  '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
+  '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
+  '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/auditoria'
+    | '/biometria'
     | '/conta'
     | '/contabil'
     | '/pagamentos'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/auditoria'
+    | '/biometria'
     | '/conta'
     | '/contabil'
     | '/pagamentos'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/auditoria'
+    | '/_authenticated/biometria'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
     | '/_authenticated/pagamentos'
@@ -280,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditoriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/biometria': {
+      id: '/_authenticated/biometria'
+      path: '/biometria'
+      fullPath: '/biometria'
+      preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/conta': {
       id: '/_authenticated/conta'
       path: '/conta'
@@ -328,6 +347,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
+  AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
@@ -338,6 +358,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
+  AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
@@ -361,13 +382,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
