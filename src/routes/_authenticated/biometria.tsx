@@ -96,7 +96,10 @@ function Biometria() {
 
   const abrirSelfie = async (id: string) => {
     const r = await verSelfieBiometria({ data: { id } });
-    if ("error" in r) return toast.error(r.error as string);
+    if ("error" in r) {
+      toast.error(r.error as string);
+      return;
+    }
     window.open(r.url, "_blank", "noopener,noreferrer");
   };
 
