@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Json } from "@/integrations/supabase/types";
 import { registrarEvento } from "./blockchain.server";
 import { avaliarProvaVida, type PerfilBiometria, type ProvaVida } from "./biometria";
 
@@ -46,7 +47,7 @@ export async function registrarBiometria(params: {
       imagem_path: path,
       imagem_hash: hash,
       qualidade: avaliacao.qualidade,
-      prova_vida: params.provaVida as unknown as Record<string, unknown>,
+      prova_vida: params.provaVida as unknown as Json,
       pendencias: avaliacao.pendencias,
       motivo: avaliacao.pendencias[0] ?? null,
       concluido_em: new Date().toISOString(),
