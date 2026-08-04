@@ -24,6 +24,7 @@ import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
+import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -101,6 +102,12 @@ const AuthenticatedVerificacaoRoute =
     path: '/verificacao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicAssinaturasRenovarRoute =
+  ApiPublicAssinaturasRenovarRouteImport.update({
+    id: '/api/public/assinaturas/renovar',
+    path: '/api/public/assinaturas/renovar',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -140,6 +148,7 @@ export interface FileRoutesByTo {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -159,6 +168,7 @@ export interface FileRoutesById {
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/planos'
     | '/verificacao'
+    | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/planos'
     | '/verificacao'
+    | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
     | '/_authenticated/verificacao'
+    | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -224,6 +237,7 @@ export interface RootRouteChildren {
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -334,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVerificacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/assinaturas/renovar': {
+      id: '/api/public/assinaturas/renovar'
+      path: '/api/public/assinaturas/renovar'
+      fullPath: '/api/public/assinaturas/renovar'
+      preLoaderRoute: typeof ApiPublicAssinaturasRenovarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -377,6 +398,7 @@ const rootRouteChildren: RootRouteChildren = {
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

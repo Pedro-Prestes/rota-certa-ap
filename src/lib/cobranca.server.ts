@@ -4,16 +4,22 @@ import { createStripeClient, type StripeEnv } from "./stripe.server";
 import { registrarEvento } from "./blockchain.server";
 import { CONFIG_PADRAO, comporCobranca, type ConfigTaxa } from "./taxas";
 import { assinaturaVigente, carteiraDoUsuario } from "./assinatura.server";
+import { assinaturaCarteiraVigente } from "./assinatura-carteira.server";
 import { planoDoPrice } from "./planos";
 
 /**
- * Configuração de taxa aplicável ao usuário: se ele tem plano ativo, valem os
- * percentuais reduzidos do plano; caso contrário, a configuração da plataforma.
+ * Configuração de taxa aplicável ao usuário: se ele tem plano ativo (pago no
+ * provedor ou com créditos da carteira), valem os percentuais reduzidos do
+ * plano; caso contrário, a configuração da plataforma.
  */
 export async function configDoUsuario(userId: string, env: StripeEnv): Promise<ConfigTaxa> {
   const base = await carregarConfig();
-  const sub = await assinaturaVigente(userId, env);
-  const plano = sub ? planoDoPrice(sub.price_id) : undefined;
+  const [sub, subCarteira] = await Promise.all([
+    assinaturaVigente(userId, env),
+    assinaturaCarteiraVigente(userId, env),
+  ]);
+  const priceId = sub?.price_id ?? subCarteira?.price_id;
+  const plano = priceId ? planoDoPrice(priceId) : undefined;
   if (!plano) return base;
   return {
     ...base,
@@ -22,6 +28,7 @@ export async function configDoUsuario(userId: string, env: StripeEnv): Promise<C
     descricao: `Taxa administrativa reduzida do plano ${plano.nome}`,
   };
 }
+
 
 
 const n = (v: unknown) => Number(v ?? 0) || 0;
