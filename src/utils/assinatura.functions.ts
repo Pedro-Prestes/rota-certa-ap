@@ -32,6 +32,17 @@ export const criarCheckoutPlano = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }): Promise<{ clientSecret: string } | { error: string }> => {
     try {
+      const { assinaturaCarteiraVigente } = await import("@/lib/assinatura-carteira.server");
+      const { precoPorId } = await import("@/lib/planos");
+      if (precoPorId(data.priceId)) {
+        const carteira = await assinaturaCarteiraVigente(context.userId, data.environment);
+        if (carteira) {
+          return {
+            error:
+              "Você já tem um plano ativo pago com créditos. Cancele-o antes de assinar pelo provedor.",
+          };
+        }
+      }
       return await criarCheckoutProduto({
         priceId: data.priceId,
         userId: context.userId,
@@ -43,6 +54,7 @@ export const criarCheckoutPlano = createServerFn({ method: "POST" })
       return { error: getStripeErrorMessage(error) };
     }
   });
+
 
 export const abrirPortalCobranca = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
