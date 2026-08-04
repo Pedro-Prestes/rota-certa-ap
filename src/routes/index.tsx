@@ -17,13 +17,13 @@ import { anoMinimoPermitido } from "@/lib/logistica";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RotaViva — transporte intermunicipal agendado no Amapá" },
+      { title: "RotaCerta — transporte intermunicipal agendado no Amapá" },
       {
         name: "description",
         content:
           "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas entre sedes, distritos e vilarejos do Amapá. Para motoristas e passageiros.",
       },
-      { property: "og:title", content: "RotaViva — transporte intermunicipal agendado no Amapá" },
+      { property: "og:title", content: "RotaCerta — transporte intermunicipal agendado no Amapá" },
       {
         property: "og:description",
         content:
