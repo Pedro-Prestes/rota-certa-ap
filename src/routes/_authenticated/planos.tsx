@@ -97,10 +97,21 @@ function CheckoutProduto({ priceId, onFechar }: { priceId: string; onFechar: () 
   );
 }
 
+interface AssinaturaCarteira {
+  id: string;
+  price_id: string;
+  status: string;
+  valor_mensal: number;
+  periodo_fim: string;
+  proxima_cobranca: string;
+  cancelar_no_fim: boolean;
+}
+
 function PlanosPage() {
   const { user } = useAuth();
   const env = getStripeEnvironment();
   const [assinatura, setAssinatura] = useState<Assinatura | null>(null);
+  const [porCreditos, setPorCreditos] = useState<AssinaturaCarteira | null>(null);
   const [saldo, setSaldo] = useState(0);
   const [extrato, setExtrato] = useState<any[]>([]);
   const [checkout, setCheckout] = useState<string | null>(null);
@@ -117,6 +128,14 @@ function PlanosPage() {
       .limit(1)
       .maybeSingle();
     setAssinatura(data && assinaturaAtiva(data) ? (data as Assinatura) : null);
+    const carteiraPlano = await consultarAssinaturaCreditos({ data: { environment: env } });
+    setPorCreditos(
+      carteiraPlano &&
+        (carteiraPlano.status !== "cancelada" || carteiraPlano.cancelar_no_fim) &&
+        new Date(carteiraPlano.periodo_fim).getTime() > Date.now()
+        ? (carteiraPlano as unknown as AssinaturaCarteira)
+        : null,
+    );
     const carteira = await consultarCarteira({ data: { environment: env } });
     setSaldo(carteira.saldo);
     setExtrato(carteira.transacoes);
@@ -127,7 +146,11 @@ function PlanosPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const planoAtual = assinatura ? planoDoPrice(assinatura.price_id) : undefined;
+  const planoAtual = assinatura
+    ? planoDoPrice(assinatura.price_id)
+    : porCreditos
+      ? planoDoPrice(porCreditos.price_id)
+      : undefined;
 
   const acao = async (fn: () => Promise<void>) => {
     setOcupado(true);
@@ -164,6 +187,32 @@ function PlanosPage() {
       await recarregar();
     });
 
+  const assinarCreditos = (priceId: string) =>
+    acao(async () => {
+      const r = await assinarComCreditos({ data: { priceId, environment: env } });
+      if (r && "error" in r) throw new Error(r.error);
+      toast.success("Plano ativado com créditos da carteira.");
+      await recarregar();
+    });
+
+  const trocarCreditos = (priceId: string) =>
+    acao(async () => {
+      const r = await trocarPlanoCreditos({ data: { priceId, environment: env } });
+      if (r && "error" in r) throw new Error(r.error);
+      toast.success("Troca agendada para a próxima renovação.");
+      await recarregar();
+    });
+
+  const cancelarCreditos = (imediato: boolean) =>
+    acao(async () => {
+      const r = await encerrarPlanoCreditos({ data: { imediato, environment: env } });
+      if (r && "error" in r) throw new Error(r.error);
+      toast.success(
+        imediato ? "Plano com créditos encerrado agora." : "Sem novo débito: o plano vale até o fim do período.",
+      );
+      await recarregar();
+    });
+
   const portal = () =>
     acao(async () => {
       const r = await abrirPortalCobranca({
@@ -172,6 +221,7 @@ function PlanosPage() {
       if ("error" in r) throw new Error(r.error);
       window.open(r.url, "_blank", "noopener,noreferrer");
     });
+
 
   return (
     <div>
