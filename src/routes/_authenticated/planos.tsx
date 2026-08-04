@@ -349,19 +349,22 @@ function PlanosPage() {
                 </ul>
                 <div className="mt-5 space-y-2">
                   {plano.precos.map((preco) => {
-                    const atual = assinatura?.price_id === preco.priceId;
+                    const atual =
+                      assinatura?.price_id === preco.priceId || porCreditos?.price_id === preco.priceId;
                     const troca = assinatura ? classificarTroca(assinatura.price_id, preco.priceId) : null;
+                    const mensal = preco.periodicidade === "mensal";
+                    const saldoSuficiente = saldo + 0.001 >= preco.valor;
                     return (
                       <div
                         key={preco.priceId}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
                       >
                         <div>
                           <p className="font-semibold">{preco.rotulo}</p>
                           <p className="text-xs text-muted-foreground">
                             {preco.periodicidade === "anual"
                               ? `Equivale a ${brl(preco.valorMensalEquivalente)}/mês`
-                              : "Cobrança mensal recorrente"}
+                              : "Cartão recorrente ou débito mensal de créditos (Pix)"}
                           </p>
                         </div>
                         {atual ? (
@@ -381,17 +384,48 @@ function PlanosPage() {
                             )}
                             {troca === "upgrade" ? "Fazer upgrade" : "Fazer downgrade"}
                           </button>
+                        ) : porCreditos ? (
+                          mensal ? (
+                            <button
+                              onClick={() => trocarCreditos(preco.priceId)}
+                              disabled={ocupado}
+                              className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary disabled:opacity-50"
+                            >
+                              Trocar na renovação
+                            </button>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Disponível após encerrar o plano por créditos
+                            </span>
+                          )
                         ) : (
-                          <button
-                            onClick={() => setCheckout(preco.priceId)}
-                            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-                          >
-                            Assinar
-                          </button>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => setCheckout(preco.priceId)}
+                              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                            >
+                              Assinar no cartão
+                            </button>
+                            {mensal && (
+                              <button
+                                onClick={() => assinarCreditos(preco.priceId)}
+                                disabled={ocupado || !saldoSuficiente}
+                                title={
+                                  saldoSuficiente
+                                    ? "Debita o valor do saldo agora e a cada mês"
+                                    : "Compre créditos por Pix para usar esta opção"
+                                }
+                                className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary disabled:opacity-50"
+                              >
+                                <Wallet className="size-4" /> Pagar com créditos (Pix)
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     );
                   })}
+
                 </div>
                 {assinatura && (
                   <p className="mt-3 text-xs text-muted-foreground">
