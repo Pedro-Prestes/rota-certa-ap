@@ -32,6 +32,54 @@ export type Database = {
         }
         Relationships: []
       }
+      assinaturas_carteira: {
+        Row: {
+          cancelar_no_fim: boolean
+          created_at: string
+          environment: string
+          id: string
+          periodo_fim: string
+          periodo_inicio: string
+          price_id: string
+          proxima_cobranca: string
+          status: string
+          tentativas: number
+          updated_at: string
+          user_id: string
+          valor_mensal: number
+        }
+        Insert: {
+          cancelar_no_fim?: boolean
+          created_at?: string
+          environment?: string
+          id?: string
+          periodo_fim: string
+          periodo_inicio?: string
+          price_id: string
+          proxima_cobranca: string
+          status?: string
+          tentativas?: number
+          updated_at?: string
+          user_id: string
+          valor_mensal: number
+        }
+        Update: {
+          cancelar_no_fim?: boolean
+          created_at?: string
+          environment?: string
+          id?: string
+          periodo_fim?: string
+          periodo_inicio?: string
+          price_id?: string
+          proxima_cobranca?: string
+          status?: string
+          tentativas?: number
+          updated_at?: string
+          user_id?: string
+          valor_mensal?: number
+        }
+        Relationships: []
+      }
       blockchain_blocos: {
         Row: {
           corrida_id: string | null
@@ -876,6 +924,10 @@ export type Database = {
         Returns: number
       }
       tem_plano_ativo: {
+        Args: { _env?: string; _user_id: string }
+        Returns: boolean
+      }
+      tem_plano_carteira_ativo: {
         Args: { _env?: string; _user_id: string }
         Returns: boolean
       }
