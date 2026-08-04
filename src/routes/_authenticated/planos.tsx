@@ -483,11 +483,12 @@ function PlanosPage() {
                     <td className="px-4 py-3">{t.descricao ?? t.tipo}</td>
                     <td
                       className={`px-4 py-3 text-right font-medium ${
-                        t.tipo === "debito_corrida" ? "text-destructive" : "text-primary"
+                        t.tipo.startsWith("debito_") ? "text-destructive" : "text-primary"
                       }`}
                     >
-                      {t.tipo === "debito_corrida" ? "-" : "+"}
+                      {t.tipo.startsWith("debito_") ? "-" : "+"}
                       {brl(Number(t.valor))}
+
                     </td>
                   </tr>
                 ))}
