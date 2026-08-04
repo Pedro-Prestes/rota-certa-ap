@@ -15,6 +15,13 @@ import {
   criarCheckoutPlano,
   encerrarPlano,
 } from "@/utils/assinatura.functions";
+import {
+  assinarComCreditos,
+  consultarAssinaturaCreditos,
+  encerrarPlanoCreditos,
+  trocarPlanoCreditos,
+} from "@/utils/assinatura-carteira.functions";
+
 
 export const Route = createFileRoute("/_authenticated/planos")({
   head: () => ({
@@ -97,10 +104,21 @@ function CheckoutProduto({ priceId, onFechar }: { priceId: string; onFechar: () 
   );
 }
 
+interface AssinaturaCarteira {
+  id: string;
+  price_id: string;
+  status: string;
+  valor_mensal: number;
+  periodo_fim: string;
+  proxima_cobranca: string;
+  cancelar_no_fim: boolean;
+}
+
 function PlanosPage() {
   const { user } = useAuth();
   const env = getStripeEnvironment();
   const [assinatura, setAssinatura] = useState<Assinatura | null>(null);
+  const [porCreditos, setPorCreditos] = useState<AssinaturaCarteira | null>(null);
   const [saldo, setSaldo] = useState(0);
   const [extrato, setExtrato] = useState<any[]>([]);
   const [checkout, setCheckout] = useState<string | null>(null);
@@ -117,6 +135,14 @@ function PlanosPage() {
       .limit(1)
       .maybeSingle();
     setAssinatura(data && assinaturaAtiva(data) ? (data as Assinatura) : null);
+    const carteiraPlano = await consultarAssinaturaCreditos({ data: { environment: env } });
+    setPorCreditos(
+      carteiraPlano &&
+        (carteiraPlano.status !== "cancelada" || carteiraPlano.cancelar_no_fim) &&
+        new Date(carteiraPlano.periodo_fim).getTime() > Date.now()
+        ? (carteiraPlano as unknown as AssinaturaCarteira)
+        : null,
+    );
     const carteira = await consultarCarteira({ data: { environment: env } });
     setSaldo(carteira.saldo);
     setExtrato(carteira.transacoes);
@@ -127,7 +153,11 @@ function PlanosPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const planoAtual = assinatura ? planoDoPrice(assinatura.price_id) : undefined;
+  const planoAtual = assinatura
+    ? planoDoPrice(assinatura.price_id)
+    : porCreditos
+      ? planoDoPrice(porCreditos.price_id)
+      : undefined;
 
   const acao = async (fn: () => Promise<void>) => {
     setOcupado(true);
@@ -164,6 +194,32 @@ function PlanosPage() {
       await recarregar();
     });
 
+  const assinarCreditos = (priceId: string) =>
+    acao(async () => {
+      const r = await assinarComCreditos({ data: { priceId, environment: env } });
+      if (r && "error" in r) throw new Error(r.error);
+      toast.success("Plano ativado com créditos da carteira.");
+      await recarregar();
+    });
+
+  const trocarCreditos = (priceId: string) =>
+    acao(async () => {
+      const r = await trocarPlanoCreditos({ data: { priceId, environment: env } });
+      if (r && "error" in r) throw new Error(r.error);
+      toast.success("Troca agendada para a próxima renovação.");
+      await recarregar();
+    });
+
+  const cancelarCreditos = (imediato: boolean) =>
+    acao(async () => {
+      const r = await encerrarPlanoCreditos({ data: { imediato, environment: env } });
+      if (r && "error" in r) throw new Error(r.error);
+      toast.success(
+        imediato ? "Plano com créditos encerrado agora." : "Sem novo débito: o plano vale até o fim do período.",
+      );
+      await recarregar();
+    });
+
   const portal = () =>
     acao(async () => {
       const r = await abrirPortalCobranca({
@@ -172,6 +228,7 @@ function PlanosPage() {
       if ("error" in r) throw new Error(r.error);
       window.open(r.url, "_blank", "noopener,noreferrer");
     });
+
 
   return (
     <div>
@@ -201,6 +258,15 @@ function PlanosPage() {
                 <p className="text-xs text-muted-foreground">
                   {assinatura.cancel_at_period_end ? "Acesso até " : "Renova em "}
                   {new Date(assinatura.current_period_end).toLocaleDateString("pt-BR")}
+                </p>
+              )}
+              {!assinatura && porCreditos && (
+                <p className="text-xs text-muted-foreground">
+                  Pago com créditos ·{" "}
+                  {porCreditos.cancelar_no_fim ? "Acesso até " : "Próximo débito em "}
+                  {new Date(
+                    porCreditos.cancelar_no_fim ? porCreditos.periodo_fim : porCreditos.proxima_cobranca,
+                  ).toLocaleDateString("pt-BR")}
                 </p>
               )}
             </div>
@@ -233,6 +299,34 @@ function PlanosPage() {
               </button>
             </div>
           )}
+
+          {!assinatura && porCreditos && (
+            <div className="mt-5 space-y-3">
+              <p className="rounded-xl bg-secondary px-4 py-3 text-xs text-muted-foreground">
+                Assinatura paga com créditos: {brl(Number(porCreditos.valor_mensal))} são debitados do saldo
+                a cada mês. Mantenha a carteira abastecida por Pix para não perder o benefício — após 3
+                tentativas sem saldo o plano é encerrado.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {!porCreditos.cancelar_no_fim && (
+                  <button
+                    onClick={() => cancelarCreditos(false)}
+                    disabled={ocupado}
+                    className="rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary disabled:opacity-50"
+                  >
+                    Não renovar no próximo mês
+                  </button>
+                )}
+                <button
+                  onClick={() => cancelarCreditos(true)}
+                  disabled={ocupado}
+                  className="rounded-full border border-destructive/40 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                >
+                  Encerrar agora
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="mt-10">
@@ -255,19 +349,22 @@ function PlanosPage() {
                 </ul>
                 <div className="mt-5 space-y-2">
                   {plano.precos.map((preco) => {
-                    const atual = assinatura?.price_id === preco.priceId;
+                    const atual =
+                      assinatura?.price_id === preco.priceId || porCreditos?.price_id === preco.priceId;
                     const troca = assinatura ? classificarTroca(assinatura.price_id, preco.priceId) : null;
+                    const mensal = preco.periodicidade === "mensal";
+                    const saldoSuficiente = saldo + 0.001 >= preco.valor;
                     return (
                       <div
                         key={preco.priceId}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
                       >
                         <div>
                           <p className="font-semibold">{preco.rotulo}</p>
                           <p className="text-xs text-muted-foreground">
                             {preco.periodicidade === "anual"
                               ? `Equivale a ${brl(preco.valorMensalEquivalente)}/mês`
-                              : "Cobrança mensal recorrente"}
+                              : "Cartão recorrente ou débito mensal de créditos (Pix)"}
                           </p>
                         </div>
                         {atual ? (
@@ -287,17 +384,48 @@ function PlanosPage() {
                             )}
                             {troca === "upgrade" ? "Fazer upgrade" : "Fazer downgrade"}
                           </button>
+                        ) : porCreditos ? (
+                          mensal ? (
+                            <button
+                              onClick={() => trocarCreditos(preco.priceId)}
+                              disabled={ocupado}
+                              className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary disabled:opacity-50"
+                            >
+                              Trocar na renovação
+                            </button>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Disponível após encerrar o plano por créditos
+                            </span>
+                          )
                         ) : (
-                          <button
-                            onClick={() => setCheckout(preco.priceId)}
-                            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-                          >
-                            Assinar
-                          </button>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => setCheckout(preco.priceId)}
+                              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                            >
+                              Assinar no cartão
+                            </button>
+                            {mensal && (
+                              <button
+                                onClick={() => assinarCreditos(preco.priceId)}
+                                disabled={ocupado || !saldoSuficiente}
+                                title={
+                                  saldoSuficiente
+                                    ? "Debita o valor do saldo agora e a cada mês"
+                                    : "Compre créditos por Pix para usar esta opção"
+                                }
+                                className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary disabled:opacity-50"
+                              >
+                                <Wallet className="size-4" /> Pagar com créditos (Pix)
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     );
                   })}
+
                 </div>
                 {assinatura && (
                   <p className="mt-3 text-xs text-muted-foreground">
@@ -355,11 +483,12 @@ function PlanosPage() {
                     <td className="px-4 py-3">{t.descricao ?? t.tipo}</td>
                     <td
                       className={`px-4 py-3 text-right font-medium ${
-                        t.tipo === "debito_corrida" ? "text-destructive" : "text-primary"
+                        t.tipo.startsWith("debito_") ? "text-destructive" : "text-primary"
                       }`}
                     >
-                      {t.tipo === "debito_corrida" ? "-" : "+"}
+                      {t.tipo.startsWith("debito_") ? "-" : "+"}
                       {brl(Number(t.valor))}
+
                     </td>
                   </tr>
                 ))}
