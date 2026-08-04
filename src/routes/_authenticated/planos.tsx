@@ -15,6 +15,13 @@ import {
   criarCheckoutPlano,
   encerrarPlano,
 } from "@/utils/assinatura.functions";
+import {
+  assinarComCreditos,
+  consultarAssinaturaCreditos,
+  encerrarPlanoCreditos,
+  trocarPlanoCreditos,
+} from "@/utils/assinatura-carteira.functions";
+
 
 export const Route = createFileRoute("/_authenticated/planos")({
   head: () => ({
