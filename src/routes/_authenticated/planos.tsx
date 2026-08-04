@@ -260,6 +260,15 @@ function PlanosPage() {
                   {new Date(assinatura.current_period_end).toLocaleDateString("pt-BR")}
                 </p>
               )}
+              {!assinatura && porCreditos && (
+                <p className="text-xs text-muted-foreground">
+                  Pago com créditos ·{" "}
+                  {porCreditos.cancelar_no_fim ? "Acesso até " : "Próximo débito em "}
+                  {new Date(
+                    porCreditos.cancelar_no_fim ? porCreditos.periodo_fim : porCreditos.proxima_cobranca,
+                  ).toLocaleDateString("pt-BR")}
+                </p>
+              )}
             </div>
           </div>
 
@@ -290,6 +299,36 @@ function PlanosPage() {
               </button>
             </div>
           )}
+
+          {!assinatura && porCreditos && (
+            <div className="mt-5 space-y-3">
+              <p className="rounded-xl bg-secondary px-4 py-3 text-xs text-muted-foreground">
+                Assinatura paga com créditos: {brl(Number(porCreditos.valor_mensal))} são debitados do saldo
+                a cada mês. Mantenha a carteira abastecida por Pix para não perder o benefício — após 3
+                tentativas sem saldo o plano é encerrado.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {!porCreditos.cancelar_no_fim && (
+                  <button
+                    onClick={() => cancelarCreditos(false)}
+                    disabled={ocupado}
+                    className="rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary disabled:opacity-50"
+                  >
+                    Não renovar no próximo mês
+                  </button>
+                )}
+                <button
+                  onClick={() => cancelarCreditos(true)}
+                  disabled={ocupado}
+                  className="rounded-full border border-destructive/40 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                >
+                  Encerrar agora
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
         </section>
 
         <section className="mt-10">
