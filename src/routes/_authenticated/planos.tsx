@@ -329,8 +329,6 @@ function PlanosPage() {
           )}
         </section>
 
-        </section>
-
         <section className="mt-10">
           <h2 className="font-display text-xl font-bold">Assinaturas</h2>
           <div className="mt-4 grid gap-5 md:grid-cols-2">
