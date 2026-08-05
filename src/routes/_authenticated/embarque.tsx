@@ -158,18 +158,18 @@ function Embarque() {
       if (erroLeitura) throw erroLeitura;
 
       // Aceitar a contraproposta adota o endereço e as coordenadas sugeridas.
+      const adocao =
+        atual.contra_endereco && atual.contra_latitude != null && atual.contra_longitude != null
+          ? {
+              endereco: atual.contra_endereco,
+              latitude: atual.contra_latitude,
+              longitude: atual.contra_longitude,
+            }
+          : {};
+
       const { error } = await supabase
         .from("pontos_embarque")
-        .update(
-          dados.aceitar
-            ? {
-                status: "aceito",
-                endereco: atual.contra_endereco ?? undefined,
-                latitude: atual.contra_latitude ?? undefined,
-                longitude: atual.contra_longitude ?? undefined,
-              }
-            : { status: "cancelado" },
-        )
+        .update(dados.aceitar ? { status: "aceito", ...adocao } : { status: "cancelado" })
         .eq("id", dados.id);
       if (error) throw error;
     },
