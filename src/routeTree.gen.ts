@@ -21,6 +21,7 @@ import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
+import { Route as AuthenticatedEmbarqueRouteImport } from './routes/_authenticated/embarque'
 import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticated/frotista'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
@@ -87,6 +88,11 @@ const AuthenticatedContabilRoute = AuthenticatedContabilRouteImport.update({
   path: '/contabil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEmbarqueRoute = AuthenticatedEmbarqueRouteImport.update({
+  id: '/embarque',
+  path: '/embarque',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFrotistaRoute = AuthenticatedFrotistaRouteImport.update({
   id: '/frotista',
   path: '/frotista',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/embarque': typeof AuthenticatedEmbarqueRoute
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/embarque': typeof AuthenticatedEmbarqueRoute
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
+  '/_authenticated/embarque': typeof AuthenticatedEmbarqueRoute
   '/_authenticated/frotista': typeof AuthenticatedFrotistaRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/biometria'
     | '/conta'
     | '/contabil'
+    | '/embarque'
     | '/frotista'
     | '/pagamentos'
     | '/planos'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/biometria'
     | '/conta'
     | '/contabil'
+    | '/embarque'
     | '/frotista'
     | '/pagamentos'
     | '/planos'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/_authenticated/biometria'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
+    | '/_authenticated/embarque'
     | '/_authenticated/frotista'
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
@@ -339,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContabilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/embarque': {
+      id: '/_authenticated/embarque'
+      path: '/embarque'
+      fullPath: '/embarque'
+      preLoaderRoute: typeof AuthenticatedEmbarqueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/frotista': {
       id: '/_authenticated/frotista'
       path: '/frotista'
@@ -390,6 +409,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
+  AuthenticatedEmbarqueRoute: typeof AuthenticatedEmbarqueRoute
   AuthenticatedFrotistaRoute: typeof AuthenticatedFrotistaRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
@@ -402,6 +422,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
+  AuthenticatedEmbarqueRoute: AuthenticatedEmbarqueRoute,
   AuthenticatedFrotistaRoute: AuthenticatedFrotistaRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
@@ -425,13 +446,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

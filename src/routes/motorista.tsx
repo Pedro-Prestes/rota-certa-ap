@@ -8,6 +8,7 @@ import {
   Car,
   CheckCircle2,
   Loader2,
+  MapPin,
   Plus,
   Route as RouteIcon,
   Wrench,
@@ -15,6 +16,7 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
 import { supabase } from "@/integrations/supabase/client";
+import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, localidadesAP } from "@/lib/dados";
 import { brl, calcularTarifa } from "@/lib/logistica";
@@ -150,7 +152,7 @@ function useDadosMotorista() {
 }
 
 function Motorista() {
-  const [aba, setAba] = useState<"rotas" | "veiculo" | "avisos">("rotas");
+  const [aba, setAba] = useState<"rotas" | "embarques" | "veiculo" | "avisos">("rotas");
   const { user, carregando } = useAuth();
 
   return (
@@ -167,6 +169,7 @@ function Motorista() {
           {(
             [
               ["rotas", "Rotas e horários", RouteIcon],
+              ["embarques", "Embarques", MapPin],
               ["veiculo", "Frota", Car],
               ["avisos", "Manutenção", Wrench],
             ] as const
@@ -202,6 +205,7 @@ function Motorista() {
           ) : (
             <PortaoBiometriaMotorista>
               {aba === "rotas" && <AbaRotas />}
+              {aba === "embarques" && <AbaEmbarques />}
               {aba === "veiculo" && <AbaFrota />}
               {aba === "avisos" && <AbaManutencao />}
             </PortaoBiometriaMotorista>
@@ -215,6 +219,25 @@ function Motorista() {
 /* ------------------------------------------------------------------ */
 /* Rotas e vínculo de veículos                                         */
 /* ------------------------------------------------------------------ */
+
+function AbaEmbarques() {
+  const { rotas } = useDadosMotorista();
+  const lista = (rotas.data ?? []).map((r) => ({
+    id: r.id,
+    origem: r.origem,
+    destino: r.destino,
+    saida_ida: r.saida_ida ?? null,
+  }));
+
+  if (lista.length === 0) {
+    return (
+      <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        Publique uma rota para começar a combinar pontos de embarque com os passageiros.
+      </p>
+    );
+  }
+  return <EmbarquesMotorista rotas={lista} />;
+}
 
 function AbaRotas() {
   const qc = useQueryClient();
