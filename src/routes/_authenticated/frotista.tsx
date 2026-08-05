@@ -382,7 +382,7 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
       const { error } = await supabase.from("frotista_motoristas").insert({
         frotista_id: empresa.id,
         nome: motorista.nome.trim(),
-        cpf: somenteDigitos(motorista.cpf) || null,
+        cpf: somenteDigitos(motorista.cpf),
         cnh: motorista.cnh.trim() || null,
         telefone: motorista.telefone.trim() || null,
       });
