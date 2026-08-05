@@ -178,6 +178,65 @@ export type Database = {
           },
         ]
       }
+      coberturas_seguro: {
+        Row: {
+          assentos: number
+          created_at: string
+          data_viagem: string | null
+          environment: string
+          id: string
+          modalidade: string
+          price_id: string
+          rota_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          valor: number
+          vigencia_fim: string
+          vigencia_inicio: string
+        }
+        Insert: {
+          assentos?: number
+          created_at?: string
+          data_viagem?: string | null
+          environment?: string
+          id?: string
+          modalidade: string
+          price_id: string
+          rota_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          valor: number
+          vigencia_fim: string
+          vigencia_inicio?: string
+        }
+        Update: {
+          assentos?: number
+          created_at?: string
+          data_viagem?: string | null
+          environment?: string
+          id?: string
+          modalidade?: string
+          price_id?: string
+          rota_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+          vigencia_fim?: string
+          vigencia_inicio?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coberturas_seguro_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       codigos_sms: {
         Row: {
           codigo_hash: string
@@ -581,6 +640,39 @@ export type Database = {
         }
         Relationships: []
       }
+      oficinas: {
+        Row: {
+          created_at: string
+          endereco: string
+          id: string
+          nome: string
+          preferida: boolean
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endereco: string
+          id?: string
+          nome: string
+          preferida?: boolean
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endereco?: string
+          id?: string
+          nome?: string
+          preferida?: boolean
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pagamentos: {
         Row: {
           autorizacao: string | null
@@ -952,6 +1044,104 @@ export type Database = {
           },
         ]
       }
+      sinistros: {
+        Row: {
+          cobertura_id: string | null
+          concluido_em: string | null
+          created_at: string
+          descricao: string | null
+          despachado_em: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          motorista_id: string
+          oficina_id: string | null
+          passageiros_afetados: number
+          reboque_em: string | null
+          status: string
+          substituto_eta: string | null
+          substituto_motorista: string | null
+          substituto_placa: string | null
+          tipo_pane: string
+          updated_at: string
+          veiculo_id: string | null
+          viagem_id: string
+        }
+        Insert: {
+          cobertura_id?: string | null
+          concluido_em?: string | null
+          created_at?: string
+          descricao?: string | null
+          despachado_em?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          motorista_id: string
+          oficina_id?: string | null
+          passageiros_afetados?: number
+          reboque_em?: string | null
+          status?: string
+          substituto_eta?: string | null
+          substituto_motorista?: string | null
+          substituto_placa?: string | null
+          tipo_pane: string
+          updated_at?: string
+          veiculo_id?: string | null
+          viagem_id: string
+        }
+        Update: {
+          cobertura_id?: string | null
+          concluido_em?: string | null
+          created_at?: string
+          descricao?: string | null
+          despachado_em?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          motorista_id?: string
+          oficina_id?: string | null
+          passageiros_afetados?: number
+          reboque_em?: string | null
+          status?: string
+          substituto_eta?: string | null
+          substituto_motorista?: string | null
+          substituto_placa?: string | null
+          tipo_pane?: string
+          updated_at?: string
+          veiculo_id?: string | null
+          viagem_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sinistros_cobertura_id_fkey"
+            columns: ["cobertura_id"]
+            isOneToOne: false
+            referencedRelation: "coberturas_seguro"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sinistros_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sinistros_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sinistros_viagem_id_fkey"
+            columns: ["viagem_id"]
+            isOneToOne: false
+            referencedRelation: "viagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -1309,6 +1499,125 @@ export type Database = {
           },
         ]
       }
+      viagem_posicoes: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          precisao_m: number | null
+          registrado_em: string
+          sequencia: number
+          velocidade_kmh: number | null
+          viagem_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          precisao_m?: number | null
+          registrado_em?: string
+          sequencia: number
+          velocidade_kmh?: number | null
+          viagem_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          precisao_m?: number | null
+          registrado_em?: string
+          sequencia?: number
+          velocidade_kmh?: number | null
+          viagem_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viagem_posicoes_viagem_id_fkey"
+            columns: ["viagem_id"]
+            isOneToOne: false
+            referencedRelation: "viagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viagens: {
+        Row: {
+          concluida_em: string | null
+          created_at: string
+          data_viagem: string
+          distancia_percorrida_km: number
+          id: string
+          iniciada_em: string | null
+          motorista_id: string
+          observacoes: string | null
+          rota_id: string
+          status: string
+          ultima_latitude: number | null
+          ultima_longitude: number | null
+          ultima_posicao_em: string | null
+          ultima_velocidade_kmh: number | null
+          updated_at: string
+          veiculo_id: string | null
+          veiculo_substituto_placa: string | null
+        }
+        Insert: {
+          concluida_em?: string | null
+          created_at?: string
+          data_viagem: string
+          distancia_percorrida_km?: number
+          id?: string
+          iniciada_em?: string | null
+          motorista_id: string
+          observacoes?: string | null
+          rota_id: string
+          status?: string
+          ultima_latitude?: number | null
+          ultima_longitude?: number | null
+          ultima_posicao_em?: string | null
+          ultima_velocidade_kmh?: number | null
+          updated_at?: string
+          veiculo_id?: string | null
+          veiculo_substituto_placa?: string | null
+        }
+        Update: {
+          concluida_em?: string | null
+          created_at?: string
+          data_viagem?: string
+          distancia_percorrida_km?: number
+          id?: string
+          iniciada_em?: string | null
+          motorista_id?: string
+          observacoes?: string | null
+          rota_id?: string
+          status?: string
+          ultima_latitude?: number | null
+          ultima_longitude?: number | null
+          ultima_posicao_em?: string | null
+          ultima_velocidade_kmh?: number | null
+          updated_at?: string
+          veiculo_id?: string | null
+          veiculo_substituto_placa?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viagens_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viagens_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1321,6 +1630,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      pode_ver_viagem: {
+        Args: { _user_id: string; _viagem_id: string }
+        Returns: boolean
+      }
+      saida_protegida: {
+        Args: { _data_viagem: string; _motorista_id: string; _rota_id: string }
         Returns: boolean
       }
       saldo_carteira: {
