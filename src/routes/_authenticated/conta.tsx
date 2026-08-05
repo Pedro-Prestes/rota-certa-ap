@@ -10,13 +10,13 @@ import { useAuth, usePerfis } from "@/hooks/use-auth";
 export const Route = createFileRoute("/_authenticated/conta")({
   head: () => ({
     meta: [
-      { title: "Minha conta — RotaViva" },
+      { title: "Minha conta — RotaCerta" },
       {
         name: "description",
-        content: "Dados do perfil, tipo de conta (passageiro ou motorista) e acesso rápido às áreas do RotaViva.",
+        content: "Dados do perfil, tipo de conta (passageiro ou motorista) e acesso rápido às áreas do RotaCerta.",
       },
-      { property: "og:title", content: "Minha conta — RotaViva" },
-      { property: "og:description", content: "Painel da conta RotaViva." },
+      { property: "og:title", content: "Minha conta — RotaCerta" },
+      { property: "og:description", content: "Painel da conta RotaCerta." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

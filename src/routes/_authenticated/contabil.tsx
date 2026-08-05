@@ -32,13 +32,13 @@ import { estornarPagamento } from "@/utils/contabil.functions";
 export const Route = createFileRoute("/_authenticated/contabil")({
   head: () => ({
     meta: [
-      { title: "Controle contábil — RotaViva" },
+      { title: "Controle contábil — RotaCerta" },
       {
         name: "description",
         content:
-          "Módulo contábil do administrador master do RotaViva: taxa administrativa, custos de terceiros, estornos integrais ou parciais e demonstrativo de resultado.",
+          "Módulo contábil do administrador master do RotaCerta: taxa administrativa, custos de terceiros, estornos integrais ou parciais e demonstrativo de resultado.",
       },
-      { property: "og:title", content: "Controle contábil — RotaViva" },
+      { property: "og:title", content: "Controle contábil — RotaCerta" },
       {
         property: "og:description",
         content:

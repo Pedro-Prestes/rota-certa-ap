@@ -18,16 +18,16 @@ import { enviarBiometriaFacial, verSelfieBiometria } from "@/utils/biometria.fun
 export const Route = createFileRoute("/_authenticated/biometria")({
   head: () => ({
     meta: [
-      { title: "Biometria facial — RotaViva" },
+      { title: "Biometria facial — RotaCerta" },
       {
         name: "description",
         content:
           "Cadastro de passageiros e motoristas com biometria facial e prova de vida: selfie ao vivo, desafios de piscada e movimento, imagem em armazenamento privado e hash registrado na auditoria.",
       },
-      { property: "og:title", content: "Biometria facial — RotaViva" },
+      { property: "og:title", content: "Biometria facial — RotaCerta" },
       {
         property: "og:description",
-        content: "Verificação facial com prova de vida para passageiros e motoristas do RotaViva.",
+        content: "Verificação facial com prova de vida para passageiros e motoristas do RotaCerta.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

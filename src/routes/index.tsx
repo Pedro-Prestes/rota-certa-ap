@@ -96,10 +96,10 @@ function Home() {
               Começando pelo Amapá · expansão progressiva
             </span>
             <h1 className="mt-6 max-w-2xl text-4xl font-bold leading-[1.05] text-primary-foreground sm:text-6xl">
-              Transporte diário com hora marcada para quem mora longe do asfalto.
+              Transporte intermunicipal com hora marcada.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-primary-foreground/75 sm:text-lg">
-              O RotaViva conecta motoristas de transporte alternativo e moradores de sedes,
+              O RotaCerta conecta motoristas de transporte alternativo e moradores de sedes,
               distritos e vilarejos. Rota cadastrada, horário definido, assento reservado e pago
               antes de embarcar.
             </p>
@@ -164,7 +164,7 @@ function Home() {
         {/* Pilares */}
         <section className="border-y border-border bg-secondary/50">
           <div className="mx-auto max-w-6xl px-5 py-20">
-            <h2 className="text-3xl font-bold sm:text-4xl">Como o RotaViva funciona</h2>
+            <h2 className="text-3xl font-bold sm:text-4xl">Como o RotaCerta funciona</h2>
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {pilares.map((p) => (
                 <div key={p.titulo} className="rounded-2xl border border-border bg-card p-6">
@@ -247,7 +247,7 @@ Pa = C / (N · ρ) · (1 + m)`}</pre>
       </main>
 
       <footer className="mx-auto max-w-6xl px-5 py-10 text-xs text-muted-foreground">
-        RotaViva · protótipo de plataforma de transporte agendado para comunidades do Amapá.
+        RotaCerta · protótipo de plataforma de transporte agendado para comunidades do Amapá.
       </footer>
     </div>
   );

@@ -5,15 +5,26 @@ import { renovarAssinaturasCarteira } from "@/lib/assinatura-carteira.server";
  * Rotina de renovação das assinaturas pagas com créditos.
  * Protegida por segredo: a chamada precisa enviar o header `x-cron-secret`.
  */
-async function executar(request: Request) {
-  const segredo = process.env["ASSINATURA_CRON_SECRET"];
-  if (!segredo) return new Response("Rotina não configurada", { status: 503 });
-
-  const enviado = request.headers.get("x-cron-secret") ?? "";
-  if (enviado.length !== segredo.length) return new Response("Não autorizado", { status: 401 });
+/** Comparação de tempo constante entre o segredo esperado e o recebido. */
+function conferir(segredo: string, enviado: string) {
+  if (!segredo || enviado.length !== segredo.length) return false;
   let iguais = 0;
   for (let i = 0; i < segredo.length; i += 1) iguais |= segredo.charCodeAt(i) ^ enviado.charCodeAt(i);
-  if (iguais !== 0) return new Response("Não autorizado", { status: 401 });
+  return iguais === 0;
+}
+
+async function executar(request: Request) {
+  // Aceita o segredo do agendamento (pg_cron) e o segredo legado.
+  const segredos = [
+    process.env["CRON_RENOVACAO_SECRET"],
+    process.env["ASSINATURA_CRON_SECRET"],
+  ].filter((s): s is string => !!s);
+  if (segredos.length === 0) return new Response("Rotina não configurada", { status: 503 });
+
+  const enviado = request.headers.get("x-cron-secret") ?? "";
+  if (!segredos.some((s) => conferir(s, enviado))) {
+    return new Response("Não autorizado", { status: 401 });
+  }
 
   const url = new URL(request.url);
   const rawEnv = url.searchParams.get("env") ?? "live";

@@ -5,13 +5,13 @@ import { TopNav } from "@/components/TopNav";
 export const Route = createFileRoute("/checkout-retorno")({
   head: () => ({
     meta: [
-      { title: "Cobrança concluída — RotaViva" },
+      { title: "Cobrança concluída — RotaCerta" },
       {
         name: "description",
         content:
-          "Confirmação da cobrança da corrida no RotaViva, com registro contábil e bloco de auditoria gerados automaticamente.",
+          "Confirmação da cobrança da corrida no RotaCerta, com registro contábil e bloco de auditoria gerados automaticamente.",
       },
-      { property: "og:title", content: "Cobrança concluída — RotaViva" },
+      { property: "og:title", content: "Cobrança concluída — RotaCerta" },
       {
         property: "og:description",
         content: "Recibo da cobrança da corrida com registro contábil e auditoria em cadeia de blocos.",
@@ -38,7 +38,7 @@ function CheckoutRetorno() {
             <CheckCircle2 className="mx-auto size-12 text-success" />
             <h1 className="mt-4 font-display text-3xl font-bold">Cobrança processada</h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              O pagamento foi enviado ao provedor. Assim que a confirmação chegar, o RotaViva grava o
+              O pagamento foi enviado ao provedor. Assim que a confirmação chegar, o RotaCerta grava o
               recebimento, os lançamentos contábeis (incluindo a taxa administrativa) e o bloco de
               auditoria da corrida — tudo automaticamente.
             </p>

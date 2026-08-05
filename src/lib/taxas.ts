@@ -1,5 +1,5 @@
 /**
- * Composição da cobrança do RotaViva.
+ * Composição da cobrança do RotaCerta.
  *
  * O valor cobrado do passageiro é sempre:
  *   Total = Base da corrida + Taxa administrativa

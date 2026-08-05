@@ -1,5 +1,5 @@
 /**
- * Cadeia de blocos interna e auditável do RotaViva.
+ * Cadeia de blocos interna e auditável do RotaCerta.
  *
  * Cada evento relevante de uma corrida (criação, trajeto percorrido, cobrança,
  * estorno, verificação de idoneidade) gera um bloco encadeado:

@@ -26,17 +26,17 @@ import {
 export const Route = createFileRoute("/_authenticated/planos")({
   head: () => ({
     meta: [
-      { title: "Planos e créditos RotaViva | Assinaturas e carteira" },
+      { title: "Planos e créditos RotaCerta | Assinaturas e carteira" },
       {
         name: "description",
         content:
-          "Assine o Motorista Pro ou o Clube do Passageiro para reduzir a taxa administrativa e compre créditos pré-pagos para abater suas corridas na RotaViva.",
+          "Assine o Motorista Pro ou o Clube do Passageiro para reduzir a taxa administrativa e compre créditos pré-pagos para abater suas corridas na RotaCerta.",
       },
-      { property: "og:title", content: "Planos e créditos RotaViva" },
+      { property: "og:title", content: "Planos e créditos RotaCerta" },
       {
         property: "og:description",
         content:
-          "Assinaturas com taxa administrativa reduzida e pacotes de créditos pré-pagos para as corridas da RotaViva.",
+          "Assinaturas com taxa administrativa reduzida e pacotes de créditos pré-pagos para as corridas da RotaCerta.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
