@@ -234,8 +234,8 @@ function ViagemAoVivo() {
           sequencia: seqRef.current,
           latitude: nova.latitude,
           longitude: nova.longitude,
-          velocidade_kmh: nova.velocidade_kmh,
-          precisao_m: nova.precisao_m,
+          velocidade_kmh: nova.velocidade_kmh ?? null,
+          precisao_m: nova.precisao_m ?? null,
           registrado_em: nova.registrado_em,
         });
         if (error) {
@@ -248,7 +248,7 @@ function ViagemAoVivo() {
           .update({
             ultima_latitude: nova.latitude,
             ultima_longitude: nova.longitude,
-            ultima_velocidade_kmh: nova.velocidade_kmh,
+            ultima_velocidade_kmh: nova.velocidade_kmh ?? null,
             ultima_posicao_em: nova.registrado_em,
           })
           .eq("id", viagemId);
