@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "./dados";
 import {
   distanciaKm,
@@ -216,7 +216,7 @@ export async function replanejarEmbarque(
       custo_busca: plano.custo,
       saida_motorista: plano.saidaMotorista,
       partida_garantida: plano.partidaGarantida,
-      sequencia: plano.paradas,
+      sequencia: plano.paradas as unknown as Json,
       provedor: plano.provedor,
     },
     { onConflict: "rota_id,data_viagem" },
