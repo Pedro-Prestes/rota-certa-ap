@@ -6,6 +6,7 @@ const links = [
   { to: "/", label: "Visão geral" },
   { to: "/passageiro", label: "Sou passageiro" },
   { to: "/motorista", label: "Sou motorista" },
+  { to: "/embarque", label: "Embarque" },
   { to: "/frotista", label: "Sou frotista" },
   { to: "/pagamentos", label: "Pagamentos" },
   { to: "/planos", label: "Planos" },
