@@ -150,9 +150,26 @@ function Embarque() {
 
   const responderContra = useMutation({
     mutationFn: async (dados: { id: string; aceitar: boolean }) => {
+      const { data: atual, error: erroLeitura } = await supabase
+        .from("pontos_embarque")
+        .select("contra_endereco, contra_latitude, contra_longitude")
+        .eq("id", dados.id)
+        .single();
+      if (erroLeitura) throw erroLeitura;
+
+      // Aceitar a contraproposta adota o endereço e as coordenadas sugeridas.
       const { error } = await supabase
         .from("pontos_embarque")
-        .update({ status: dados.aceitar ? "aceito" : "cancelado" })
+        .update(
+          dados.aceitar
+            ? {
+                status: "aceito",
+                endereco: atual.contra_endereco ?? undefined,
+                latitude: atual.contra_latitude ?? undefined,
+                longitude: atual.contra_longitude ?? undefined,
+              }
+            : { status: "cancelado" },
+        )
         .eq("id", dados.id);
       if (error) throw error;
     },
