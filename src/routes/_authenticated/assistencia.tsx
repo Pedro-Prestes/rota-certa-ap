@@ -7,7 +7,7 @@ import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, usePerfis } from "@/hooks/use-auth";
 import { horaLocal } from "@/lib/rastreio";
-import { COR_SINISTRO, ROTULO_SINISTRO, reais, type StatusSinistro } from "@/lib/seguro";
+import { COR_SINISTRO, ROTULO_SINISTRO, type StatusSinistro } from "@/lib/seguro";
 import { atenderSinistro } from "@/utils/seguro.functions";
 
 export const Route = createFileRoute("/_authenticated/assistencia")({
@@ -258,7 +258,6 @@ function Assistencia() {
                 {st === "concluido" && (
                   <p className="mt-3 text-xs text-muted-foreground">
                     Concluído às {horaLocal(s.concluido_em)}
-                    {s.custo_atendimento ? ` · custo lançado: ${reais(Number(s.custo_atendimento))}` : ""}
                   </p>
                 )}
               </article>

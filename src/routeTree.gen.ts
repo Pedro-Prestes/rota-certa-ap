@@ -17,6 +17,7 @@ import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
@@ -69,6 +70,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAssistenciaRoute =
+  AuthenticatedAssistenciaRouteImport.update({
+    id: '/assistencia',
+    path: '/assistencia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -162,6 +170,7 @@ export interface FileRoutesByTo {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -185,6 +194,7 @@ export interface FileRoutesById {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/admin'
+    | '/assistencia'
     | '/auditoria'
     | '/biometria'
     | '/conta'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/admin'
+    | '/assistencia'
     | '/auditoria'
     | '/biometria'
     | '/conta'
@@ -251,6 +263,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
     | '/_authenticated/biometria'
     | '/_authenticated/conta'
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assistencia': {
+      id: '/_authenticated/assistencia'
+      path: '/assistencia'
+      fullPath: '/assistencia'
+      preLoaderRoute: typeof AuthenticatedAssistenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/auditoria': {
@@ -424,6 +444,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAssistenciaRoute: typeof AuthenticatedAssistenciaRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
@@ -438,6 +459,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAssistenciaRoute: AuthenticatedAssistenciaRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
