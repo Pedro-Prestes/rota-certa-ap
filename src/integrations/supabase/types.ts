@@ -385,6 +385,98 @@ export type Database = {
           },
         ]
       }
+      frotista_motoristas: {
+        Row: {
+          cnh: string | null
+          cpf: string
+          created_at: string
+          frotista_id: string
+          id: string
+          nome: string
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cnh?: string | null
+          cpf: string
+          created_at?: string
+          frotista_id: string
+          id?: string
+          nome: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cnh?: string | null
+          cpf?: string
+          created_at?: string
+          frotista_id?: string
+          id?: string
+          nome?: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frotista_motoristas_frotista_id_fkey"
+            columns: ["frotista_id"]
+            isOneToOne: false
+            referencedRelation: "frotistas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      frotistas: {
+        Row: {
+          cnpj: string
+          created_at: string
+          email_contato: string | null
+          id: string
+          municipio: string | null
+          nome_fantasia: string | null
+          razao_social: string
+          responsavel_nome: string
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string
+          email_contato?: string | null
+          id?: string
+          municipio?: string | null
+          nome_fantasia?: string | null
+          razao_social: string
+          responsavel_nome: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string
+          email_contato?: string | null
+          id?: string
+          municipio?: string | null
+          nome_fantasia?: string | null
+          razao_social?: string
+          responsavel_nome?: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lancamentos_contabeis: {
         Row: {
           competencia: string
@@ -620,6 +712,113 @@ export type Database = {
         }
         Relationships: []
       }
+      rota_veiculos: {
+        Row: {
+          created_at: string
+          id: string
+          rota_id: string
+          veiculo_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rota_id: string
+          veiculo_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rota_id?: string
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rota_veiculos_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rota_veiculos_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rotas: {
+        Row: {
+          assentos: number
+          chegada_ida: string | null
+          chegada_retorno: string | null
+          created_at: string
+          destino: string
+          dificuldade_via: number
+          distancia_km: number
+          frotista_id: string | null
+          id: string
+          observacoes: string | null
+          origem: string
+          preco_assento: number
+          saida_ida: string | null
+          saida_retorno: string | null
+          status: string
+          travessias: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assentos?: number
+          chegada_ida?: string | null
+          chegada_retorno?: string | null
+          created_at?: string
+          destino: string
+          dificuldade_via?: number
+          distancia_km?: number
+          frotista_id?: string | null
+          id?: string
+          observacoes?: string | null
+          origem: string
+          preco_assento?: number
+          saida_ida?: string | null
+          saida_retorno?: string | null
+          status?: string
+          travessias?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assentos?: number
+          chegada_ida?: string | null
+          chegada_retorno?: string | null
+          created_at?: string
+          destino?: string
+          dificuldade_via?: number
+          distancia_km?: number
+          frotista_id?: string | null
+          id?: string
+          observacoes?: string | null
+          origem?: string
+          preco_assento?: number
+          saida_ida?: string | null
+          saida_retorno?: string | null
+          status?: string
+          travessias?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rotas_frotista_id_fkey"
+            columns: ["frotista_id"]
+            isOneToOne: false
+            referencedRelation: "frotistas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -733,6 +932,63 @@ export type Database = {
         }
         Relationships: []
       }
+      veiculo_indisponibilidades: {
+        Row: {
+          created_at: string
+          id: string
+          inicio: string
+          mensagem: string | null
+          motivo: string
+          resolvido_em: string | null
+          retorno_previsto: string | null
+          rota_id: string | null
+          updated_at: string
+          user_id: string
+          veiculo_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inicio?: string
+          mensagem?: string | null
+          motivo: string
+          resolvido_em?: string | null
+          retorno_previsto?: string | null
+          rota_id?: string | null
+          updated_at?: string
+          user_id: string
+          veiculo_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inicio?: string
+          mensagem?: string | null
+          motivo?: string
+          resolvido_em?: string | null
+          retorno_previsto?: string | null
+          rota_id?: string | null
+          updated_at?: string
+          user_id?: string
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "veiculo_indisponibilidades_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "veiculo_indisponibilidades_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       veiculos: {
         Row: {
           ano: number
@@ -744,11 +1000,13 @@ export type Database = {
           created_at: string
           crlv_exercicio: number | null
           crlv_situacao: string | null
+          frotista_id: string | null
           id: string
           marca: string
           modelo: string
           placa: string
           renavam: string | null
+          status_operacional: string
           status_verificacao: Database["public"]["Enums"]["status_verificacao"]
           updated_at: string
           user_id: string
@@ -764,11 +1022,13 @@ export type Database = {
           created_at?: string
           crlv_exercicio?: number | null
           crlv_situacao?: string | null
+          frotista_id?: string | null
           id?: string
           marca?: string
           modelo?: string
           placa: string
           renavam?: string | null
+          status_operacional?: string
           status_verificacao?: Database["public"]["Enums"]["status_verificacao"]
           updated_at?: string
           user_id: string
@@ -784,17 +1044,27 @@ export type Database = {
           created_at?: string
           crlv_exercicio?: number | null
           crlv_situacao?: string | null
+          frotista_id?: string | null
           id?: string
           marca?: string
           modelo?: string
           placa?: string
           renavam?: string | null
+          status_operacional?: string
           status_verificacao?: Database["public"]["Enums"]["status_verificacao"]
           updated_at?: string
           user_id?: string
           volume_bagageiro_l?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "veiculos_frotista_id_fkey"
+            columns: ["frotista_id"]
+            isOneToOne: false
+            referencedRelation: "frotistas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       verificacoes_biometricas: {
         Row: {
@@ -912,6 +1182,7 @@ export type Database = {
     }
     Functions: {
       biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
+      frotista_liberado: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
