@@ -32,7 +32,7 @@ export function TopNav() {
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Bus className="size-4" />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight">RotaViva</span>
+          <span className="font-display text-lg font-bold tracking-tight">RotaCerta</span>
           <span className="hidden rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-muted-foreground sm:inline">
             Amapá
           </span>

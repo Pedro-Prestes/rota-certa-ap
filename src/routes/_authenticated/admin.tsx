@@ -11,16 +11,16 @@ import { brl, resumoCorrida, type Corrida, type Pagamento } from "@/lib/pagament
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Administração — RotaViva" },
+      { title: "Administração — RotaCerta" },
       {
         name: "description",
         content:
-          "Painel do administrador master do RotaViva: usuários, perfis de acesso, corridas e faturamento consolidado.",
+          "Painel do administrador master do RotaCerta: usuários, perfis de acesso, corridas e faturamento consolidado.",
       },
-      { property: "og:title", content: "Administração — RotaViva" },
+      { property: "og:title", content: "Administração — RotaCerta" },
       {
         property: "og:description",
-        content: "Gestão de usuários, perfis e faturamento consolidado do RotaViva.",
+        content: "Gestão de usuários, perfis e faturamento consolidado do RotaCerta.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -11,13 +11,13 @@ import { enviarCodigoSms, verificarCodigoSms } from "@/lib/telefone.functions";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar ou criar conta — RotaViva" },
+      { title: "Entrar ou criar conta — RotaCerta" },
       {
         name: "description",
         content:
-          "Acesse o RotaViva como passageiro ou motorista: login, cadastro com perfil separado e recuperação de senha.",
+          "Acesse o RotaCerta como passageiro ou motorista: login, cadastro com perfil separado e recuperação de senha.",
       },
-      { property: "og:title", content: "Entrar ou criar conta — RotaViva" },
+      { property: "og:title", content: "Entrar ou criar conta — RotaCerta" },
       {
         property: "og:description",
         content: "Login e cadastro de passageiros e motoristas do transporte agendado no Amapá.",
@@ -184,7 +184,7 @@ function AuthPage() {
         </span>
         <h1 className="mt-5 text-3xl font-bold">
           {modo === "entrar"
-            ? "Entrar no RotaViva"
+            ? "Entrar no RotaCerta"
             : modo === "cadastrar"
               ? "Criar conta"
               : modo === "telefone"

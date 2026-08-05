@@ -19,13 +19,13 @@ import type { Corrida } from "@/lib/pagamentos";
 export const Route = createFileRoute("/_authenticated/auditoria")({
   head: () => ({
     meta: [
-      { title: "Auditoria em cadeia de blocos — RotaViva" },
+      { title: "Auditoria em cadeia de blocos — RotaCerta" },
       {
         name: "description",
         content:
-          "Todo trajeto, cobrança e estorno do RotaViva registrado em cadeia de blocos encadeada por SHA-256, verificável por passageiros, motoristas e administradores.",
+          "Todo trajeto, cobrança e estorno do RotaCerta registrado em cadeia de blocos encadeada por SHA-256, verificável por passageiros, motoristas e administradores.",
       },
-      { property: "og:title", content: "Auditoria em cadeia de blocos — RotaViva" },
+      { property: "og:title", content: "Auditoria em cadeia de blocos — RotaCerta" },
       {
         property: "og:description",
         content: "Histórico imutável e verificável de trajetos, cobranças e estornos da plataforma.",

@@ -1,5 +1,5 @@
 /**
- * Núcleo de cálculo do RotaViva — bagagem, lotação e precificação regional.
+ * Núcleo de cálculo do RotaCerta — bagagem, lotação e precificação regional.
  * Todas as equações são determinísticas e auditáveis; a camada de IA apenas
  * calibra os coeficientes (k_região, fator de dificuldade) a partir dos dados
  * dos primeiros motoristas cadastrados.

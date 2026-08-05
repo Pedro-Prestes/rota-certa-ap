@@ -9,13 +9,13 @@ import { anoMinimoPermitido, brl, calcularTarifa, veiculoElegivel } from "@/lib/
 export const Route = createFileRoute("/motorista")({
   head: () => ({
     meta: [
-      { title: "Painel do motorista | RotaViva Amapá" },
+      { title: "Painel do motorista | RotaCerta Amapá" },
       {
         name: "description",
         content:
           "Cadastre veículo e rotas entre sedes, distritos e vilarejos, defina horários de ida e retorno, avise panes e receba a tarifa sugerida pela IA.",
       },
-      { property: "og:title", content: "Painel do motorista | RotaViva" },
+      { property: "og:title", content: "Painel do motorista | RotaCerta" },
       {
         property: "og:description",
         content: "Cadastro de frota, rotas com horários e aviso de indisponibilidade aos passageiros.",

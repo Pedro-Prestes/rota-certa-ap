@@ -8,13 +8,13 @@ import { TopNav } from "@/components/TopNav";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Definir nova senha — RotaViva" },
+      { title: "Definir nova senha — RotaCerta" },
       {
         name: "description",
-        content: "Crie uma nova senha para sua conta de passageiro ou motorista no RotaViva.",
+        content: "Crie uma nova senha para sua conta de passageiro ou motorista no RotaCerta.",
       },
-      { property: "og:title", content: "Definir nova senha — RotaViva" },
-      { property: "og:description", content: "Redefinição de senha da conta RotaViva." },
+      { property: "og:title", content: "Definir nova senha — RotaCerta" },
+      { property: "og:description", content: "Redefinição de senha da conta RotaCerta." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

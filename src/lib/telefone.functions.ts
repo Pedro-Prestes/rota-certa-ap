@@ -52,7 +52,7 @@ export const enviarCodigoSms = createServerFn({ method: "POST" })
 
     await enviarSms(
       telefone,
-      `RotaViva: seu código de acesso é ${codigo}. Válido por ${OTP_VALIDADE_MINUTOS} minutos.`,
+      `RotaCerta: seu código de acesso é ${codigo}. Válido por ${OTP_VALIDADE_MINUTOS} minutos.`,
     );
 
     return { enviado: true };

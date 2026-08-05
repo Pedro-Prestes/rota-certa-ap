@@ -23,13 +23,13 @@ import {
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
     meta: [
-      { title: "Reservar assento e bagagem | RotaViva Amapá" },
+      { title: "Reservar assento e bagagem | RotaCerta Amapá" },
       {
         name: "description",
         content:
           "Busque rotas entre sedes, distritos e vilarejos do Amapá, calcule o volume da sua bagagem e garanta o assento com pagamento antecipado.",
       },
-      { property: "og:title", content: "Reservar assento e bagagem | RotaViva" },
+      { property: "og:title", content: "Reservar assento e bagagem | RotaCerta" },
       {
         property: "og:description",
         content: "Agenda de rotas, cálculo de bagagem por IA e reserva de lotação paga antes.",

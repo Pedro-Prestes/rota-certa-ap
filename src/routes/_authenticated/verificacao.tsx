@@ -20,13 +20,13 @@ import { consultarIdoneidade } from "@/utils/idoneidade.functions";
 export const Route = createFileRoute("/_authenticated/verificacao")({
   head: () => ({
     meta: [
-      { title: "Idoneidade e veículos — RotaViva" },
+      { title: "Idoneidade e veículos — RotaCerta" },
       {
         name: "description",
         content:
-          "Verificação de idoneidade de passageiros e motoristas e regularidade documental dos veículos cadastrados no RotaViva: CPF, CNH, placa Mercosul, Renavam e CRLV.",
+          "Verificação de idoneidade de passageiros e motoristas e regularidade documental dos veículos cadastrados no RotaCerta: CPF, CNH, placa Mercosul, Renavam e CRLV.",
       },
-      { property: "og:title", content: "Idoneidade e veículos — RotaViva" },
+      { property: "og:title", content: "Idoneidade e veículos — RotaCerta" },
       {
         property: "og:description",
         content:

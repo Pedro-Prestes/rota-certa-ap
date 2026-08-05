@@ -1,5 +1,5 @@
 /**
- * Catálogo de produtos de preço fixo do RotaViva.
+ * Catálogo de produtos de preço fixo do RotaCerta.
  *
  * - Assinaturas (motorista e passageiro) reduzem a taxa administrativa cobrada
  *   em cada corrida.
@@ -67,7 +67,7 @@ export const PLANOS: Plano[] = [
     productId: "passageiro_clube",
     nome: "Clube do Passageiro",
     publico: "passageiro",
-    descricao: "Vantagens para quem usa a RotaViva com frequência.",
+    descricao: "Vantagens para quem usa a RotaCerta com frequência.",
     beneficios: [
       "Taxa administrativa de 8% + R$ 0,75 por corrida",
       "Prioridade no atendimento e no agendamento",

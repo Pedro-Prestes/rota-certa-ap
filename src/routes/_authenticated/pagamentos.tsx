@@ -37,13 +37,13 @@ import { cobrancaOnlineDisponivel } from "@/lib/stripe";
 export const Route = createFileRoute("/_authenticated/pagamentos")({
   head: () => ({
     meta: [
-      { title: "Pagamentos por corrida — RotaViva" },
+      { title: "Pagamentos por corrida — RotaCerta" },
       {
         name: "description",
         content:
           "Registre e edite o pagamento de cada corrida no Pix, cartão de crédito, cartão de débito ou dinheiro, com taxas, comissão e líquido do motorista.",
       },
-      { property: "og:title", content: "Pagamentos por corrida — RotaViva" },
+      { property: "og:title", content: "Pagamentos por corrida — RotaCerta" },
       {
         property: "og:description",
         content: "Contabilidade detalhada por corrida: formas de pagamento, taxas, troco e repasse.",
