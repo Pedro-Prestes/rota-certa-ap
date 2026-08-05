@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Clock, Handshake, Loader2, MapPin, Navigation } from "lucide-react";
+import { AcompanhamentoAoVivo } from "@/components/AcompanhamentoAoVivo";
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -313,6 +314,10 @@ function Embarque() {
                         </strong>
                       </p>
                     </div>
+                  )}
+
+                  {p.status === "aceito" && (
+                    <AcompanhamentoAoVivo rotaId={p.rota_id} dataViagem={p.data_viagem} />
                   )}
 
                   {p.status === "contraproposta" && (
