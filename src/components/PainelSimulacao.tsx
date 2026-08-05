@@ -42,8 +42,6 @@ export function PainelSimulacao({ onAtualizar }: { onAtualizar?: () => void | Pr
   const [usarCreditos, setUsarCreditos] = useState(true);
   const [ocupado, setOcupado] = useState<string | null>(null);
 
-  if (env !== "sandbox") return null;
-
   const carregarCorridas = async () => {
     try {
       const r = await listarCorridasSimulaveis({ data: { environment: env } });
@@ -58,6 +56,8 @@ export function PainelSimulacao({ onAtualizar }: { onAtualizar?: () => void | Pr
     void carregarCorridas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (env !== "sandbox") return null;
 
   const executar = async (chave: string, fn: () => Promise<void>) => {
     setOcupado(chave);

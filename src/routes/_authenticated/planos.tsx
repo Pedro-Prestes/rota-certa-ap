@@ -8,6 +8,7 @@ import { PACOTES_CREDITO, PLANOS, assinaturaAtiva, classificarTroca, planoDoPric
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { PainelSimulacao } from "@/components/PainelSimulacao";
 import {
   abrirPortalCobranca,
   alterarPlano,
@@ -239,6 +240,8 @@ function PlanosPage() {
           As assinaturas reduzem a taxa administrativa cobrada em cada corrida. Os créditos pré-pagos
           entram na sua carteira e abatem automaticamente as próximas cobranças.
         </p>
+
+        <PainelSimulacao onAtualizar={recarregar} />
 
         <section className="mt-8 rounded-2xl border border-border bg-card p-6">
           <div className="flex flex-wrap items-center gap-4">
