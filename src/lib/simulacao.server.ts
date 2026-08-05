@@ -365,6 +365,11 @@ export async function limparSimulacao(dados: { userId: string; env: StripeEnv })
     .like("referencia_externa", "sessao:cs_sim_%");
 
   await supabaseAdmin
+    .from("lancamentos_contabeis")
+    .delete()
+    .filter("detalhamento->>fatura", "like", "in_sim_%");
+
+  await supabaseAdmin
     .from("subscriptions")
     .delete()
     .eq("user_id", dados.userId)
