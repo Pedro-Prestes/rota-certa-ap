@@ -1,10 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertTriangle, Brain, Car, CheckCircle2, Plus, Route as RouteIcon } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  AlertTriangle,
+  Brain,
+  Car,
+  CheckCircle2,
+  Loader2,
+  Plus,
+  Route as RouteIcon,
+  Wrench,
+} from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
-import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP, viagens } from "@/lib/dados";
-import { anoMinimoPermitido, brl, calcularTarifa, veiculoElegivel } from "@/lib/logistica";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, localidadesAP } from "@/lib/dados";
+import { brl, calcularTarifa } from "@/lib/logistica";
+import {
+  COR_STATUS_OPERACIONAL,
+  MOTIVOS_INDISPONIBILIDADE,
+  ROTULO_STATUS_OPERACIONAL,
+  type StatusOperacional,
+} from "@/lib/frotista";
 
 export const Route = createFileRoute("/motorista")({
   head: () => ({
@@ -13,12 +32,13 @@ export const Route = createFileRoute("/motorista")({
       {
         name: "description",
         content:
-          "Cadastre veículo e rotas entre sedes, distritos e vilarejos, defina horários de ida e retorno, avise panes e receba a tarifa sugerida pela IA.",
+          "Cadastre rotas entre sedes, distritos e vilarejos, vincule os veículos da sua frota, registre manutenções e reative veículos aptos a operar.",
       },
       { property: "og:title", content: "Painel do motorista | RotaCerta" },
       {
         property: "og:description",
-        content: "Cadastro de frota, rotas com horários e aviso de indisponibilidade aos passageiros.",
+        content:
+          "Rotas com horários, vínculo de veículos, controle de manutenção e aviso de indisponibilidade aos passageiros.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -31,8 +51,107 @@ const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring";
 const rotulo = "mb-1.5 block text-xs font-semibold text-muted-foreground";
 
+interface VeiculoRow {
+  id: string;
+  placa: string;
+  marca: string;
+  modelo: string;
+  ano: number;
+  assentos: number;
+  status_operacional: StatusOperacional;
+}
+
+interface RotaRow {
+  id: string;
+  origem: string;
+  destino: string;
+  saida_ida: string | null;
+  chegada_ida: string | null;
+  saida_retorno: string | null;
+  chegada_retorno: string | null;
+  distancia_km: number;
+  assentos: number;
+  travessias: number;
+  dificuldade_via: number;
+  preco_assento: number;
+  status: string;
+}
+
+interface VinculoRow {
+  id: string;
+  rota_id: string;
+  veiculo_id: string;
+}
+
+interface IndisponibilidadeRow {
+  id: string;
+  veiculo_id: string;
+  rota_id: string | null;
+  motivo: string;
+  mensagem: string | null;
+  inicio: string;
+  retorno_previsto: string | null;
+  resolvido_em: string | null;
+}
+
+function useDadosMotorista() {
+  const { user } = useAuth();
+
+  const veiculos = useQuery({
+    queryKey: ["veiculos-motorista", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("veiculos")
+        .select("id, placa, marca, modelo, ano, assentos, status_operacional")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as VeiculoRow[];
+    },
+  });
+
+  const rotas = useQuery({
+    queryKey: ["rotas", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rotas")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as RotaRow[];
+    },
+  });
+
+  const vinculos = useQuery({
+    queryKey: ["rota-veiculos", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("rota_veiculos").select("id, rota_id, veiculo_id");
+      if (error) throw error;
+      return (data ?? []) as unknown as VinculoRow[];
+    },
+  });
+
+  const indisponibilidades = useQuery({
+    queryKey: ["indisponibilidades", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("veiculo_indisponibilidades")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as IndisponibilidadeRow[];
+    },
+  });
+
+  return { user, veiculos, rotas, vinculos, indisponibilidades };
+}
+
 function Motorista() {
   const [aba, setAba] = useState<"rotas" | "veiculo" | "avisos">("rotas");
+  const { user, carregando } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,16 +159,16 @@ function Motorista() {
       <main className="mx-auto max-w-6xl px-5 py-10">
         <h1 className="text-3xl font-bold">Painel do motorista</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Publique suas saídas, mantenha a frota regular e avise seus passageiros quando não puder
-          rodar.
+          Publique suas saídas, vincule os veículos da sua frota a cada rota e controle manutenções
+          sem deixar passageiros na mão.
         </p>
 
         <div className="mt-7 inline-flex rounded-full border border-border bg-card p-1">
           {(
             [
               ["rotas", "Rotas e horários", RouteIcon],
-              ["veiculo", "Veículo", Car],
-              ["avisos", "Indisponibilidade", AlertTriangle],
+              ["veiculo", "Frota", Car],
+              ["avisos", "Manutenção", Wrench],
             ] as const
           ).map(([id, label, Icon]) => (
             <button
@@ -66,156 +185,394 @@ function Motorista() {
         </div>
 
         <div className="mt-7">
-          <PortaoBiometriaMotorista>
-            {aba === "rotas" && <AbaRotas />}
-            {aba === "veiculo" && <AbaVeiculo />}
-            {aba === "avisos" && <AbaAvisos />}
-          </PortaoBiometriaMotorista>
+          {!user && !carregando ? (
+            <div className="rounded-3xl border border-border bg-card p-8 text-center">
+              <h2 className="text-lg font-bold">Entre para gerenciar suas rotas</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                O cadastro de rotas, o vínculo de veículos e o controle de manutenção ficam
+                disponíveis depois do login.
+              </p>
+              <Link
+                to="/auth"
+                className="mt-5 inline-block rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground"
+              >
+                Entrar na plataforma
+              </Link>
+            </div>
+          ) : (
+            <PortaoBiometriaMotorista>
+              {aba === "rotas" && <AbaRotas />}
+              {aba === "veiculo" && <AbaFrota />}
+              {aba === "avisos" && <AbaManutencao />}
+            </PortaoBiometriaMotorista>
+          )}
         </div>
       </main>
     </div>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Rotas e vínculo de veículos                                         */
+/* ------------------------------------------------------------------ */
+
 function AbaRotas() {
-  const [distancia, setDistancia] = useState(120);
-  const [dificuldade, setDificuldade] = useState(0.5);
-  const [travessias, setTravessias] = useState(1);
-  const [assentos, setAssentos] = useState(6);
+  const qc = useQueryClient();
+  const { user, veiculos, rotas, vinculos } = useDadosMotorista();
+  const [form, setForm] = useState({
+    origem: "Macapá (sede)",
+    destino: "Mazagão Velho",
+    saidaIda: "06:15",
+    chegadaIda: "08:10",
+    saidaRetorno: "16:00",
+    chegadaRetorno: "18:05",
+    distancia: 120,
+    assentos: 6,
+    travessias: 1,
+    dificuldade: 0.5,
+  });
+  const [selecionados, setSelecionados] = useState<string[]>([]);
 
   const tarifa = useMemo(
     () =>
       calcularTarifa({
-        distanciaKm: distancia,
-        dificuldadeVia: dificuldade,
+        distanciaKm: form.distancia,
+        dificuldadeVia: form.dificuldade,
         precoCombustivel: PRECO_COMBUSTIVEL,
         consumoKmL: CONSUMO_KM_L,
-        assentos,
+        assentos: form.assentos,
         ocupacaoMedia: 0.78,
-        travessias,
+        travessias: form.travessias,
       }),
-    [distancia, dificuldade, travessias, assentos],
+    [form],
   );
+
+  const aptos = (veiculos.data ?? []).filter((v) => v.status_operacional === "ativo");
+
+  const publicar = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Faça login para publicar rotas.");
+      if (selecionados.length === 0) {
+        throw new Error("Selecione pelo menos um veículo da sua frota para operar a rota.");
+      }
+      const { data, error } = await supabase
+        .from("rotas")
+        .insert({
+          user_id: user.id,
+          origem: form.origem,
+          destino: form.destino,
+          saida_ida: form.saidaIda,
+          chegada_ida: form.chegadaIda,
+          saida_retorno: form.saidaRetorno,
+          chegada_retorno: form.chegadaRetorno,
+          distancia_km: form.distancia,
+          assentos: form.assentos,
+          travessias: form.travessias,
+          dificuldade_via: form.dificuldade,
+          preco_assento: tarifa.precoAssento,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      const { error: erroVinculo } = await supabase
+        .from("rota_veiculos")
+        .insert(selecionados.map((veiculo_id) => ({ rota_id: data.id, veiculo_id })));
+      if (erroVinculo) throw erroVinculo;
+    },
+    onSuccess: () => {
+      toast.success("Rota publicada com os veículos vinculados.");
+      setSelecionados([]);
+      void qc.invalidateQueries({ queryKey: ["rotas"] });
+      void qc.invalidateQueries({ queryKey: ["rota-veiculos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const alternarVinculo = useMutation({
+    mutationFn: async (dados: { rotaId: string; veiculoId: string; vincular: boolean }) => {
+      if (dados.vincular) {
+        const { error } = await supabase
+          .from("rota_veiculos")
+          .insert({ rota_id: dados.rotaId, veiculo_id: dados.veiculoId });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("rota_veiculos")
+          .delete()
+          .eq("rota_id", dados.rotaId)
+          .eq("veiculo_id", dados.veiculoId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["rota-veiculos"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-        <h2 className="text-lg font-bold">Cadastrar rota</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Sede, distrito ou vilarejo — informe também o trecho de retorno.
-        </p>
+      <div className="space-y-6">
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+          <h2 className="text-lg font-bold">Cadastrar rota</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Sede, distrito ou vilarejo — informe também o trecho de retorno.
+          </p>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <label>
-            <span className={rotulo}>Ponto de origem</span>
-            <select className={campo} defaultValue="Macapá (sede) · sede">
-              {localidadesAP.map((l) => (
-                <option key={l.nome}>
-                  {l.nome} · {l.tipo}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className={rotulo}>Ponto de destino</span>
-            <select className={campo} defaultValue="Mazagão Velho · vilarejo">
-              {localidadesAP.map((l) => (
-                <option key={l.nome}>
-                  {l.nome} · {l.tipo}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className={rotulo}>Saída (ida)</span>
-            <input type="time" className={campo} defaultValue="06:15" />
-          </label>
-          <label>
-            <span className={rotulo}>Chegada (ida)</span>
-            <input type="time" className={campo} defaultValue="08:10" />
-          </label>
-          <label>
-            <span className={rotulo}>Saída (retorno)</span>
-            <input type="time" className={campo} defaultValue="16:00" />
-          </label>
-          <label>
-            <span className={rotulo}>Chegada (retorno)</span>
-            <input type="time" className={campo} defaultValue="18:05" />
-          </label>
-          <label>
-            <span className={rotulo}>Distância (km)</span>
-            <input
-              type="number"
-              className={campo}
-              value={distancia}
-              onChange={(e) => setDistancia(Number(e.target.value))}
-            />
-          </label>
-          <label>
-            <span className={rotulo}>Assentos ofertados</span>
-            <input
-              type="number"
-              className={campo}
-              value={assentos}
-              onChange={(e) => setAssentos(Math.max(1, Number(e.target.value)))}
-            />
-          </label>
-          <label>
-            <span className={rotulo}>Travessias de balsa / pedágios</span>
-            <input
-              type="number"
-              min={0}
-              className={campo}
-              value={travessias}
-              onChange={(e) => setTravessias(Number(e.target.value))}
-            />
-          </label>
-          <label>
-            <span className={rotulo}>
-              Dificuldade da via: {(dificuldade * 100).toFixed(0)}%
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              className="mt-3 w-full accent-[var(--accent)]"
-              value={dificuldade}
-              onChange={(e) => setDificuldade(Number(e.target.value))}
-            />
-          </label>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <label>
+              <span className={rotulo}>Ponto de origem</span>
+              <select
+                className={campo}
+                value={form.origem}
+                onChange={(e) => setForm({ ...form, origem: e.target.value })}
+              >
+                {localidadesAP.map((l) => (
+                  <option key={l.nome} value={l.nome}>
+                    {l.nome} · {l.tipo}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className={rotulo}>Ponto de destino</span>
+              <select
+                className={campo}
+                value={form.destino}
+                onChange={(e) => setForm({ ...form, destino: e.target.value })}
+              >
+                {localidadesAP.map((l) => (
+                  <option key={l.nome} value={l.nome}>
+                    {l.nome} · {l.tipo}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className={rotulo}>Saída (ida)</span>
+              <input
+                type="time"
+                className={campo}
+                value={form.saidaIda}
+                onChange={(e) => setForm({ ...form, saidaIda: e.target.value })}
+              />
+            </label>
+            <label>
+              <span className={rotulo}>Chegada (ida)</span>
+              <input
+                type="time"
+                className={campo}
+                value={form.chegadaIda}
+                onChange={(e) => setForm({ ...form, chegadaIda: e.target.value })}
+              />
+            </label>
+            <label>
+              <span className={rotulo}>Saída (retorno)</span>
+              <input
+                type="time"
+                className={campo}
+                value={form.saidaRetorno}
+                onChange={(e) => setForm({ ...form, saidaRetorno: e.target.value })}
+              />
+            </label>
+            <label>
+              <span className={rotulo}>Chegada (retorno)</span>
+              <input
+                type="time"
+                className={campo}
+                value={form.chegadaRetorno}
+                onChange={(e) => setForm({ ...form, chegadaRetorno: e.target.value })}
+              />
+            </label>
+            <label>
+              <span className={rotulo}>Distância (km)</span>
+              <input
+                type="number"
+                className={campo}
+                value={form.distancia}
+                onChange={(e) => setForm({ ...form, distancia: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              <span className={rotulo}>Assentos ofertados</span>
+              <input
+                type="number"
+                className={campo}
+                value={form.assentos}
+                onChange={(e) =>
+                  setForm({ ...form, assentos: Math.max(1, Number(e.target.value)) })
+                }
+              />
+            </label>
+            <label>
+              <span className={rotulo}>Travessias de balsa / pedágios</span>
+              <input
+                type="number"
+                min={0}
+                className={campo}
+                value={form.travessias}
+                onChange={(e) => setForm({ ...form, travessias: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              <span className={rotulo}>
+                Dificuldade da via: {(form.dificuldade * 100).toFixed(0)}%
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                className="mt-3 w-full accent-[var(--accent)]"
+                value={form.dificuldade}
+                onChange={(e) => setForm({ ...form, dificuldade: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+
+          <h3 className="mt-8 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            Veículos que vão operar esta rota
+          </h3>
+          {veiculos.isLoading ? (
+            <p className="mt-3 text-xs text-muted-foreground">Carregando sua frota…</p>
+          ) : aptos.length === 0 ? (
+            <p className="mt-3 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
+              Nenhum veículo ativo na sua frota. Cadastre um veículo em{" "}
+              <Link to="/verificacao" className="font-semibold underline">
+                Idoneidade e veículos
+              </Link>{" "}
+              ou reative um veículo em manutenção na aba Manutenção.
+            </p>
+          ) : (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {aptos.map((v) => {
+                const marcado = selecionados.includes(v.id);
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() =>
+                      setSelecionados((atual) =>
+                        marcado ? atual.filter((i) => i !== v.id) : [...atual, v.id],
+                      )
+                    }
+                    className={`flex items-center justify-between gap-3 rounded-2xl border p-3 text-left text-sm transition-colors ${
+                      marcado ? "border-primary bg-primary/5" : "border-border"
+                    }`}
+                  >
+                    <span>
+                      <span className="font-semibold">
+                        {v.marca} {v.modelo}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {v.placa} · {v.ano} · {v.assentos} assentos
+                      </span>
+                    </span>
+                    {marcado && <CheckCircle2 className="size-4 shrink-0 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <button
+            onClick={() => publicar.mutate()}
+            disabled={publicar.isPending}
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          >
+            {publicar.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Plus className="size-4" />
+            )}
+            Publicar rota
+          </button>
         </div>
 
-        <button className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-          <Plus className="size-4" /> Publicar rota
-        </button>
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            Minhas rotas publicadas
+          </h3>
+          {(rotas.data ?? []).length === 0 ? (
+            <p className="mt-4 text-xs text-muted-foreground">Nenhuma rota publicada ainda.</p>
+          ) : (
+            <ul className="mt-4 space-y-4">
+              {(rotas.data ?? []).map((r) => {
+                const vinculados = (vinculos.data ?? [])
+                  .filter((v) => v.rota_id === r.id)
+                  .map((v) => v.veiculo_id);
+                return (
+                  <li key={r.id} className="rounded-2xl border border-border p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium">
+                          {r.origem} → {r.destino}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {r.saida_ida?.slice(0, 5) ?? "--:--"} –{" "}
+                          {r.chegada_ida?.slice(0, 5) ?? "--:--"} · retorno{" "}
+                          {r.saida_retorno?.slice(0, 5) ?? "--:--"} · {r.assentos} assentos ·{" "}
+                          {brl(Number(r.preco_assento))}/assento
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
+                          r.status === "ativa"
+                            ? "bg-success/10 text-success"
+                            : "bg-destructive/10 text-destructive"
+                        }`}
+                      >
+                        {r.status === "ativa" ? "Ativa" : "Suspensa"}
+                      </span>
+                    </div>
 
-        <h3 className="mt-10 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-          Minhas saídas publicadas
-        </h3>
-        <ul className="mt-4 divide-y divide-border">
-          {viagens.slice(0, 4).map((v) => (
-            <li key={v.id} className="flex items-center justify-between gap-4 py-3 text-sm">
-              <div>
-                <p className="font-medium">
-                  {v.origem} → {v.destino}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {v.partida} – {v.chegada} · {v.assentosLivres} vaga(s)
-                </p>
-              </div>
-              <span
-                className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
-                  v.status === "ativa"
-                    ? "bg-success/10 text-success"
-                    : "bg-destructive/10 text-destructive"
-                }`}
-              >
-                {v.status === "ativa" ? "Ativa" : "Suspensa"}
-              </span>
-            </li>
-          ))}
-        </ul>
+                    <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      Veículos vinculados
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(veiculos.data ?? []).map((v) => {
+                        const marcado = vinculados.includes(v.id);
+                        const bloqueado = v.status_operacional !== "ativo" && !marcado;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            disabled={bloqueado || alternarVinculo.isPending}
+                            onClick={() =>
+                              alternarVinculo.mutate({
+                                rotaId: r.id,
+                                veiculoId: v.id,
+                                vincular: !marcado,
+                              })
+                            }
+                            title={
+                              bloqueado
+                                ? "Veículo indisponível: conclua a manutenção para vinculá-lo."
+                                : undefined
+                            }
+                            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-40 ${
+                              marcado
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border text-muted-foreground"
+                            }`}
+                          >
+                            {v.placa}
+                            {v.status_operacional !== "ativo" &&
+                              ` · ${ROTULO_STATUS_OPERACIONAL[v.status_operacional]}`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {vinculados.length === 0 && (
+                      <p className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
+                        <AlertTriangle className="size-3.5" /> Sem veículo apto: a rota não pode
+                        operar.
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
 
       <aside className="rounded-3xl border border-border surface-night p-6 text-primary-foreground shadow-[var(--shadow-lift)] lg:sticky lg:top-24 lg:self-start">
@@ -251,113 +608,191 @@ function AbaRotas() {
   );
 }
 
-function AbaVeiculo() {
-  const anoAtual = new Date().getFullYear();
-  const [ano, setAno] = useState(anoAtual - 4);
-  const elegivel = veiculoElegivel(ano, anoAtual);
+/* ------------------------------------------------------------------ */
+/* Frota                                                               */
+/* ------------------------------------------------------------------ */
+
+function AbaFrota() {
+  const { veiculos, vinculos, rotas } = useDadosMotorista();
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-        <h2 className="text-lg font-bold">Cadastrar veículo</h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <label className="sm:col-span-2">
-            <span className={rotulo}>Modelo</span>
-            <input className={campo} placeholder="Ex.: Chevrolet Spin 1.8" />
-          </label>
-          <label>
-            <span className={rotulo}>Ano de fabricação</span>
-            <input
-              type="number"
-              className={campo}
-              value={ano}
-              onChange={(e) => setAno(Number(e.target.value))}
-            />
-          </label>
-          <label>
-            <span className={rotulo}>Classe</span>
-            <select className={campo}>
-              <option>Veículo de passageiros</option>
-              <option>Utilitário de pequeno porte</option>
-              <option>Utilitário de médio porte</option>
-              <option>Utilitário de grande porte</option>
-            </select>
-          </label>
-          <label>
-            <span className={rotulo}>Assentos</span>
-            <input type="number" className={campo} defaultValue={6} />
-          </label>
-          <label>
-            <span className={rotulo}>Bagageiro (litros)</span>
-            <input type="number" className={campo} defaultValue={380} />
-          </label>
-          <label>
-            <span className={rotulo}>Carga útil (kg)</span>
-            <input type="number" className={campo} defaultValue={420} />
-          </label>
-        </div>
-
-        <p
-          className={`mt-5 flex items-start gap-2 rounded-xl p-3 text-xs leading-relaxed ${
-            elegivel ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-          }`}
-        >
-          {elegivel ? (
-            <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-          ) : (
-            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-          )}
-          {elegivel
-            ? `Veículo elegível: ano ${ano} está dentro do limite de 10 anos (mínimo ${anoMinimoPermitido(anoAtual)}).`
-            : `Veículo recusado: só são aceitos modelos ${anoMinimoPermitido(anoAtual)} ou mais novos em ${anoAtual}.`}
-        </p>
-      </div>
-
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+    <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold">Frota cadastrada</h2>
-        <ul className="mt-4 space-y-3">
-          {frota.map((v) => (
-            <li key={v.id} className="rounded-2xl border border-border p-4 text-sm">
-              <p className="font-semibold">{v.modelo}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {v.assentos} assentos · bagageiro {v.volumeBagageiroL} L · carga útil{" "}
-                {v.cargaUtilKg} kg
-              </p>
-            </li>
-          ))}
-        </ul>
+        <Link
+          to="/verificacao"
+          className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold"
+        >
+          <Plus className="size-4" /> Cadastrar veículo
+        </Link>
       </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Cada veículo é cadastrado com placa, Renavam e CRLV na área de idoneidade. Aqui você
+        acompanha a situação operacional e as rotas em que ele opera.
+      </p>
+
+      {veiculos.isLoading ? (
+        <p className="mt-4 text-xs text-muted-foreground">Carregando…</p>
+      ) : (veiculos.data ?? []).length === 0 ? (
+        <p className="mt-4 text-xs text-muted-foreground">Nenhum veículo cadastrado.</p>
+      ) : (
+        <ul className="mt-5 space-y-3">
+          {(veiculos.data ?? []).map((v) => {
+            const rotasDoVeiculo = (vinculos.data ?? [])
+              .filter((x) => x.veiculo_id === v.id)
+              .map((x) => (rotas.data ?? []).find((r) => r.id === x.rota_id))
+              .filter(Boolean);
+            return (
+              <li key={v.id} className="rounded-2xl border border-border p-4 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-semibold">
+                    {v.marca} {v.modelo}{" "}
+                    <span className="text-xs font-normal text-muted-foreground">
+                      · {v.placa} · {v.ano}
+                    </span>
+                  </p>
+                  <span
+                    className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
+                      COR_STATUS_OPERACIONAL[v.status_operacional]
+                    }`}
+                  >
+                    {ROTULO_STATUS_OPERACIONAL[v.status_operacional]}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {v.assentos} assentos ·{" "}
+                  {rotasDoVeiculo.length === 0
+                    ? "sem rota vinculada"
+                    : rotasDoVeiculo
+                        .map((r) => `${r?.origem} → ${r?.destino}`)
+                        .join(" | ")}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
 
-function AbaAvisos() {
-  const [enviado, setEnviado] = useState(false);
+/* ------------------------------------------------------------------ */
+/* Manutenção / indisponibilidade                                      */
+/* ------------------------------------------------------------------ */
+
+function AbaManutencao() {
+  const qc = useQueryClient();
+  const { user, veiculos, rotas, indisponibilidades } = useDadosMotorista();
+  const ativos = (veiculos.data ?? []).filter((v) => v.status_operacional === "ativo");
+  const [form, setForm] = useState({
+    veiculoId: "",
+    rotaId: "",
+    motivo: MOTIVOS_INDISPONIBILIDADE[0] as string,
+    inicio: new Date().toISOString().slice(0, 10),
+    retorno: "",
+    mensagem: "Veículo em manutenção. Retorno previsto em breve.",
+  });
+
+  const abertas = (indisponibilidades.data ?? []).filter((i) => !i.resolvido_em);
+
+  const registrar = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Faça login para registrar manutenções.");
+      const veiculoId = form.veiculoId || ativos[0]?.id;
+      if (!veiculoId) throw new Error("Nenhum veículo ativo para colocar em manutenção.");
+      const { error } = await supabase.from("veiculo_indisponibilidades").insert({
+        user_id: user.id,
+        veiculo_id: veiculoId,
+        rota_id: form.rotaId || null,
+        motivo: form.motivo,
+        mensagem: form.mensagem,
+        inicio: form.inicio,
+        retorno_previsto: form.retorno || null,
+      });
+      if (error) throw error;
+      const { error: erroStatus } = await supabase
+        .from("veiculos")
+        .update({ status_operacional: "manutencao" })
+        .eq("id", veiculoId);
+      if (erroStatus) throw erroStatus;
+    },
+    onSuccess: () => {
+      toast.success("Indisponibilidade registrada. O veículo saiu da operação das rotas.");
+      void qc.invalidateQueries({ queryKey: ["indisponibilidades"] });
+      void qc.invalidateQueries({ queryKey: ["veiculos-motorista"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const reativar = useMutation({
+    mutationFn: async (dados: { id: string; veiculoId: string }) => {
+      const { error } = await supabase
+        .from("veiculo_indisponibilidades")
+        .update({ resolvido_em: new Date().toISOString() })
+        .eq("id", dados.id);
+      if (error) throw error;
+      const { error: erroStatus } = await supabase
+        .from("veiculos")
+        .update({ status_operacional: "ativo" })
+        .eq("id", dados.veiculoId);
+      if (erroStatus) throw erroStatus;
+    },
+    onSuccess: () => {
+      toast.success("Manutenção concluída: veículo reativado e apto a operar nas rotas.");
+      void qc.invalidateQueries({ queryKey: ["indisponibilidades"] });
+      void qc.invalidateQueries({ queryKey: ["veiculos-motorista"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
         <h2 className="text-lg font-bold">Registrar indisponibilidade</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Todos os passageiros com reserva na rota recebem a notificação e o reembolso integral.
+          O veículo sai da operação e os passageiros com reserva nas rotas afetadas são avisados.
         </p>
         <div className="mt-5 space-y-3">
           <label className="block">
-            <span className={rotulo}>Motivo</span>
-            <select className={campo}>
-              <option>Pane mecânica do veículo</option>
-              <option>Folga programada</option>
-              <option>Condição da via / alagamento</option>
-              <option>Motivo de saúde</option>
-              <option>Outro motivo de força maior</option>
+            <span className={rotulo}>Veículo</span>
+            <select
+              className={campo}
+              value={form.veiculoId}
+              onChange={(e) => setForm({ ...form, veiculoId: e.target.value })}
+            >
+              <option value="">Selecione um veículo ativo</option>
+              {ativos.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.placa} · {v.marca} {v.modelo}
+                </option>
+              ))}
             </select>
           </label>
           <label className="block">
-            <span className={rotulo}>Rota afetada</span>
-            <select className={campo}>
-              {viagens.map((v) => (
-                <option key={v.id}>
-                  {v.origem} → {v.destino} ({v.partida})
+            <span className={rotulo}>Motivo</span>
+            <select
+              className={campo}
+              value={form.motivo}
+              onChange={(e) => setForm({ ...form, motivo: e.target.value })}
+            >
+              {MOTIVOS_INDISPONIBILIDADE.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className={rotulo}>Rota afetada (opcional)</span>
+            <select
+              className={campo}
+              value={form.rotaId}
+              onChange={(e) => setForm({ ...form, rotaId: e.target.value })}
+            >
+              <option value="">Todas as rotas do veículo</option>
+              {(rotas.data ?? []).map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.origem} → {r.destino} ({r.saida_ida?.slice(0, 5) ?? "--:--"})
                 </option>
               ))}
             </select>
@@ -365,47 +800,108 @@ function AbaAvisos() {
           <div className="grid grid-cols-2 gap-3">
             <label>
               <span className={rotulo}>Início</span>
-              <input type="date" className={campo} />
+              <input
+                type="date"
+                className={campo}
+                value={form.inicio}
+                onChange={(e) => setForm({ ...form, inicio: e.target.value })}
+              />
             </label>
             <label>
               <span className={rotulo}>Retorno previsto</span>
-              <input type="date" className={campo} />
+              <input
+                type="date"
+                className={campo}
+                value={form.retorno}
+                onChange={(e) => setForm({ ...form, retorno: e.target.value })}
+              />
             </label>
           </div>
           <label className="block">
             <span className={rotulo}>Mensagem aos passageiros</span>
             <textarea
               className={`${campo} min-h-24`}
-              defaultValue="Veículo em manutenção. Retorno previsto para amanhã às 07:00."
+              value={form.mensagem}
+              onChange={(e) => setForm({ ...form, mensagem: e.target.value })}
             />
           </label>
         </div>
         <button
-          onClick={() => setEnviado(true)}
-          className="mt-5 rounded-full bg-destructive px-5 py-2.5 text-sm font-semibold text-destructive-foreground"
+          onClick={() => registrar.mutate()}
+          disabled={registrar.isPending}
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-destructive px-5 py-2.5 text-sm font-semibold text-destructive-foreground disabled:opacity-60"
         >
-          Suspender rota e avisar passageiros
+          {registrar.isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Wrench className="size-4" />
+          )}
+          Colocar veículo em manutenção
         </button>
-        {enviado && (
-          <p className="mt-3 text-xs text-success">
-            Aviso publicado. Passageiros notificados e reembolsos disparados.
-          </p>
-        )}
       </div>
 
       <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-        <h2 className="text-lg font-bold">Avisos ativos na região</h2>
-        <ul className="mt-4 space-y-3">
-          {viagens
-            .filter((v) => v.status === "suspensa")
-            .map((v) => (
-              <li key={v.id} className="rounded-2xl bg-destructive/10 p-4 text-sm text-destructive">
-                <p className="font-semibold">
-                  {v.origem} → {v.destino}
-                </p>
-                <p className="mt-1 text-xs">{v.aviso}</p>
-              </li>
-            ))}
+        <h2 className="text-lg font-bold">Veículos em manutenção</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Concluiu o serviço? Reative o veículo para que volte a operar nas rotas vinculadas.
+        </p>
+        {abertas.length === 0 ? (
+          <p className="mt-4 text-xs text-muted-foreground">
+            Nenhum veículo indisponível. Sua frota está toda apta.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {abertas.map((i) => {
+              const v = (veiculos.data ?? []).find((x) => x.id === i.veiculo_id);
+              return (
+                <li key={i.id} className="rounded-2xl border border-border p-4 text-sm">
+                  <p className="font-semibold">
+                    {v ? `${v.placa} · ${v.marca} ${v.modelo}` : "Veículo"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {i.motivo} · desde {new Date(`${i.inicio}T12:00:00`).toLocaleDateString("pt-BR")}
+                    {i.retorno_previsto
+                      ? ` · retorno previsto ${new Date(`${i.retorno_previsto}T12:00:00`).toLocaleDateString("pt-BR")}`
+                      : ""}
+                  </p>
+                  {i.mensagem && <p className="mt-2 text-xs">{i.mensagem}</p>}
+                  <button
+                    onClick={() => reativar.mutate({ id: i.id, veiculoId: i.veiculo_id })}
+                    disabled={reativar.isPending}
+                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-success px-4 py-2 text-xs font-semibold text-success-foreground disabled:opacity-60"
+                  >
+                    {reativar.isPending ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="size-3.5" />
+                    )}
+                    Concluir manutenção e reativar
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <h3 className="mt-8 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          Histórico resolvido
+        </h3>
+        <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
+          {(indisponibilidades.data ?? [])
+            .filter((i) => i.resolvido_em)
+            .slice(0, 5)
+            .map((i) => {
+              const v = (veiculos.data ?? []).find((x) => x.id === i.veiculo_id);
+              return (
+                <li key={i.id}>
+                  {v?.placa ?? "Veículo"} · {i.motivo} · reativado em{" "}
+                  {new Date(i.resolvido_em as string).toLocaleDateString("pt-BR")}
+                </li>
+              );
+            })}
+          {(indisponibilidades.data ?? []).filter((i) => i.resolvido_em).length === 0 && (
+            <li>Nenhum registro concluído ainda.</li>
+          )}
         </ul>
       </div>
     </div>
