@@ -7,6 +7,7 @@ const links = [
   { to: "/passageiro", label: "Sou passageiro" },
   { to: "/motorista", label: "Sou motorista" },
   { to: "/embarque", label: "Embarque" },
+  { to: "/viagem", label: "Viagem ao vivo" },
   { to: "/frotista", label: "Sou frotista" },
   { to: "/pagamentos", label: "Pagamentos" },
   { to: "/planos", label: "Planos" },
@@ -17,6 +18,7 @@ const links = [
 ] as const;
 
 const linksAdmin = [
+  { to: "/assistencia", label: "Assistência" },
   { to: "/contabil", label: "Contábil" },
   { to: "/admin", label: "Admin" },
 ] as const;

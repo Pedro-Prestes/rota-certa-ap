@@ -17,6 +17,7 @@ import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
@@ -26,6 +27,7 @@ import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
+import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -68,6 +70,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAssistenciaRoute =
+  AuthenticatedAssistenciaRouteImport.update({
+    id: '/assistencia',
+    path: '/assistencia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
@@ -114,6 +122,11 @@ const AuthenticatedVerificacaoRoute =
     path: '/verificacao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedViagemRoute = AuthenticatedViagemRouteImport.update({
+  id: '/viagem',
+  path: '/viagem',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicAssinaturasRenovarRoute =
   ApiPublicAssinaturasRenovarRouteImport.update({
     id: '/api/public/assinaturas/renovar',
@@ -135,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -144,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -155,6 +170,7 @@ export interface FileRoutesByTo {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -164,6 +180,7 @@ export interface FileRoutesByTo {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -177,6 +194,7 @@ export interface FileRoutesById {
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
@@ -186,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
+  '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -199,6 +218,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/admin'
+    | '/assistencia'
     | '/auditoria'
     | '/biometria'
     | '/conta'
@@ -208,6 +228,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/planos'
     | '/verificacao'
+    | '/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -219,6 +240,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/admin'
+    | '/assistencia'
     | '/auditoria'
     | '/biometria'
     | '/conta'
@@ -228,6 +250,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/planos'
     | '/verificacao'
+    | '/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
   id:
@@ -240,6 +263,7 @@ export interface FileRouteTypes {
     | '/passageiro'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
     | '/_authenticated/biometria'
     | '/_authenticated/conta'
@@ -249,6 +273,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
     | '/_authenticated/verificacao'
+    | '/_authenticated/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -323,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assistencia': {
+      id: '/_authenticated/assistencia'
+      path: '/assistencia'
+      fullPath: '/assistencia'
+      preLoaderRoute: typeof AuthenticatedAssistenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/auditoria': {
       id: '/_authenticated/auditoria'
       path: '/auditoria'
@@ -386,6 +418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVerificacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/viagem': {
+      id: '/_authenticated/viagem'
+      path: '/viagem'
+      fullPath: '/viagem'
+      preLoaderRoute: typeof AuthenticatedViagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/assinaturas/renovar': {
       id: '/api/public/assinaturas/renovar'
       path: '/api/public/assinaturas/renovar'
@@ -405,6 +444,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAssistenciaRoute: typeof AuthenticatedAssistenciaRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
@@ -414,10 +454,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
+  AuthenticatedViagemRoute: typeof AuthenticatedViagemRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAssistenciaRoute: AuthenticatedAssistenciaRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
@@ -427,6 +469,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
+  AuthenticatedViagemRoute: AuthenticatedViagemRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -446,13 +489,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -14,6 +14,11 @@ async function cumprirSessao(session: any, env: StripeEnv) {
     await creditarCompraCreditos(session, env);
     return;
   }
+  if (tipo === "protecao") {
+    const { confirmarProtecao } = await import("@/lib/seguro.server");
+    await confirmarProtecao(session, env);
+    return;
+  }
   if (tipo === "assinatura") {
     // A ativação do plano é feita pelos eventos customer.subscription.*
     return;
