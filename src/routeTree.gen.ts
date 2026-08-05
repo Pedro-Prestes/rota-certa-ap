@@ -21,6 +21,7 @@ import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
+import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticated/frotista'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
@@ -86,6 +87,11 @@ const AuthenticatedContabilRoute = AuthenticatedContabilRouteImport.update({
   path: '/contabil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFrotistaRoute = AuthenticatedFrotistaRouteImport.update({
+  id: '/frotista',
+  path: '/frotista',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
   id: '/pagamentos',
   path: '/pagamentos',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
+  '/_authenticated/frotista': typeof AuthenticatedFrotistaRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/biometria'
     | '/conta'
     | '/contabil'
+    | '/frotista'
     | '/pagamentos'
     | '/planos'
     | '/verificacao'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/biometria'
     | '/conta'
     | '/contabil'
+    | '/frotista'
     | '/pagamentos'
     | '/planos'
     | '/verificacao'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/_authenticated/biometria'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
+    | '/_authenticated/frotista'
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
     | '/_authenticated/verificacao'
@@ -327,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContabilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/frotista': {
+      id: '/_authenticated/frotista'
+      path: '/frotista'
+      fullPath: '/frotista'
+      preLoaderRoute: typeof AuthenticatedFrotistaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pagamentos': {
       id: '/_authenticated/pagamentos'
       path: '/pagamentos'
@@ -371,6 +390,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
+  AuthenticatedFrotistaRoute: typeof AuthenticatedFrotistaRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
@@ -382,6 +402,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
+  AuthenticatedFrotistaRoute: AuthenticatedFrotistaRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
