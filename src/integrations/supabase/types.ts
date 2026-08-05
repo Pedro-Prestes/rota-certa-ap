@@ -649,6 +649,59 @@ export type Database = {
           },
         ]
       }
+      planos_embarque: {
+        Row: {
+          created_at: string
+          custo_busca: number
+          data_viagem: string
+          distancia_busca_km: number
+          duracao_busca_min: number
+          id: string
+          partida_garantida: string | null
+          provedor: string
+          rota_id: string
+          saida_motorista: string | null
+          sequencia: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custo_busca?: number
+          data_viagem: string
+          distancia_busca_km?: number
+          duracao_busca_min?: number
+          id?: string
+          partida_garantida?: string | null
+          provedor?: string
+          rota_id: string
+          saida_motorista?: string | null
+          sequencia?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custo_busca?: number
+          data_viagem?: string
+          distancia_busca_km?: number
+          duracao_busca_min?: number
+          id?: string
+          partida_garantida?: string | null
+          provedor?: string
+          rota_id?: string
+          saida_motorista?: string | null
+          sequencia?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_embarque_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plataforma_config: {
         Row: {
           chave: string
@@ -684,6 +737,86 @@ export type Database = {
           vigente_desde?: string
         }
         Relationships: []
+      }
+      pontos_embarque: {
+        Row: {
+          assentos: number
+          contra_endereco: string | null
+          contra_latitude: number | null
+          contra_longitude: number | null
+          created_at: string
+          data_viagem: string
+          endereco: string
+          eta_ponto: string | null
+          id: string
+          latitude: number
+          longitude: number
+          motivo: string | null
+          ordem: number | null
+          passageiro_id: string
+          passageiro_nome: string
+          referencia: string | null
+          rota_id: string
+          saida_motorista: string | null
+          status: string
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          assentos?: number
+          contra_endereco?: string | null
+          contra_latitude?: number | null
+          contra_longitude?: number | null
+          created_at?: string
+          data_viagem: string
+          endereco: string
+          eta_ponto?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          motivo?: string | null
+          ordem?: number | null
+          passageiro_id: string
+          passageiro_nome?: string
+          referencia?: string | null
+          rota_id: string
+          saida_motorista?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assentos?: number
+          contra_endereco?: string | null
+          contra_latitude?: number | null
+          contra_longitude?: number | null
+          created_at?: string
+          data_viagem?: string
+          endereco?: string
+          eta_ponto?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          motivo?: string | null
+          ordem?: number | null
+          passageiro_id?: string
+          passageiro_nome?: string
+          referencia?: string | null
+          rota_id?: string
+          saida_motorista?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pontos_embarque_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
