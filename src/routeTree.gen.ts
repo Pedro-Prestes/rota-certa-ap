@@ -16,6 +16,7 @@ import { Route as CheckoutRetornoRouteImport } from './routes/checkout-retorno'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SouFrotistaRouteImport } from './routes/sou-frotista'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
@@ -65,6 +66,11 @@ const PassageiroRoute = PassageiroRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SouFrotistaRoute = SouFrotistaRouteImport.update({
+  id: '/sou-frotista',
+  path: '/sou-frotista',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sou-frotista': typeof SouFrotistaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sou-frotista': typeof SouFrotistaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sou-frotista': typeof SouFrotistaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
+    | '/sou-frotista'
     | '/admin'
     | '/assistencia'
     | '/auditoria'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
+    | '/sou-frotista'
     | '/admin'
     | '/assistencia'
     | '/auditoria'
@@ -286,6 +297,7 @@ export interface FileRouteTypes {
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
+    | '/sou-frotista'
     | '/_authenticated/admin'
     | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
@@ -312,6 +324,7 @@ export interface RootRouteChildren {
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SouFrotistaRoute: typeof SouFrotistaRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sou-frotista': {
+      id: '/sou-frotista'
+      path: '/sou-frotista'
+      fullPath: '/sou-frotista'
+      preLoaderRoute: typeof SouFrotistaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -527,9 +547,20 @@ const rootRouteChildren: RootRouteChildren = {
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SouFrotistaRoute: SouFrotistaRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
