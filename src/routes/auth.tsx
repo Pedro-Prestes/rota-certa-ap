@@ -80,7 +80,7 @@ const DESCRICAO_PERFIL: Record<Perfil, string> = {
 function AuthPage() {
   const navigate = useNavigate();
   const { modo: modoInicial } = Route.useSearch();
-  const [modo, setModo] = useState<Modo>(modoInicial);
+  const [modo, setModo] = useState<Modo>(modoInicial ?? "entrar");
   const [perfil, setPerfil] = useState<Perfil>("passageiro");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
