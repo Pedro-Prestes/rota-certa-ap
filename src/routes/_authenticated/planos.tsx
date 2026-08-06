@@ -8,6 +8,7 @@ import { PACOTES_CREDITO, PLANOS, assinaturaAtiva, classificarTroca, planoDoPric
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { TopNav } from "@/components/TopNav";
 import { PainelSimulacao } from "@/components/PainelSimulacao";
 import {
   abrirPortalCobranca,
