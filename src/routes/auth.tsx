@@ -374,27 +374,95 @@ function AuthPage() {
               Voltar para e-mail e senha
             </button>
           </div>
+        ) : modo === "cadastro-telefone" ? (
+          <div>
+            {seletorPerfil}
+            <form
+              onSubmit={codigoEnviado ? concluirCadastroPorTelefone : pedirCodigoCadastro}
+              className="mt-5 space-y-3"
+            >
+              <input
+                className={campo}
+                type="tel"
+                placeholder="Telefone com DDD (ex.: 96 99999-0000)"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                disabled={codigoEnviado}
+                required
+              />
+              {codigoEnviado && (
+                <>
+                  <input
+                    className={campo}
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="Código de 6 dígitos recebido por SMS"
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
+                    required
+                  />
+                  <input
+                    className={campo}
+                    placeholder="Nome completo"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    minLength={3}
+                    required
+                  />
+                  <input
+                    className={campo}
+                    placeholder="Município / localidade"
+                    value={municipio}
+                    onChange={(e) => setMunicipio(e.target.value)}
+                  />
+                  <input
+                    className={campo}
+                    type="email"
+                    placeholder="E-mail (opcional)"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </>
+              )}
+              <button
+                type="submit"
+                disabled={ocupado}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
+              >
+                {ocupado ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Smartphone className="size-4" />
+                )}
+                {codigoEnviado ? "Concluir cadastro" : "Receber código por SMS"}
+              </button>
+            </form>
+            {codigoEnviado && (
+              <button
+                onClick={() => {
+                  setCodigoEnviado(false);
+                  setCodigo("");
+                }}
+                className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Trocar número ou reenviar código
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setModo("cadastrar");
+                setCodigoEnviado(false);
+                setCodigo("");
+              }}
+              className="mt-6 block text-sm text-accent underline-offset-4 hover:underline"
+            >
+              Prefiro cadastrar por e-mail
+            </button>
+          </div>
         ) : (
           <>
+            {modo === "cadastrar" && seletorPerfil}
 
-            {modo === "cadastrar" && (
-              <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
-                {(["passageiro", "motorista"] as const).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPerfil(p)}
-                    className={`rounded-xl px-3 py-2.5 text-sm font-semibold capitalize transition-colors ${
-                      perfil === p
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    Sou {p}
-                  </button>
-                ))}
-              </div>
-            )}
 
             <form onSubmit={enviar} className="mt-5 space-y-3">
               {modo === "cadastrar" && (
