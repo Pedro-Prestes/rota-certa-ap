@@ -1,0 +1,11 @@
+REVOKE EXECUTE ON FUNCTION public.frotista_liberado(uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.biometria_aprovada(uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.saida_protegida(uuid, date, uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.saldo_carteira(uuid, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.tem_plano_ativo(uuid, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.tem_plano_carteira_ativo(uuid, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.pode_ver_viagem(uuid, uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.pode_ver_viagem(uuid, uuid) TO authenticated, service_role;
