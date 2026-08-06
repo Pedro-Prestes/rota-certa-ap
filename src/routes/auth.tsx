@@ -248,18 +248,23 @@ function AuthPage() {
           {modo === "entrar"
             ? "Entrar no RotaCerta"
             : modo === "cadastrar"
-              ? "Criar conta"
-              : modo === "telefone"
-                ? "Entrar por telefone"
-                : "Recuperar senha"}
+              ? "Criar conta por e-mail"
+              : modo === "cadastro-telefone"
+                ? "Criar conta por telefone"
+                : modo === "telefone"
+                  ? "Entrar por telefone"
+                  : "Recuperar senha"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {modo === "recuperar"
             ? "Informe o e-mail cadastrado e enviaremos um link para definir uma nova senha."
             : modo === "telefone"
               ? "Enviamos um código de 6 dígitos por SMS para o telefone cadastrado na sua conta. Serve para entrar e também para recuperar o acesso quando você não lembra a senha."
-              : "Um acesso, dois perfis: passageiro para reservar assentos, motorista para publicar rotas."}
+              : modo === "cadastro-telefone"
+                ? "Confirmamos seu número por SMS e criamos a conta já com o perfil escolhido. O e-mail é opcional. Em seguida você faz a biometria facial."
+                : "Escolha seu perfil: passageiro, motorista ou frotista (empresa com CNPJ). Cada perfil vê apenas as áreas e os dados que lhe pertencem."}
         </p>
+
 
         {aguardandoEmail ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-sm">
