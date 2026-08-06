@@ -1142,6 +1142,48 @@ export type Database = {
           },
         ]
       }
+      solicitacoes_admin: {
+        Row: {
+          created_at: string
+          decidido_em: string | null
+          decidido_por: string | null
+          email: string
+          id: string
+          justificativa: string
+          motivo: string | null
+          nome: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          email: string
+          id?: string
+          justificativa: string
+          motivo?: string | null
+          nome: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          email?: string
+          id?: string
+          justificativa?: string
+          motivo?: string | null
+          nome?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -1624,6 +1666,7 @@ export type Database = {
     }
     Functions: {
       biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
+      eh_admin_master: { Args: { _user_id: string }; Returns: boolean }
       eh_frotista_da_rota: {
         Args: { _rota_id: string; _user_id: string }
         Returns: boolean
