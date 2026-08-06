@@ -39,20 +39,7 @@ export function TopNav() {
               {l.label}
             </Link>
           ))}
-          {ehAdmin &&
-            linksAdmin.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={`hidden rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:inline-block ${
-                  path === l.to
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                }`}
-              >
-                {l.label}
-              </Link>
-            ))}
+
           {!carregando &&
             (user ? (
               <Link
