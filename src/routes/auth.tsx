@@ -237,6 +237,29 @@ function AuthPage() {
   const campo =
     "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none transition-colors focus:border-accent";
 
+  const seletorPerfil = (
+    <div className="mt-7">
+      <div className="grid grid-cols-3 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
+        {(["passageiro", "motorista", "frotista"] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPerfil(p)}
+            className={`rounded-xl px-3 py-2.5 text-sm font-semibold capitalize transition-colors ${
+              perfil === p
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">{DESCRICAO_PERFIL[perfil]}</p>
+    </div>
+  );
+
+
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
