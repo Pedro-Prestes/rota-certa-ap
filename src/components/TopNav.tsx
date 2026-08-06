@@ -10,7 +10,9 @@ export function TopNav() {
   // Visitante vê apenas as vitrines públicas.
   const links = user
     ? areasVisiveis(perfis)
-    : AREAS.filter((a) => ["/", "/passageiro", "/motorista"].includes(a.to));
+    : AREAS.filter((a) =>
+        ["/", "/passageiro", "/motorista", "/sou-frotista", "/area-administrativa"].includes(a.to),
+      );
 
 
   return (

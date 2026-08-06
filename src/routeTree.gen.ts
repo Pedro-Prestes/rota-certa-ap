@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AreaAdministrativaRouteImport } from './routes/area-administrativa'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRetornoRouteImport } from './routes/checkout-retorno'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SouFrotistaRouteImport } from './routes/sou-frotista'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
@@ -42,6 +44,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AreaAdministrativaRoute = AreaAdministrativaRouteImport.update({
+  id: '/area-administrativa',
+  path: '/area-administrativa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -65,6 +72,11 @@ const PassageiroRoute = PassageiroRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SouFrotistaRoute = SouFrotistaRouteImport.update({
+  id: '/sou-frotista',
+  path: '/sou-frotista',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -156,11 +168,13 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sou-frotista': typeof SouFrotistaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -180,11 +194,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sou-frotista': typeof SouFrotistaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -206,11 +222,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sou-frotista': typeof SouFrotistaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -232,11 +250,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/area-administrativa'
     | '/auth'
     | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
+    | '/sou-frotista'
     | '/admin'
     | '/assistencia'
     | '/auditoria'
@@ -256,11 +276,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/area-administrativa'
     | '/auth'
     | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
+    | '/sou-frotista'
     | '/admin'
     | '/assistencia'
     | '/auditoria'
@@ -281,11 +303,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/area-administrativa'
     | '/auth'
     | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
+    | '/sou-frotista'
     | '/_authenticated/admin'
     | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
@@ -307,11 +331,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AreaAdministrativaRoute: typeof AreaAdministrativaRoute
   AuthRoute: typeof AuthRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SouFrotistaRoute: typeof SouFrotistaRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -330,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/area-administrativa': {
+      id: '/area-administrativa'
+      path: '/area-administrativa'
+      fullPath: '/area-administrativa'
+      preLoaderRoute: typeof AreaAdministrativaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -365,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sou-frotista': {
+      id: '/sou-frotista'
+      path: '/sou-frotista'
+      fullPath: '/sou-frotista'
+      preLoaderRoute: typeof SouFrotistaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -522,11 +562,13 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AreaAdministrativaRoute: AreaAdministrativaRoute,
   AuthRoute: AuthRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SouFrotistaRoute: SouFrotistaRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
