@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AreaAdministrativaRouteImport } from './routes/area-administrativa'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CheckoutRetornoRouteImport } from './routes/checkout-retorno'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
@@ -52,6 +53,11 @@ const AreaAdministrativaRoute = AreaAdministrativaRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRetornoRoute = CheckoutRetornoRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
+  '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
+  '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
+  '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/'
     | '/area-administrativa'
     | '/auth'
+    | '/cadastro'
     | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/'
     | '/area-administrativa'
     | '/auth'
+    | '/cadastro'
     | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/area-administrativa'
     | '/auth'
+    | '/cadastro'
     | '/checkout-retorno'
     | '/motorista'
     | '/passageiro'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AreaAdministrativaRoute: typeof AreaAdministrativaRoute
   AuthRoute: typeof AuthRoute
+  CadastroRoute: typeof CadastroRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout-retorno': {
@@ -564,6 +584,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AreaAdministrativaRoute: AreaAdministrativaRoute,
   AuthRoute: AuthRoute,
+  CadastroRoute: CadastroRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
