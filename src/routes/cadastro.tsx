@@ -49,7 +49,7 @@ function CadastroPage() {
             <h2 className="mt-3 text-lg font-semibold">Com e-mail e senha</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Informe nome, telefone, município, e-mail e uma senha. Escolha o perfil: passageiro,
-              motorista ou frotista.
+              motorista, frotista ou área administrativa.
             </p>
             <span className="mt-4 inline-block text-sm font-semibold text-accent">
               Cadastrar por e-mail →

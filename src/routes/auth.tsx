@@ -15,10 +15,10 @@ import {
 
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => {
-    const m = String(search['modo'] ?? "entrar");
+  validateSearch: (search: Record<string, unknown>): { modo?: Modo } => {
+    const m = String(search['modo'] ?? "");
     const permitidos = ["entrar", "cadastrar", "recuperar", "telefone", "cadastro-telefone"];
-    return { modo: (permitidos.includes(m) ? m : "entrar") as Modo };
+    return permitidos.includes(m) ? { modo: m as Modo } : {};
   },
   head: () => ({
     meta: [
@@ -41,25 +41,46 @@ export const Route = createFileRoute("/auth")({
 });
 
 type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone" | "cadastro-telefone";
-type Perfil = "passageiro" | "motorista" | "frotista";
+type Perfil = "passageiro" | "motorista" | "frotista" | "administrativo";
 
-const DESTINO_POS_CADASTRO: Record<Perfil, "/biometria" | "/frotista"> = {
+/** Perfis que o cadastro cria diretamente. "administrativo" entra como passageiro
+ *  e depende de aprovação do administrador master em /solicitar-admin. */
+type PerfilBase = "passageiro" | "motorista" | "frotista";
+
+const PERFIL_BASE: Record<Perfil, PerfilBase> = {
+  passageiro: "passageiro",
+  motorista: "motorista",
+  frotista: "frotista",
+  administrativo: "passageiro",
+};
+
+const DESTINO_POS_CADASTRO: Record<Perfil, "/biometria" | "/solicitar-admin"> = {
   passageiro: "/biometria",
   motorista: "/biometria",
   frotista: "/biometria",
+  administrativo: "/solicitar-admin",
+};
+
+const ROTULO_PERFIL: Record<Perfil, string> = {
+  passageiro: "Passageiro",
+  motorista: "Motorista",
+  frotista: "Frotista",
+  administrativo: "Área administrativa",
 };
 
 const DESCRICAO_PERFIL: Record<Perfil, string> = {
   passageiro: "Reservar assentos e acordar o ponto de embarque.",
   motorista: "Publicar rotas, cadastrar veículo e receber corridas.",
   frotista: "Empresa (CNPJ) com frota — a partir de 6 veículos.",
+  administrativo:
+    "Colaborador da plataforma (admin secundário, gerente ou operacional). A conta é criada e o acesso administrativo passa por aprovação do administrador master.",
 };
 
 
 function AuthPage() {
   const navigate = useNavigate();
   const { modo: modoInicial } = Route.useSearch();
-  const [modo, setModo] = useState<Modo>(modoInicial);
+  const [modo, setModo] = useState<Modo>(modoInicial ?? "entrar");
   const [perfil, setPerfil] = useState<Perfil>("passageiro");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -112,13 +133,17 @@ function AuthPage() {
               nome_completo: nome,
               telefone,
               municipio,
-              perfil,
+              perfil: PERFIL_BASE[perfil],
             },
           },
         });
         if (error) throw error;
         if (data.session) {
-          toast.success("Conta criada! Agora faça a biometria facial.");
+          toast.success(
+            perfil === "administrativo"
+              ? "Conta criada! Agora solicite o acesso administrativo."
+              : "Conta criada! Agora faça a biometria facial.",
+          );
           navigate({ to: DESTINO_POS_CADASTRO[perfil], replace: true });
 
         } else {
@@ -215,7 +240,7 @@ function AuthPage() {
           codigo,
           nome,
           municipio,
-          perfil,
+          perfil: PERFIL_BASE[perfil],
           ...(email.trim() ? { email: email.trim() } : {}),
         },
       });
@@ -224,7 +249,11 @@ function AuthPage() {
         type: "magiclink",
       });
       if (error) throw error;
-      toast.success("Cadastro concluído! Agora faça a biometria facial.");
+      toast.success(
+        perfil === "administrativo"
+          ? "Cadastro concluído! Agora solicite o acesso administrativo."
+          : "Cadastro concluído! Agora faça a biometria facial.",
+      );
       navigate({ to: DESTINO_POS_CADASTRO[perfil], replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível concluir o cadastro.");
@@ -253,19 +282,19 @@ function AuthPage() {
 
   const seletorPerfil = (
     <div className="mt-7">
-      <div className="grid grid-cols-3 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
-        {(["passageiro", "motorista", "frotista"] as const).map((p) => (
+      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
+        {(["passageiro", "motorista", "frotista", "administrativo"] as const).map((p) => (
           <button
             key={p}
             type="button"
             onClick={() => setPerfil(p)}
-            className={`rounded-xl px-3 py-2.5 text-sm font-semibold capitalize transition-colors ${
+            className={`rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
               perfil === p
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {p}
+            {ROTULO_PERFIL[p]}
           </button>
         ))}
       </div>
@@ -299,7 +328,7 @@ function AuthPage() {
               ? "Enviamos um código de 6 dígitos por SMS para o telefone cadastrado na sua conta. Serve para entrar e também para recuperar o acesso quando você não lembra a senha."
               : modo === "cadastro-telefone"
                 ? "Confirmamos seu número por SMS e criamos a conta já com o perfil escolhido. O e-mail é opcional. Em seguida você faz a biometria facial."
-                : "Escolha seu perfil: passageiro, motorista ou frotista (empresa com CNPJ). Cada perfil vê apenas as áreas e os dados que lhe pertencem."}
+                : "Escolha seu perfil: passageiro, motorista, frotista (empresa com CNPJ) ou área administrativa (colaborador da plataforma). Cada perfil vê apenas as áreas e os dados que lhe pertencem."}
         </p>
 
 
