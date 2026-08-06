@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AreaAdministrativaRouteImport } from './routes/area-administrativa'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRetornoRouteImport } from './routes/checkout-retorno'
 import { Route as MotoristaRouteImport } from './routes/motorista'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreaAdministrativaRoute = AreaAdministrativaRouteImport.update({
+  id: '/area-administrativa',
+  path: '/area-administrativa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -162,6 +168,7 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/area-administrativa': typeof AreaAdministrativaRoute
   '/auth': typeof AuthRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
   '/motorista': typeof MotoristaRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/area-administrativa'
     | '/auth'
     | '/checkout-retorno'
     | '/motorista'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/area-administrativa'
     | '/auth'
     | '/checkout-retorno'
     | '/motorista'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/area-administrativa'
     | '/auth'
     | '/checkout-retorno'
     | '/motorista'
@@ -319,6 +331,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AreaAdministrativaRoute: typeof AreaAdministrativaRoute
   AuthRoute: typeof AuthRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   MotoristaRoute: typeof MotoristaRoute
@@ -343,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/area-administrativa': {
+      id: '/area-administrativa'
+      path: '/area-administrativa'
+      fullPath: '/area-administrativa'
+      preLoaderRoute: typeof AreaAdministrativaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -542,6 +562,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AreaAdministrativaRoute: AreaAdministrativaRoute,
   AuthRoute: AuthRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
   MotoristaRoute: MotoristaRoute,
@@ -554,13 +575,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
