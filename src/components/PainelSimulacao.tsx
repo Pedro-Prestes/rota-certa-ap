@@ -53,11 +53,14 @@ export function PainelSimulacao({ onAtualizar }: { onAtualizar?: () => void | Pr
   };
 
   useEffect(() => {
+    // Fora do sandbox o painel não é exibido e nada é consultado no servidor.
+    if (env !== "sandbox") return;
     void carregarCorridas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [env]);
 
   if (env !== "sandbox") return null;
+
 
   const executar = async (chave: string, fn: () => Promise<void>) => {
     setOcupado(chave);
