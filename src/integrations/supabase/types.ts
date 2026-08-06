@@ -1152,6 +1152,7 @@ export type Database = {
           justificativa: string
           motivo: string | null
           nome: string
+          perfil_solicitado: Database["public"]["Enums"]["app_role"]
           status: string
           updated_at: string
           user_id: string
@@ -1165,6 +1166,7 @@ export type Database = {
           justificativa: string
           motivo?: string | null
           nome: string
+          perfil_solicitado?: Database["public"]["Enums"]["app_role"]
           status?: string
           updated_at?: string
           user_id: string
@@ -1178,6 +1180,7 @@ export type Database = {
           justificativa?: string
           motivo?: string | null
           nome?: string
+          perfil_solicitado?: Database["public"]["Enums"]["app_role"]
           status?: string
           updated_at?: string
           user_id?: string
@@ -1667,10 +1670,12 @@ export type Database = {
     Functions: {
       biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
       eh_admin_master: { Args: { _user_id: string }; Returns: boolean }
+      eh_colaborador: { Args: { _user_id: string }; Returns: boolean }
       eh_frotista_da_rota: {
         Args: { _rota_id: string; _user_id: string }
         Returns: boolean
       }
+      eh_gestao: { Args: { _user_id: string }; Returns: boolean }
       frotista_id_do_usuario: { Args: { _user_id: string }; Returns: string }
       frotista_liberado: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
@@ -1703,7 +1708,14 @@ export type Database = {
     }
     Enums: {
       alvo_verificacao: "passageiro" | "motorista" | "veiculo"
-      app_role: "passageiro" | "motorista" | "admin" | "frotista"
+      app_role:
+        | "passageiro"
+        | "motorista"
+        | "admin"
+        | "frotista"
+        | "admin_secundario"
+        | "gerente"
+        | "operacional"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
       status_estorno:
         | "solicitado"
@@ -1854,7 +1866,15 @@ export const Constants = {
   public: {
     Enums: {
       alvo_verificacao: ["passageiro", "motorista", "veiculo"],
-      app_role: ["passageiro", "motorista", "admin", "frotista"],
+      app_role: [
+        "passageiro",
+        "motorista",
+        "admin",
+        "frotista",
+        "admin_secundario",
+        "gerente",
+        "operacional",
+      ],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
       status_estorno: [
         "solicitado",

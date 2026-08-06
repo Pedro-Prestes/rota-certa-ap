@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
+import { Route as AuthenticatedColaboradorRouteImport } from './routes/_authenticated/colaborador'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
 import { Route as AuthenticatedEmbarqueRouteImport } from './routes/_authenticated/embarque'
@@ -87,6 +88,12 @@ const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
   path: '/biometria',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedColaboradorRoute =
+  AuthenticatedColaboradorRouteImport.update({
+    id: '/colaborador',
+    path: '/colaborador',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   id: '/conta',
   path: '/conta',
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
   '/embarque': typeof AuthenticatedEmbarqueRoute
@@ -181,6 +189,7 @@ export interface FileRoutesByTo {
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
   '/embarque': typeof AuthenticatedEmbarqueRoute
@@ -206,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
+  '/_authenticated/colaborador': typeof AuthenticatedColaboradorRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
   '/_authenticated/embarque': typeof AuthenticatedEmbarqueRoute
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/assistencia'
     | '/auditoria'
     | '/biometria'
+    | '/colaborador'
     | '/conta'
     | '/contabil'
     | '/embarque'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/assistencia'
     | '/auditoria'
     | '/biometria'
+    | '/colaborador'
     | '/conta'
     | '/contabil'
     | '/embarque'
@@ -278,6 +290,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
     | '/_authenticated/biometria'
+    | '/_authenticated/colaborador'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
     | '/_authenticated/embarque'
@@ -382,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/colaborador': {
+      id: '/_authenticated/colaborador'
+      path: '/colaborador'
+      fullPath: '/colaborador'
+      preLoaderRoute: typeof AuthenticatedColaboradorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/conta': {
       id: '/_authenticated/conta'
       path: '/conta'
@@ -467,6 +487,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistenciaRoute: typeof AuthenticatedAssistenciaRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
+  AuthenticatedColaboradorRoute: typeof AuthenticatedColaboradorRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
   AuthenticatedEmbarqueRoute: typeof AuthenticatedEmbarqueRoute
@@ -483,6 +504,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistenciaRoute: AuthenticatedAssistenciaRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
+  AuthenticatedColaboradorRoute: AuthenticatedColaboradorRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
   AuthenticatedEmbarqueRoute: AuthenticatedEmbarqueRoute,
