@@ -26,6 +26,7 @@ import { Route as AuthenticatedEmbarqueRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticated/frotista'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
+import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authenticated/solicitar-admin'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
@@ -116,6 +117,12 @@ const AuthenticatedPlanosRoute = AuthenticatedPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSolicitarAdminRoute =
+  AuthenticatedSolicitarAdminRouteImport.update({
+    id: '/solicitar-admin',
+    path: '/solicitar-admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedVerificacaoRoute =
   AuthenticatedVerificacaoRouteImport.update({
     id: '/verificacao',
@@ -157,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
+  '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
@@ -179,6 +187,7 @@ export interface FileRoutesByTo {
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
+  '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
@@ -203,6 +212,7 @@ export interface FileRoutesById {
   '/_authenticated/frotista': typeof AuthenticatedFrotistaRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
+  '/_authenticated/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/frotista'
     | '/pagamentos'
     | '/planos'
+    | '/solicitar-admin'
     | '/verificacao'
     | '/viagem'
     | '/api/public/assinaturas/renovar'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/frotista'
     | '/pagamentos'
     | '/planos'
+    | '/solicitar-admin'
     | '/verificacao'
     | '/viagem'
     | '/api/public/assinaturas/renovar'
@@ -272,6 +284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/frotista'
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
+    | '/_authenticated/solicitar-admin'
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
     | '/api/public/assinaturas/renovar'
@@ -411,6 +424,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlanosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/solicitar-admin': {
+      id: '/_authenticated/solicitar-admin'
+      path: '/solicitar-admin'
+      fullPath: '/solicitar-admin'
+      preLoaderRoute: typeof AuthenticatedSolicitarAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/verificacao': {
       id: '/_authenticated/verificacao'
       path: '/verificacao'
@@ -453,6 +473,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFrotistaRoute: typeof AuthenticatedFrotistaRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
+  AuthenticatedSolicitarAdminRoute: typeof AuthenticatedSolicitarAdminRoute
   AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
   AuthenticatedViagemRoute: typeof AuthenticatedViagemRoute
 }
@@ -468,6 +489,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFrotistaRoute: AuthenticatedFrotistaRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
+  AuthenticatedSolicitarAdminRoute: AuthenticatedSolicitarAdminRoute,
   AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
   AuthenticatedViagemRoute: AuthenticatedViagemRoute,
 }

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Crown, Loader2, Search, ShieldCheck, Users } from "lucide-react";
+import { Crown, Loader2, Search, ShieldCheck, ShieldPlus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
@@ -97,6 +97,68 @@ function Admin() {
       return (data ?? []).map((m) => m.email);
     },
   });
+
+  const ehMaster = useQuery({
+    queryKey: ["ehMaster", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("eh_admin_master", { _user_id: user!.id });
+      if (error) throw error;
+      return !!data;
+    },
+  });
+
+  const solicitacoes = useQuery({
+    queryKey: ["admin-solicitacoes"],
+    enabled: ehMaster.data === true,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("solicitacoes_admin")
+        .select("id, user_id, nome, email, justificativa, status, motivo, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as {
+        id: string;
+        user_id: string;
+        nome: string;
+        email: string;
+        justificativa: string;
+        status: string;
+        motivo: string | null;
+        created_at: string;
+      }[];
+    },
+  });
+
+  const decidir = useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      motivo,
+    }: {
+      id: string;
+      status: "aprovada" | "recusada";
+      motivo?: string | undefined;
+    }) => {
+      const { error } = await supabase
+        .from("solicitacoes_admin")
+        .update({
+          status,
+          motivo: motivo ?? null,
+          decidido_por: user!.id,
+          decidido_em: new Date().toISOString(),
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ["admin-solicitacoes"] });
+      qc.invalidateQueries({ queryKey: ["admin-papeis"] });
+      toast.success(v.status === "aprovada" ? "Administrador aprovado" : "Solicitação recusada");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const corridas = useQuery({
     queryKey: ["admin-corridas"],
@@ -305,6 +367,65 @@ function Admin() {
             </table>
           </div>
         </section>
+
+        {ehMaster.data === true && (
+          <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+              <ShieldPlus className="size-4" /> Solicitações de administrador
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Aprovações concedem o perfil de administrador (não master) à conta solicitante.
+            </p>
+            <ul className="mt-4 grid gap-3">
+              {(solicitacoes.data ?? []).map((s) => (
+                <li key={s.id} className="rounded-xl border border-border/70 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold">{s.nome}</span>
+                    <span className="text-sm text-muted-foreground">{s.email}</span>
+                    <span className="ml-auto rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
+                      {s.status === "pendente"
+                        ? "Em análise"
+                        : s.status === "aprovada"
+                          ? "Aprovada"
+                          : "Recusada"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{s.justificativa}</p>
+                  {s.status === "pendente" && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={decidir.isPending}
+                        onClick={() => decidir.mutate({ id: s.id, status: "aprovada" })}
+                        className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                      >
+                        Aprovar
+                      </button>
+                      <button
+                        type="button"
+                        disabled={decidir.isPending}
+                        onClick={() => {
+                          const motivo = window.prompt("Motivo da recusa (opcional)");
+                          decidir.mutate({ id: s.id, status: "recusada", motivo: motivo ?? "" });
+                        }}
+                        className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary disabled:opacity-60"
+                      >
+                        Recusar
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+              {(solicitacoes.data ?? []).length === 0 && (
+                <li className="py-6 text-center text-sm text-muted-foreground">
+                  Nenhuma solicitação recebida.
+                </li>
+              )}
+            </ul>
+          </section>
+        )}
+
+
 
         <section className="mt-6 rounded-2xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 font-display text-lg font-bold">
