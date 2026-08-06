@@ -1152,6 +1152,7 @@ export type Database = {
           justificativa: string
           motivo: string | null
           nome: string
+          perfil_solicitado: Database["public"]["Enums"]["app_role"]
           status: string
           updated_at: string
           user_id: string
@@ -1165,6 +1166,7 @@ export type Database = {
           justificativa: string
           motivo?: string | null
           nome: string
+          perfil_solicitado?: Database["public"]["Enums"]["app_role"]
           status?: string
           updated_at?: string
           user_id: string
@@ -1178,6 +1180,7 @@ export type Database = {
           justificativa?: string
           motivo?: string | null
           nome?: string
+          perfil_solicitado?: Database["public"]["Enums"]["app_role"]
           status?: string
           updated_at?: string
           user_id?: string
@@ -1703,7 +1706,14 @@ export type Database = {
     }
     Enums: {
       alvo_verificacao: "passageiro" | "motorista" | "veiculo"
-      app_role: "passageiro" | "motorista" | "admin" | "frotista"
+      app_role:
+        | "passageiro"
+        | "motorista"
+        | "admin"
+        | "frotista"
+        | "admin_secundario"
+        | "gerente"
+        | "operacional"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
       status_estorno:
         | "solicitado"
@@ -1854,7 +1864,15 @@ export const Constants = {
   public: {
     Enums: {
       alvo_verificacao: ["passageiro", "motorista", "veiculo"],
-      app_role: ["passageiro", "motorista", "admin", "frotista"],
+      app_role: [
+        "passageiro",
+        "motorista",
+        "admin",
+        "frotista",
+        "admin_secundario",
+        "gerente",
+        "operacional",
+      ],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
       status_estorno: [
         "solicitado",
