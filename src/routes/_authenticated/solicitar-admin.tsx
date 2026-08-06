@@ -58,6 +58,7 @@ function SolicitarAdmin() {
       const { data, error } = await supabase
         .from("solicitacoes_admin")
         .select("id, nome, email, justificativa, status, motivo, created_at, decidido_em")
+        .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Solicitacao[];
