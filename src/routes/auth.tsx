@@ -171,6 +171,48 @@ function AuthPage() {
     }
   }
 
+  async function pedirCodigoCadastro(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      await enviarCodigoCadastro({ data: { telefone } });
+      setCodigoEnviado(true);
+      toast.success("Código enviado por SMS.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível enviar o código.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function concluirCadastroPorTelefone(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      const { tokenHash } = await criarContaPorTelefone({
+        data: {
+          telefone,
+          codigo,
+          nome,
+          municipio,
+          perfil,
+          ...(email.trim() ? { email: email.trim() } : {}),
+        },
+      });
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "magiclink",
+      });
+      if (error) throw error;
+      toast.success("Cadastro concluído! Agora faça a biometria facial.");
+      navigate({ to: DESTINO_POS_CADASTRO[perfil], replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível concluir o cadastro.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
 
   async function entrarComGoogle() {
     setOcupado(true);
