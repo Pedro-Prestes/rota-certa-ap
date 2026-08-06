@@ -35,6 +35,7 @@ import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -171,6 +172,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
+  id: '/api/public/webhooks/stripe',
+  path: '/api/public/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/stripe'
   id:
     | '__root__'
     | '/'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -353,6 +365,7 @@ export interface RootRouteChildren {
   SouFrotistaRoute: typeof SouFrotistaRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -539,6 +552,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/stripe': {
+      id: '/api/public/webhooks/stripe'
+      path: '/api/public/webhooks/stripe'
+      fullPath: '/api/public/webhooks/stripe'
+      preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -592,17 +612,8 @@ const rootRouteChildren: RootRouteChildren = {
   SouFrotistaRoute: SouFrotistaRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

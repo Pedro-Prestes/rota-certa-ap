@@ -74,20 +74,62 @@ export function getStripeErrorMessage(error: unknown): string {
   return "Stripe request failed";
 }
 
-export async function verifyWebhook(
+type Candidato = { nome: string; valor: string; env: StripeEnv };
+
+/** Segredos aceitos na verificação: gerenciados + o segredo dos destinos custom. */
+function candidatosDeSegredo(envHint?: StripeEnv): Candidato[] {
+  const lista: Candidato[] = [];
+  const add = (nome: string, env: StripeEnv) => {
+    const valor = process.env[nome];
+    if (valor && !lista.some((c) => c.valor === valor)) lista.push({ nome, valor, env });
+  };
+  if (!envHint || envHint === "live") add("PAYMENTS_LIVE_WEBHOOK_SECRET", "live");
+  if (!envHint || envHint === "sandbox") add("PAYMENTS_SANDBOX_WEBHOOK_SECRET", "sandbox");
+  add("STRIPE_WEBHOOK_SECRET", envHint ?? "live");
+  return lista;
+}
+
+/** Comparação em tempo constante entre duas assinaturas em hexadecimal. */
+function iguaisEmTempoConstante(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function assinar(segredo: string, payload: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(segredo),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return Buffer.from(new Uint8Array(signed)).toString("hex");
+}
+
+export type WebhookVerificado = {
+  event: { type: string; data: { object: any } };
+  /** Nome do segredo que validou a assinatura (para diagnóstico, sem expor o valor). */
+  segredo: string;
+  /** Ambiente inferido a partir do segredo que validou. */
+  env: StripeEnv;
+  /** Estilo do conteúdo entregue pela Stripe. */
+  estilo: "instantaneo" | "minimo";
+};
+
+/**
+ * Verifica a assinatura do webhook contra todos os segredos configurados
+ * (gerenciados do ambiente + `STRIPE_WEBHOOK_SECRET` dos destinos custom).
+ */
+export async function verifyWebhookAny(
   req: Request,
-  env: StripeEnv,
-): Promise<{ type: string; data: { object: any } }> {
+  envHint?: StripeEnv,
+): Promise<WebhookVerificado> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
-  const secret =
-    env === "sandbox"
-      ? getEnv("PAYMENTS_SANDBOX_WEBHOOK_SECRET")
-      : getEnv("PAYMENTS_LIVE_WEBHOOK_SECRET");
-
-  if (!signature || !body) {
-    throw new Error("Missing signature or body");
-  }
+  if (!signature || !body) throw new Error("Missing signature or body");
 
   let timestamp: string | undefined;
   const v1Signatures: string[] = [];
@@ -97,33 +139,61 @@ export async function verifyWebhook(
     if (key === "t") timestamp = value;
     if (key === "v1") v1Signatures.push(value);
   }
-
-  if (!timestamp || v1Signatures.length === 0) {
-    throw new Error("Invalid signature format");
-  }
+  if (!timestamp || v1Signatures.length === 0) throw new Error("Invalid signature format");
 
   const age = Math.abs(Date.now() / 1000 - Number(timestamp));
-  if (age > 300) {
-    throw new Error("Webhook timestamp too old");
+  if (age > 300) throw new Error("Webhook timestamp too old");
+
+  const candidatos = candidatosDeSegredo(envHint);
+  if (candidatos.length === 0) throw new Error("No webhook secret configured");
+
+  for (const candidato of candidatos) {
+    const esperado = await assinar(candidato.valor, `${timestamp}.${body}`);
+    if (v1Signatures.some((s) => iguaisEmTempoConstante(s, esperado))) {
+      const event = JSON.parse(body) as { type: string; data: { object: any } };
+      const obj = event.data?.object ?? {};
+      const estilo = Object.keys(obj).length > 6 ? "instantaneo" : "minimo";
+      return { event, segredo: candidato.nome, env: candidato.env, estilo };
+    }
   }
 
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const signed = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(`${timestamp}.${body}`),
-  );
-  const expected = Buffer.from(new Uint8Array(signed)).toString("hex");
-
-  if (!v1Signatures.includes(expected)) {
-    throw new Error("Invalid webhook signature");
-  }
-
-  return JSON.parse(body);
+  throw new Error("Invalid webhook signature");
 }
+
+/** Compatibilidade: retorna apenas o evento verificado. */
+export async function verifyWebhook(
+  req: Request,
+  env: StripeEnv,
+): Promise<{ type: string; data: { object: any } }> {
+  const { event } = await verifyWebhookAny(req, env);
+  return event;
+}
+
+/**
+ * Destinos com estilo "Mínimo" enviam apenas o `id` do objeto.
+ * Busca o objeto completo na Stripe antes de processar o evento.
+ */
+export async function hidratarEvento(
+  verificado: WebhookVerificado,
+): Promise<{ type: string; data: { object: any } }> {
+  const { event, env, estilo } = verificado;
+  const obj = event.data?.object;
+  const id: unknown = obj?.id;
+  if (estilo === "instantaneo" || typeof id !== "string") return event;
+
+  const stripe = createStripeClient(env);
+  try {
+    let completo: any = null;
+    if (id.startsWith("cs_")) completo = await stripe.checkout.sessions.retrieve(id);
+    else if (id.startsWith("sub_")) completo = await stripe.subscriptions.retrieve(id);
+    else if (id.startsWith("in_")) completo = await stripe.invoices.retrieve(id);
+    else if (id.startsWith("pi_")) completo = await stripe.paymentIntents.retrieve(id);
+    else if (id.startsWith("ch_")) completo = await stripe.charges.retrieve(id);
+    if (!completo) return event;
+    return { ...event, data: { ...event.data, object: completo } };
+  } catch (e) {
+    console.error("Falha ao buscar objeto completo do evento", event.type, id, e);
+    return event;
+  }
+}
+
