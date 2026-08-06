@@ -5,7 +5,13 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
-import { enviarCodigoSms, verificarCodigoSms } from "@/lib/telefone.functions";
+import {
+  criarContaPorTelefone,
+  enviarCodigoCadastro,
+  enviarCodigoSms,
+  verificarCodigoSms,
+} from "@/lib/telefone.functions";
+
 
 
 export const Route = createFileRoute("/auth")({
@@ -29,8 +35,21 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone";
-type Perfil = "passageiro" | "motorista";
+type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone" | "cadastro-telefone";
+type Perfil = "passageiro" | "motorista" | "frotista";
+
+const DESTINO_POS_CADASTRO: Record<Perfil, "/biometria" | "/frotista"> = {
+  passageiro: "/biometria",
+  motorista: "/biometria",
+  frotista: "/biometria",
+};
+
+const DESCRICAO_PERFIL: Record<Perfil, string> = {
+  passageiro: "Reservar assentos e acordar o ponto de embarque.",
+  motorista: "Publicar rotas, cadastrar veículo e receber corridas.",
+  frotista: "Empresa (CNPJ) com frota — a partir de 6 veículos.",
+};
+
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -74,7 +93,7 @@ function AuthPage() {
           email,
           password: senha,
           options: {
-            emailRedirectTo: `${window.location.origin}/conta`,
+            emailRedirectTo: `${window.location.origin}${DESTINO_POS_CADASTRO[perfil]}`,
             data: {
               nome_completo: nome,
               telefone,
@@ -85,8 +104,9 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.session) {
-          toast.success("Conta criada!");
-          navigate({ to: "/conta", replace: true });
+          toast.success("Conta criada! Agora faça a biometria facial.");
+          navigate({ to: DESTINO_POS_CADASTRO[perfil], replace: true });
+
         } else {
           setAguardandoEmail(true);
           toast.success("Confirme seu e-mail para ativar a conta.");
@@ -157,6 +177,48 @@ function AuthPage() {
     }
   }
 
+  async function pedirCodigoCadastro(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      await enviarCodigoCadastro({ data: { telefone } });
+      setCodigoEnviado(true);
+      toast.success("Código enviado por SMS.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível enviar o código.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function concluirCadastroPorTelefone(e: React.FormEvent) {
+    e.preventDefault();
+    setOcupado(true);
+    try {
+      const { tokenHash } = await criarContaPorTelefone({
+        data: {
+          telefone,
+          codigo,
+          nome,
+          municipio,
+          perfil,
+          ...(email.trim() ? { email: email.trim() } : {}),
+        },
+      });
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "magiclink",
+      });
+      if (error) throw error;
+      toast.success("Cadastro concluído! Agora faça a biometria facial.");
+      navigate({ to: DESTINO_POS_CADASTRO[perfil], replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível concluir o cadastro.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
 
   async function entrarComGoogle() {
     setOcupado(true);
@@ -175,6 +237,29 @@ function AuthPage() {
   const campo =
     "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none transition-colors focus:border-accent";
 
+  const seletorPerfil = (
+    <div className="mt-7">
+      <div className="grid grid-cols-3 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
+        {(["passageiro", "motorista", "frotista"] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPerfil(p)}
+            className={`rounded-xl px-3 py-2.5 text-sm font-semibold capitalize transition-colors ${
+              perfil === p
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">{DESCRICAO_PERFIL[perfil]}</p>
+    </div>
+  );
+
+
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
@@ -186,18 +271,23 @@ function AuthPage() {
           {modo === "entrar"
             ? "Entrar no RotaCerta"
             : modo === "cadastrar"
-              ? "Criar conta"
-              : modo === "telefone"
-                ? "Entrar por telefone"
-                : "Recuperar senha"}
+              ? "Criar conta por e-mail"
+              : modo === "cadastro-telefone"
+                ? "Criar conta por telefone"
+                : modo === "telefone"
+                  ? "Entrar por telefone"
+                  : "Recuperar senha"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {modo === "recuperar"
             ? "Informe o e-mail cadastrado e enviaremos um link para definir uma nova senha."
             : modo === "telefone"
               ? "Enviamos um código de 6 dígitos por SMS para o telefone cadastrado na sua conta. Serve para entrar e também para recuperar o acesso quando você não lembra a senha."
-              : "Um acesso, dois perfis: passageiro para reservar assentos, motorista para publicar rotas."}
+              : modo === "cadastro-telefone"
+                ? "Confirmamos seu número por SMS e criamos a conta já com o perfil escolhido. O e-mail é opcional. Em seguida você faz a biometria facial."
+                : "Escolha seu perfil: passageiro, motorista ou frotista (empresa com CNPJ). Cada perfil vê apenas as áreas e os dados que lhe pertencem."}
         </p>
+
 
         {aguardandoEmail ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-sm">
@@ -284,27 +374,95 @@ function AuthPage() {
               Voltar para e-mail e senha
             </button>
           </div>
+        ) : modo === "cadastro-telefone" ? (
+          <div>
+            {seletorPerfil}
+            <form
+              onSubmit={codigoEnviado ? concluirCadastroPorTelefone : pedirCodigoCadastro}
+              className="mt-5 space-y-3"
+            >
+              <input
+                className={campo}
+                type="tel"
+                placeholder="Telefone com DDD (ex.: 96 99999-0000)"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                disabled={codigoEnviado}
+                required
+              />
+              {codigoEnviado && (
+                <>
+                  <input
+                    className={campo}
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="Código de 6 dígitos recebido por SMS"
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
+                    required
+                  />
+                  <input
+                    className={campo}
+                    placeholder="Nome completo"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    minLength={3}
+                    required
+                  />
+                  <input
+                    className={campo}
+                    placeholder="Município / localidade"
+                    value={municipio}
+                    onChange={(e) => setMunicipio(e.target.value)}
+                  />
+                  <input
+                    className={campo}
+                    type="email"
+                    placeholder="E-mail (opcional)"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </>
+              )}
+              <button
+                type="submit"
+                disabled={ocupado}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
+              >
+                {ocupado ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Smartphone className="size-4" />
+                )}
+                {codigoEnviado ? "Concluir cadastro" : "Receber código por SMS"}
+              </button>
+            </form>
+            {codigoEnviado && (
+              <button
+                onClick={() => {
+                  setCodigoEnviado(false);
+                  setCodigo("");
+                }}
+                className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Trocar número ou reenviar código
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setModo("cadastrar");
+                setCodigoEnviado(false);
+                setCodigo("");
+              }}
+              className="mt-6 block text-sm text-accent underline-offset-4 hover:underline"
+            >
+              Prefiro cadastrar por e-mail
+            </button>
+          </div>
         ) : (
           <>
+            {modo === "cadastrar" && seletorPerfil}
 
-            {modo === "cadastrar" && (
-              <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
-                {(["passageiro", "motorista"] as const).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPerfil(p)}
-                    className={`rounded-xl px-3 py-2.5 text-sm font-semibold capitalize transition-colors ${
-                      perfil === p
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    Sou {p}
-                  </button>
-                ))}
-              </div>
-            )}
 
             <form onSubmit={enviar} className="mt-5 space-y-3">
               {modo === "cadastrar" && (
@@ -376,17 +534,23 @@ function AuthPage() {
                   Continuar com o Google
                 </button>
                 <button
-                  onClick={() => setModo("telefone")}
+                  onClick={() =>
+                    setModo(modo === "cadastrar" ? "cadastro-telefone" : "telefone")
+                  }
                   disabled={ocupado}
                   className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold disabled:opacity-60"
                 >
-                  <Smartphone className="size-4" /> Entrar com código por SMS
+                  <Smartphone className="size-4" />
+                  {modo === "cadastrar"
+                    ? "Cadastrar com código por SMS"
+                    : "Entrar com código por SMS"}
                 </button>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Contas criadas pelo Google entram como passageiro; o perfil de motorista pode ser
-                  ativado depois no cadastro de veículo. O acesso por SMS usa o telefone informado
-                  no seu cadastro.
+                  Contas criadas pelo Google entram como passageiro; motorista e frotista escolhem o
+                  perfil no cadastro. Depois de criar a conta, o próximo passo é a biometria facial
+                  — obrigatória para motoristas e frotistas operarem.
                 </p>
+
 
               </>
             )}

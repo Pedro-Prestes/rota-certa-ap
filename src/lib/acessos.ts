@@ -31,7 +31,7 @@ export const AREAS: AreaPlataforma[] = [
   { to: "/pagamentos", label: "Pagamentos", perfis: TODOS_PERFIS },
   { to: "/planos", label: "Planos", perfis: TODOS_PERFIS },
   { to: "/verificacao", label: "Idoneidade", perfis: TODOS_PERFIS },
-  { to: "/biometria", label: "Biometria", perfis: ["passageiro", "motorista"] },
+  { to: "/biometria", label: "Biometria", perfis: ["passageiro", "motorista", "frotista"] },
   { to: "/auditoria", label: "Auditoria", perfis: TODOS_PERFIS },
   { to: "/solicitar-admin", label: "Novo admin", perfis: TODOS_PERFIS },
   { to: "/assistencia", label: "Assistência", perfis: ["admin"] },

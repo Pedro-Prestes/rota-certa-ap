@@ -118,3 +118,53 @@ export const verificarCodigoSms = createServerFn({ method: "POST" })
 
     return { tokenHash: link.properties.hashed_token, email };
   });
+
+const cadastroEnvioSchema = z.object({ telefone: z.string().min(8).max(24) });
+const cadastroSchema = z.object({
+  telefone: z.string().min(8).max(24),
+  codigo: z.string().regex(/^\d{6}$/, "Código inválido"),
+  nome: z.string().trim().min(3).max(120),
+  municipio: z.string().trim().max(120).optional().default(""),
+  perfil: z.enum(["passageiro", "motorista", "frotista"]),
+  email: z.string().trim().email().max(255).optional(),
+});
+
+/** Envia o código de verificação para um novo cadastro por telefone. */
+export const enviarCodigoCadastro = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => cadastroEnvioSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { normalizarTelefone } = await import("@/lib/sms.server");
+    const { telefoneJaCadastrado, emitirCodigo } = await import("@/lib/cadastro-telefone.server");
+
+    const telefone = normalizarTelefone(data.telefone);
+    if (!telefone) throw new Error("Telefone inválido. Use DDD + número.");
+    if (await telefoneJaCadastrado(telefone)) {
+      throw new Error("Este telefone já tem conta. Use “Entrar com código por SMS”.");
+    }
+    await emitirCodigo(telefone);
+    return { enviado: true };
+  });
+
+/** Cria a conta (passageiro, motorista ou frotista) após validar o código do SMS. */
+export const criarContaPorTelefone = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => cadastroSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { normalizarTelefone } = await import("@/lib/sms.server");
+    const { telefoneJaCadastrado, consumirCodigo, criarContaVerificada } = await import(
+      "@/lib/cadastro-telefone.server"
+    );
+
+    const telefone = normalizarTelefone(data.telefone);
+    if (!telefone) throw new Error("Telefone inválido.");
+    if (await telefoneJaCadastrado(telefone)) {
+      throw new Error("Este telefone já tem conta. Use “Entrar com código por SMS”.");
+    }
+    await consumirCodigo(telefone, data.codigo);
+    return await criarContaVerificada({
+      telefone,
+      nome: data.nome,
+      municipio: data.municipio ?? "",
+      perfil: data.perfil,
+      ...(data.email ? { email: data.email } : {}),
+    });
+  });
