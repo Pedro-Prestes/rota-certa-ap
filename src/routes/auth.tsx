@@ -84,10 +84,18 @@ function AuthPage() {
             toast.error("Confirme seu e-mail antes de entrar.");
             return;
           }
+          if (/invalid login credentials/i.test(error.message)) {
+            toast.error(
+              "E-mail ou senha inválidos. Se você criou a conta com o Google, entre pelo botão “Continuar com Google” ou defina uma senha em “Esqueci minha senha”.",
+              { duration: 8000 },
+            );
+            return;
+          }
           throw error;
         }
         toast.success("Bem-vindo de volta!");
         navigate({ to: "/conta", replace: true });
+
       } else if (modo === "cadastrar") {
         const { data, error } = await supabase.auth.signUp({
           email,
