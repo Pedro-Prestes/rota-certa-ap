@@ -31,9 +31,12 @@ export const provisionarConta = createServerFn({ method: "POST" })
     );
 
     const perfil = texto("perfil") ?? "passageiro";
-    const papeis: string[] = ["passageiro"];
-    if (perfil === "motorista") papeis.push("motorista");
-    if (perfil === "frotista") papeis.push("motorista", "frotista");
+    const papeis: string[] =
+      perfil === "motorista"
+        ? ["motorista"]
+        : perfil === "frotista"
+          ? ["frotista", "motorista"]
+          : ["passageiro"];
 
     const { data: master } = await supabaseAdmin
       .from("admins_master")
