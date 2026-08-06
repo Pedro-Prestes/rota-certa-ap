@@ -368,6 +368,65 @@ function Admin() {
           </div>
         </section>
 
+        {ehMaster.data === true && (
+          <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+              <ShieldPlus className="size-4" /> Solicitações de administrador
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Aprovações concedem o perfil de administrador (não master) à conta solicitante.
+            </p>
+            <ul className="mt-4 grid gap-3">
+              {(solicitacoes.data ?? []).map((s) => (
+                <li key={s.id} className="rounded-xl border border-border/70 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold">{s.nome}</span>
+                    <span className="text-sm text-muted-foreground">{s.email}</span>
+                    <span className="ml-auto rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
+                      {s.status === "pendente"
+                        ? "Em análise"
+                        : s.status === "aprovada"
+                          ? "Aprovada"
+                          : "Recusada"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{s.justificativa}</p>
+                  {s.status === "pendente" && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={decidir.isPending}
+                        onClick={() => decidir.mutate({ id: s.id, status: "aprovada" })}
+                        className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                      >
+                        Aprovar
+                      </button>
+                      <button
+                        type="button"
+                        disabled={decidir.isPending}
+                        onClick={() => {
+                          const motivo = window.prompt("Motivo da recusa (opcional)") ?? undefined;
+                          decidir.mutate({ id: s.id, status: "recusada", motivo });
+                        }}
+                        className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary disabled:opacity-60"
+                      >
+                        Recusar
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+              {(solicitacoes.data ?? []).length === 0 && (
+                <li className="py-6 text-center text-sm text-muted-foreground">
+                  Nenhuma solicitação recebida.
+                </li>
+              )}
+            </ul>
+          </section>
+        )}
+
+
+
         <section className="mt-6 rounded-2xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 font-display text-lg font-bold">
             <ShieldCheck className="size-4" /> Administradores master
