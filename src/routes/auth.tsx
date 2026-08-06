@@ -534,17 +534,23 @@ function AuthPage() {
                   Continuar com o Google
                 </button>
                 <button
-                  onClick={() => setModo("telefone")}
+                  onClick={() =>
+                    setModo(modo === "cadastrar" ? "cadastro-telefone" : "telefone")
+                  }
                   disabled={ocupado}
                   className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold disabled:opacity-60"
                 >
-                  <Smartphone className="size-4" /> Entrar com código por SMS
+                  <Smartphone className="size-4" />
+                  {modo === "cadastrar"
+                    ? "Cadastrar com código por SMS"
+                    : "Entrar com código por SMS"}
                 </button>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Contas criadas pelo Google entram como passageiro; o perfil de motorista pode ser
-                  ativado depois no cadastro de veículo. O acesso por SMS usa o telefone informado
-                  no seu cadastro.
+                  Contas criadas pelo Google entram como passageiro; motorista e frotista escolhem o
+                  perfil no cadastro. Depois de criar a conta, o próximo passo é a biometria facial
+                  — obrigatória para motoristas e frotistas operarem.
                 </p>
+
 
               </>
             )}
