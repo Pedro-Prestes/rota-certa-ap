@@ -29,8 +29,21 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone";
-type Perfil = "passageiro" | "motorista";
+type Modo = "entrar" | "cadastrar" | "recuperar" | "telefone" | "cadastro-telefone";
+type Perfil = "passageiro" | "motorista" | "frotista";
+
+const DESTINO_POS_CADASTRO: Record<Perfil, "/biometria" | "/frotista"> = {
+  passageiro: "/biometria",
+  motorista: "/biometria",
+  frotista: "/biometria",
+};
+
+const DESCRICAO_PERFIL: Record<Perfil, string> = {
+  passageiro: "Reservar assentos e acordar o ponto de embarque.",
+  motorista: "Publicar rotas, cadastrar veículo e receber corridas.",
+  frotista: "Empresa (CNPJ) com frota — a partir de 6 veículos.",
+};
+
 
 function AuthPage() {
   const navigate = useNavigate();
