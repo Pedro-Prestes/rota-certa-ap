@@ -15,6 +15,11 @@ import {
 
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const m = String(search['modo'] ?? "entrar");
+    const permitidos = ["entrar", "cadastrar", "recuperar", "telefone", "cadastro-telefone"];
+    return { modo: (permitidos.includes(m) ? m : "entrar") as Modo };
+  },
   head: () => ({
     meta: [
       { title: "Entrar ou criar conta — RotaCerta" },
