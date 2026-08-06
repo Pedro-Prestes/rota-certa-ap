@@ -15,6 +15,11 @@ import {
 
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const m = String(search['modo'] ?? "entrar");
+    const permitidos = ["entrar", "cadastrar", "recuperar", "telefone", "cadastro-telefone"];
+    return { modo: (permitidos.includes(m) ? m : "entrar") as Modo };
+  },
   head: () => ({
     meta: [
       { title: "Entrar ou criar conta — RotaCerta" },
@@ -53,7 +58,8 @@ const DESCRICAO_PERFIL: Record<Perfil, string> = {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [modo, setModo] = useState<Modo>("entrar");
+  const { modo: modoInicial } = Route.useSearch();
+  const [modo, setModo] = useState<Modo>(modoInicial);
   const [perfil, setPerfil] = useState<Perfil>("passageiro");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -296,6 +302,41 @@ function AuthPage() {
                 : "Escolha seu perfil: passageiro, motorista ou frotista (empresa com CNPJ). Cada perfil vê apenas as áreas e os dados que lhe pertencem."}
         </p>
 
+
+        {!aguardandoEmail && (
+          <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-secondary/50 p-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setModo("entrar");
+                setCodigoEnviado(false);
+                setCodigo("");
+              }}
+              className={`rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                modo === "entrar" || modo === "telefone" || modo === "recuperar"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Já tenho conta
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setModo("cadastrar");
+                setCodigoEnviado(false);
+                setCodigo("");
+              }}
+              className={`rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                modo === "cadastrar" || modo === "cadastro-telefone"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Criar conta nova
+            </button>
+          </div>
+        )}
 
         {aguardandoEmail ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-sm">

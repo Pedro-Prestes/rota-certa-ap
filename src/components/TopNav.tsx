@@ -51,12 +51,20 @@ export function TopNav() {
                 <CircleUserRound className="size-4" /> Minha conta
               </Link>
             ) : (
-              <Link
-                to="/auth"
-                className="ml-2 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground"
-              >
-                Entrar
-              </Link>
+              <>
+                <Link
+                  to="/cadastro"
+                  className="ml-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-semibold"
+                >
+                  Criar conta
+                </Link>
+                <Link
+                  to="/auth"
+                  className="ml-1 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground"
+                >
+                  Entrar
+                </Link>
+              </>
             ))}
         </div>
       </nav>
