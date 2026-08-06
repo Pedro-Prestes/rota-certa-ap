@@ -98,6 +98,68 @@ function Admin() {
     },
   });
 
+  const ehMaster = useQuery({
+    queryKey: ["ehMaster", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("eh_admin_master", { _user_id: user!.id });
+      if (error) throw error;
+      return !!data;
+    },
+  });
+
+  const solicitacoes = useQuery({
+    queryKey: ["admin-solicitacoes"],
+    enabled: ehMaster.data === true,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("solicitacoes_admin")
+        .select("id, user_id, nome, email, justificativa, status, motivo, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as {
+        id: string;
+        user_id: string;
+        nome: string;
+        email: string;
+        justificativa: string;
+        status: string;
+        motivo: string | null;
+        created_at: string;
+      }[];
+    },
+  });
+
+  const decidir = useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      motivo,
+    }: {
+      id: string;
+      status: "aprovada" | "recusada";
+      motivo?: string;
+    }) => {
+      const { error } = await supabase
+        .from("solicitacoes_admin")
+        .update({
+          status,
+          motivo: motivo ?? null,
+          decidido_por: user!.id,
+          decidido_em: new Date().toISOString(),
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ["admin-solicitacoes"] });
+      qc.invalidateQueries({ queryKey: ["admin-papeis"] });
+      toast.success(v.status === "aprovada" ? "Administrador aprovado" : "Solicitação recusada");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const corridas = useQuery({
     queryKey: ["admin-corridas"],
     enabled: autorizado,
