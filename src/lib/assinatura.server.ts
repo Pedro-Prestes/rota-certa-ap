@@ -126,7 +126,9 @@ export async function criarCheckoutProduto(dados: {
             metadata: { userId: dados.userId, priceId: dados.priceId, tipo: "creditos" },
           },
         }),
-    automatic_tax: { enabled: true },
+    // O cálculo automático de imposto da Stripe não atende contas do Brasil;
+    // os tributos já entram compostos no preço do produto.
+
   };
 
   let session: Stripe.Checkout.Session;
