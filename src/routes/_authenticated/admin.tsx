@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Crown, Loader2, Search, ShieldCheck, Users } from "lucide-react";
+import { Crown, Loader2, Search, ShieldCheck, ShieldPlus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
@@ -138,7 +138,7 @@ function Admin() {
     }: {
       id: string;
       status: "aprovada" | "recusada";
-      motivo?: string;
+      motivo?: string | undefined;
     }) => {
       const { error } = await supabase
         .from("solicitacoes_admin")
@@ -405,8 +405,8 @@ function Admin() {
                         type="button"
                         disabled={decidir.isPending}
                         onClick={() => {
-                          const motivo = window.prompt("Motivo da recusa (opcional)") ?? undefined;
-                          decidir.mutate({ id: s.id, status: "recusada", motivo });
+                          const motivo = window.prompt("Motivo da recusa (opcional)");
+                          decidir.mutate({ id: s.id, status: "recusada", motivo: motivo ?? "" });
                         }}
                         className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary disabled:opacity-60"
                       >
