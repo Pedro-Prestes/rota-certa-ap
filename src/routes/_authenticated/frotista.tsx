@@ -16,6 +16,7 @@ import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { GuardaPerfil } from "@/components/GuardaPerfil";
+import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
 import {
   COR_STATUS_OPERACIONAL,
   MIN_VEICULOS_FROTISTA,
@@ -663,13 +664,9 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
 function FrotistaProtegido() {
   return (
     <GuardaPerfil perfis={["motorista", "frotista"]}>
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-6xl px-5 pt-6">
-          <PortaoBiometriaMotorista>
-            <Frotista />
-          </PortaoBiometriaMotorista>
-        </div>
-      </div>
+      <PortaoBiometriaMotorista>
+        <Frotista />
+      </PortaoBiometriaMotorista>
     </GuardaPerfil>
   );
 }
