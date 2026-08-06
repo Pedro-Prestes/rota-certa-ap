@@ -235,7 +235,7 @@ function Biometria() {
 
 function BiometriaProtegido() {
   return (
-    <GuardaPerfil perfis={["passageiro","motorista"]}>
+    <GuardaPerfil perfis={["passageiro", "motorista", "frotista"]}>
       <Biometria />
     </GuardaPerfil>
   );
