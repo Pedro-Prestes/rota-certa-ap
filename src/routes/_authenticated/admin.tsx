@@ -29,10 +29,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-type Papel = "passageiro" | "motorista" | "admin";
+type Papel = "passageiro" | "motorista" | "frotista" | "admin";
 const PAPEIS: { id: Papel; rotulo: string }[] = [
   { id: "passageiro", rotulo: "Passageiro" },
   { id: "motorista", rotulo: "Motorista" },
+  { id: "frotista", rotulo: "Frotista" },
   { id: "admin", rotulo: "Administrador" },
 ];
 
