@@ -662,8 +662,15 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
 
 function FrotistaProtegido() {
   return (
-    <GuardaPerfil perfis={["motorista","frotista"]}>
-      <Frotista />
+    <GuardaPerfil perfis={["motorista", "frotista"]}>
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-6xl px-5 pt-6">
+          <PortaoBiometriaMotorista>
+            <Frotista />
+          </PortaoBiometriaMotorista>
+        </div>
+      </div>
     </GuardaPerfil>
   );
 }
+
