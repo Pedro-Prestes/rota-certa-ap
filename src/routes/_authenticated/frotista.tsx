@@ -15,8 +15,8 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import {
 import { GuardaPerfil } from "@/components/GuardaPerfil";
+import {
   COR_STATUS_OPERACIONAL,
   MIN_VEICULOS_FROTISTA,
   ROTULO_STATUS_OPERACIONAL,
