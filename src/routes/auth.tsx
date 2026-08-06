@@ -87,7 +87,7 @@ function AuthPage() {
           email,
           password: senha,
           options: {
-            emailRedirectTo: `${window.location.origin}/conta`,
+            emailRedirectTo: `${window.location.origin}${DESTINO_POS_CADASTRO[perfil]}`,
             data: {
               nome_completo: nome,
               telefone,
@@ -98,8 +98,9 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.session) {
-          toast.success("Conta criada!");
-          navigate({ to: "/conta", replace: true });
+          toast.success("Conta criada! Agora faça a biometria facial.");
+          navigate({ to: DESTINO_POS_CADASTRO[perfil], replace: true });
+
         } else {
           setAguardandoEmail(true);
           toast.success("Confirme seu e-mail para ativar a conta.");
