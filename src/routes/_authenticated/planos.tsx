@@ -8,6 +8,7 @@ import { PACOTES_CREDITO, PLANOS, assinaturaAtiva, classificarTroca, planoDoPric
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { TopNav } from "@/components/TopNav";
 import { PainelSimulacao } from "@/components/PainelSimulacao";
 import {
   abrirPortalCobranca,
@@ -233,6 +234,7 @@ function PlanosPage() {
 
   return (
     <div>
+      <TopNav />
       <PaymentTestModeBanner />
       <main className="mx-auto max-w-6xl px-5 py-10">
         <h1 className="font-display text-3xl font-bold tracking-tight">Planos e créditos</h1>

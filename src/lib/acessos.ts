@@ -60,7 +60,6 @@ export const AREAS: AreaPlataforma[] = [
   { to: "/viagem", label: "Viagem ao vivo", perfis: ["motorista", "frotista"] },
   { to: "/sou-frotista", label: "Sou frotista (PJ)", perfis: TODOS_PERFIS },
   { to: "/area-administrativa", label: "Área administrativa", perfis: TODOS_PERFIS },
-  { to: "/frotista", label: "Sou frotista", perfis: ["motorista", "frotista"] },
   { to: "/pagamentos", label: "Pagamentos", perfis: TODOS_PERFIS },
   { to: "/planos", label: "Planos", perfis: TODOS_PERFIS },
   { to: "/verificacao", label: "Idoneidade", perfis: TODOS_PERFIS },
@@ -72,6 +71,50 @@ export const AREAS: AreaPlataforma[] = [
   { to: "/contabil", label: "Contábil", perfis: PERFIS_GESTAO },
   { to: "/admin", label: "Admin", perfis: ["admin"] },
 ];
+
+/**
+ * Painel do frotista: subárea dependente da vitrine "Sou frotista (PJ)".
+ * Não aparece no menu principal — o acesso ocorre por dentro de /sou-frotista.
+ */
+export const SUBAREAS: Record<string, AreaPlataforma[]> = {
+  "/sou-frotista": [
+    { to: "/frotista", label: "Painel do frotista", perfis: ["motorista", "frotista"] },
+  ],
+};
+
+/** Página antecessora de cada rota, até chegar à página principal ("/"). */
+export const PAGINA_ANTERIOR: Record<string, string> = {
+  "/passageiro": "/",
+  "/embarque": "/passageiro",
+  "/motorista": "/",
+  "/viagem": "/motorista",
+  "/sou-frotista": "/",
+  "/frotista": "/sou-frotista",
+  "/area-administrativa": "/",
+  "/solicitar-admin": "/area-administrativa",
+  "/colaborador": "/area-administrativa",
+  "/assistencia": "/area-administrativa",
+  "/contabil": "/area-administrativa",
+  "/auditoria": "/area-administrativa",
+  "/admin": "/area-administrativa",
+  "/conta": "/",
+  "/planos": "/conta",
+  "/pagamentos": "/conta",
+  "/verificacao": "/conta",
+  "/biometria": "/conta",
+  "/checkout-retorno": "/planos",
+  "/auth": "/",
+  "/cadastro": "/auth",
+  "/reset-password": "/auth",
+};
+
+/** Retorna a rota antecessora, ou null na página principal. */
+export function paginaAnterior(path: string): string | null {
+  if (path === "/") return null;
+  const limpo = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+  return PAGINA_ANTERIOR[limpo] ?? "/";
+}
+
 
 /** Admin master enxerga tudo; os demais apenas as áreas do seu perfil. */
 export function temAcesso(perfisDoUsuario: Perfil[], permitidos: Perfil[]): boolean {
