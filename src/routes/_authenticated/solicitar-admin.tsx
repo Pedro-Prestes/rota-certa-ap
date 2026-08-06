@@ -6,6 +6,7 @@ import { CheckCircle2, Clock, Loader2, ShieldPlus, XCircle } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
+import { DESCRICAO_COLABORADOR, ROTULO_PERFIL } from "@/lib/acessos";
 
 export const Route = createFileRoute("/_authenticated/solicitar-admin")({
   head: () => ({
@@ -28,8 +29,18 @@ export const Route = createFileRoute("/_authenticated/solicitar-admin")({
   component: SolicitarAdmin,
 });
 
+type PerfilPedido = "admin" | "admin_secundario" | "gerente" | "operacional";
+
+const PERFIS_PEDIDO: PerfilPedido[] = ["admin", "admin_secundario", "gerente", "operacional"];
+
+const DESCRICAO_PEDIDO: Record<PerfilPedido, string> = {
+  admin: "Administrador (não master) com acesso completo de administração.",
+  ...DESCRICAO_COLABORADOR,
+};
+
 interface Solicitacao {
   id: string;
+  perfil_solicitado: PerfilPedido;
   nome: string;
   email: string;
   justificativa: string;
@@ -50,6 +61,7 @@ function SolicitarAdmin() {
   const qc = useQueryClient();
   const [nome, setNome] = useState("");
   const [justificativa, setJustificativa] = useState("");
+  const [perfilPedido, setPerfilPedido] = useState<PerfilPedido>("operacional");
 
   const minhas = useQuery({
     queryKey: ["minhas-solicitacoes-admin", user?.id],
@@ -57,7 +69,7 @@ function SolicitarAdmin() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("solicitacoes_admin")
-        .select("id, nome, email, justificativa, status, motivo, created_at, decidido_em")
+        .select("id, perfil_solicitado, nome, email, justificativa, status, motivo, created_at, decidido_em")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -78,6 +90,7 @@ function SolicitarAdmin() {
         nome: nome.trim(),
         email: user!.email ?? "",
         justificativa: justificativa.trim(),
+        perfil_solicitado: perfilPedido,
         status: "pendente",
       });
       if (error) throw error;
@@ -110,9 +123,9 @@ function SolicitarAdmin() {
             <ShieldPlus className="size-5" />
           </span>
           <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">Cadastrar novo administrador</h1>
+            <h1 className="font-display text-2xl font-bold tracking-tight">Acesso administrativo</h1>
             <p className="text-sm text-muted-foreground">
-              Envie sua solicitação. O administrador master aprova ou recusa o acesso.
+              Escolha o perfil administrativo desejado e envie sua solicitação. O administrador master aprova ou recusa o acesso.
             </p>
           </div>
         </div>
@@ -142,6 +155,28 @@ function SolicitarAdmin() {
                   className="rounded-xl border border-border bg-secondary px-3 py-2 text-sm text-muted-foreground outline-none"
                 />
               </label>
+              <div className="grid gap-1.5 text-sm">
+                <span className="font-semibold">Perfil desejado</span>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {PERFIS_PEDIDO.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPerfilPedido(p)}
+                      className={`rounded-xl border px-3 py-2.5 text-left text-sm transition-colors ${
+                        perfilPedido === p
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:bg-secondary/60"
+                      }`}
+                    >
+                      <span className="font-semibold">{ROTULO_PERFIL[p]}</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        {DESCRICAO_PEDIDO[p]}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className="grid gap-1.5 text-sm">
                 <span className="font-semibold">Justificativa</span>
                 <textarea
@@ -176,6 +211,9 @@ function SolicitarAdmin() {
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${selo.classe}`}
                     >
                       <selo.Icone className="size-3.5" /> {selo.rotulo}
+                    </span>
+                    <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
+                      {ROTULO_PERFIL[s.perfil_solicitado]}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       Enviada em {new Date(s.created_at).toLocaleString("pt-BR")}

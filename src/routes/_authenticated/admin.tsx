@@ -29,12 +29,22 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-type Papel = "passageiro" | "motorista" | "frotista" | "admin";
+type Papel =
+  | "passageiro"
+  | "motorista"
+  | "frotista"
+  | "admin"
+  | "admin_secundario"
+  | "gerente"
+  | "operacional";
 const PAPEIS: { id: Papel; rotulo: string }[] = [
   { id: "passageiro", rotulo: "Passageiro" },
   { id: "motorista", rotulo: "Motorista" },
   { id: "frotista", rotulo: "Frotista" },
   { id: "admin", rotulo: "Administrador" },
+  { id: "admin_secundario", rotulo: "Admin. secundário" },
+  { id: "gerente", rotulo: "Gerente" },
+  { id: "operacional", rotulo: "Operacional" },
 ];
 
 interface Perfil {
@@ -114,12 +124,13 @@ function Admin() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("solicitacoes_admin")
-        .select("id, user_id, nome, email, justificativa, status, motivo, created_at")
+        .select("id, user_id, perfil_solicitado, nome, email, justificativa, status, motivo, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as {
         id: string;
         user_id: string;
+        perfil_solicitado: Papel;
         nome: string;
         email: string;
         justificativa: string;
@@ -371,10 +382,10 @@ function Admin() {
         {ehMaster.data === true && (
           <section className="mt-6 rounded-2xl border border-border bg-card p-5">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-              <ShieldPlus className="size-4" /> Solicitações de administrador
+              <ShieldPlus className="size-4" /> Solicitações de acesso administrativo
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Aprovações concedem o perfil de administrador (não master) à conta solicitante.
+              A aprovação concede exatamente o perfil pedido (administrador, administrador secundário, gerente ou operacional) à conta solicitante.
             </p>
             <ul className="mt-4 grid gap-3">
               {(solicitacoes.data ?? []).map((s) => (
@@ -382,6 +393,9 @@ function Admin() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold">{s.nome}</span>
                     <span className="text-sm text-muted-foreground">{s.email}</span>
+                    <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
+                      {PAPEIS.find((p) => p.id === s.perfil_solicitado)?.rotulo ?? s.perfil_solicitado}
+                    </span>
                     <span className="ml-auto rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
                       {s.status === "pendente"
                         ? "Em análise"
