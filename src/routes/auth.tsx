@@ -5,7 +5,13 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
-import { enviarCodigoSms, verificarCodigoSms } from "@/lib/telefone.functions";
+import {
+  criarContaPorTelefone,
+  enviarCodigoCadastro,
+  enviarCodigoSms,
+  verificarCodigoSms,
+} from "@/lib/telefone.functions";
+
 
 
 export const Route = createFileRoute("/auth")({
