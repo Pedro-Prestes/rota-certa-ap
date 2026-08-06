@@ -1670,10 +1670,12 @@ export type Database = {
     Functions: {
       biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
       eh_admin_master: { Args: { _user_id: string }; Returns: boolean }
+      eh_colaborador: { Args: { _user_id: string }; Returns: boolean }
       eh_frotista_da_rota: {
         Args: { _rota_id: string; _user_id: string }
         Returns: boolean
       }
+      eh_gestao: { Args: { _user_id: string }; Returns: boolean }
       frotista_id_do_usuario: { Args: { _user_id: string }; Returns: string }
       frotista_liberado: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
