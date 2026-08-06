@@ -58,6 +58,8 @@ export const AREAS: AreaPlataforma[] = [
   { to: "/embarque", label: "Embarque", perfis: ["passageiro"] },
   { to: "/motorista", label: "Sou motorista", perfis: ["motorista", "frotista"] },
   { to: "/viagem", label: "Viagem ao vivo", perfis: ["motorista", "frotista"] },
+  { to: "/sou-frotista", label: "Sou frotista (PJ)", perfis: TODOS_PERFIS },
+  { to: "/area-administrativa", label: "Área administrativa", perfis: TODOS_PERFIS },
   { to: "/frotista", label: "Sou frotista", perfis: ["motorista", "frotista"] },
   { to: "/pagamentos", label: "Pagamentos", perfis: TODOS_PERFIS },
   { to: "/planos", label: "Planos", perfis: TODOS_PERFIS },
