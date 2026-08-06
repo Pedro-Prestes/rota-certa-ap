@@ -16,6 +16,7 @@ import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
+import { GuardaPerfil } from "@/components/GuardaPerfil";
   COR_STATUS_OPERACIONAL,
   MIN_VEICULOS_FROTISTA,
   ROTULO_STATUS_OPERACIONAL,
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/frotista")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Frotista,
+  component: FrotistaProtegido,
 });
 
 const campo =
@@ -656,5 +657,13 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
         )}
       </div>
     </div>
+  );
+}
+
+function FrotistaProtegido() {
+  return (
+    <GuardaPerfil perfis={["motorista","frotista"]}>
+      <Frotista />
+    </GuardaPerfil>
   );
 }

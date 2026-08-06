@@ -28,6 +28,7 @@ import {
 } from "@/lib/taxas";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { estornarPagamento } from "@/utils/contabil.functions";
+import { GuardaPerfil } from "@/components/GuardaPerfil";
 
 export const Route = createFileRoute("/_authenticated/contabil")({
   head: () => ({
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/_authenticated/contabil")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Contabil,
+  component: ContabilProtegido,
 });
 
 const campo =
@@ -874,5 +875,13 @@ function FormularioEstorno({
         </button>
       </div>
     </Modal>
+  );
+}
+
+function ContabilProtegido() {
+  return (
+    <GuardaPerfil perfis={["admin"]}>
+      <Contabil />
+    </GuardaPerfil>
   );
 }

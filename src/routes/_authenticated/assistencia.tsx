@@ -9,6 +9,7 @@ import { useAuth, usePerfis } from "@/hooks/use-auth";
 import { horaLocal } from "@/lib/rastreio";
 import { COR_SINISTRO, ROTULO_SINISTRO, type StatusSinistro } from "@/lib/seguro";
 import { atenderSinistro } from "@/utils/seguro.functions";
+import { GuardaPerfil } from "@/components/GuardaPerfil";
 
 export const Route = createFileRoute("/_authenticated/assistencia")({
   head: () => ({
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/assistencia")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Assistencia,
+  component: AssistenciaProtegido,
 });
 
 const campo =
@@ -271,5 +272,13 @@ function Assistencia() {
         </div>
       </main>
     </div>
+  );
+}
+
+function AssistenciaProtegido() {
+  return (
+    <GuardaPerfil perfis={["admin"]}>
+      <Assistencia />
+    </GuardaPerfil>
   );
 }

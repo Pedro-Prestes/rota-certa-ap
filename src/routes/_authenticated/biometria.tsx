@@ -14,6 +14,7 @@ import {
   type StatusBiometria,
 } from "@/lib/biometria";
 import { enviarBiometriaFacial, verSelfieBiometria } from "@/utils/biometria.functions";
+import { GuardaPerfil } from "@/components/GuardaPerfil";
 
 export const Route = createFileRoute("/_authenticated/biometria")({
   head: () => ({
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/biometria")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Biometria,
+  component: BiometriaProtegido,
 });
 
 interface RegistroBiometria {
@@ -229,5 +230,13 @@ function Biometria() {
         />
       )}
     </div>
+  );
+}
+
+function BiometriaProtegido() {
+  return (
+    <GuardaPerfil perfis={["passageiro","motorista"]}>
+      <Biometria />
+    </GuardaPerfil>
   );
 }
