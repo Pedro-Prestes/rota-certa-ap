@@ -38,3 +38,9 @@ export function getStripeEnvironment(): StripeEnv {
 export function cobrancaOnlineDisponivel(): boolean {
   return !!clientToken && (clientToken.startsWith("pk_test_") || clientToken.startsWith("pk_live_"));
 }
+
+/** True apenas quando a cobrança está apontada para o ambiente de teste. */
+export function cobrancaOnlineEmTeste(): boolean {
+  return !!clientToken?.startsWith("pk_test_");
+}
+
