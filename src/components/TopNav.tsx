@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Bus, CircleUserRound } from "lucide-react";
 import { useAcesso } from "@/hooks/use-auth";
 import { AREAS, areasVisiveis } from "@/lib/acessos";
+import { BotaoVoltar } from "@/components/BotaoVoltar";
 
 export function TopNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -17,7 +18,8 @@ export function TopNav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5">
+        <BotaoVoltar />
         <Link to="/" className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Bus className="size-4" />
@@ -27,6 +29,7 @@ export function TopNav() {
             Amapá
           </span>
         </Link>
+
         <div className="ml-auto flex items-center gap-1">
           {links.map((l) => (
             <Link
