@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { localizarEndereco } from "@/utils/embarque.functions";
 import { COR_STATUS_PONTO, STATUS_PONTO, horaLocal, type StatusPonto } from "@/lib/embarque";
+import { GuardaPerfil } from "@/components/GuardaPerfil";
 
 export const Route = createFileRoute("/_authenticated/embarque")({
   head: () => ({
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/embarque")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Embarque,
+  component: EmbarqueProtegido,
 });
 
 const campo =
@@ -361,5 +362,13 @@ function Embarque() {
         </div>
       </main>
     </div>
+  );
+}
+
+function EmbarqueProtegido() {
+  return (
+    <GuardaPerfil perfis={["passageiro"]}>
+      <Embarque />
+    </GuardaPerfil>
   );
 }

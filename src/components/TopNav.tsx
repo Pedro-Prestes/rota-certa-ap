@@ -1,33 +1,17 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Bus, CircleUserRound } from "lucide-react";
-import { useAuth, usePerfis } from "@/hooks/use-auth";
-
-const links = [
-  { to: "/", label: "Visão geral" },
-  { to: "/passageiro", label: "Sou passageiro" },
-  { to: "/motorista", label: "Sou motorista" },
-  { to: "/embarque", label: "Embarque" },
-  { to: "/viagem", label: "Viagem ao vivo" },
-  { to: "/frotista", label: "Sou frotista" },
-  { to: "/pagamentos", label: "Pagamentos" },
-  { to: "/planos", label: "Planos" },
-  { to: "/verificacao", label: "Idoneidade" },
-  { to: "/biometria", label: "Biometria" },
-
-  { to: "/auditoria", label: "Auditoria" },
-] as const;
-
-const linksAdmin = [
-  { to: "/assistencia", label: "Assistência" },
-  { to: "/contabil", label: "Contábil" },
-  { to: "/admin", label: "Admin" },
-] as const;
+import { useAcesso } from "@/hooks/use-auth";
+import { AREAS, areasVisiveis } from "@/lib/acessos";
 
 export function TopNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { user, carregando } = useAuth();
-  const perfis = usePerfis(user?.id);
-  const ehAdmin = perfis.includes("admin");
+  const { user, carregando, perfis } = useAcesso();
+
+  // Visitante vê apenas as vitrines públicas.
+  const links = user
+    ? areasVisiveis(perfis)
+    : AREAS.filter((a) => ["/", "/passageiro", "/motorista"].includes(a.to));
+
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur">
@@ -55,20 +39,7 @@ export function TopNav() {
               {l.label}
             </Link>
           ))}
-          {ehAdmin &&
-            linksAdmin.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={`hidden rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:inline-block ${
-                  path === l.to
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                }`}
-              >
-                {l.label}
-              </Link>
-            ))}
+
           {!carregando &&
             (user ? (
               <Link

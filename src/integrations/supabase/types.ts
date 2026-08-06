@@ -1624,6 +1624,11 @@ export type Database = {
     }
     Functions: {
       biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
+      eh_frotista_da_rota: {
+        Args: { _rota_id: string; _user_id: string }
+        Returns: boolean
+      }
+      frotista_id_do_usuario: { Args: { _user_id: string }; Returns: string }
       frotista_liberado: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -1655,7 +1660,7 @@ export type Database = {
     }
     Enums: {
       alvo_verificacao: "passageiro" | "motorista" | "veiculo"
-      app_role: "passageiro" | "motorista" | "admin"
+      app_role: "passageiro" | "motorista" | "admin" | "frotista"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
       status_estorno:
         | "solicitado"
@@ -1806,7 +1811,7 @@ export const Constants = {
   public: {
     Enums: {
       alvo_verificacao: ["passageiro", "motorista", "veiculo"],
-      app_role: ["passageiro", "motorista", "admin"],
+      app_role: ["passageiro", "motorista", "admin", "frotista"],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
       status_estorno: [
         "solicitado",

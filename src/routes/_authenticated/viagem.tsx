@@ -39,6 +39,7 @@ import {
 } from "@/lib/seguro";
 import { encerrarViagem, iniciarViagem, marcarEmViagem } from "@/utils/viagem.functions";
 import { consultarCobertura, contratarProtecaoCreditos, reportarPane } from "@/utils/seguro.functions";
+import { GuardaPerfil } from "@/components/GuardaPerfil";
 
 export const Route = createFileRoute("/_authenticated/viagem")({
   head: () => ({
@@ -58,7 +59,7 @@ export const Route = createFileRoute("/_authenticated/viagem")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ViagemAoVivo,
+  component: ViagemAoVivoProtegido,
 });
 
 const campo =
@@ -705,5 +706,13 @@ function ViagemAoVivo() {
         />
       )}
     </div>
+  );
+}
+
+function ViagemAoVivoProtegido() {
+  return (
+    <GuardaPerfil perfis={["motorista","frotista"]}>
+      <ViagemAoVivo />
+    </GuardaPerfil>
   );
 }
