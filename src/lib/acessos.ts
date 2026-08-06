@@ -16,7 +16,7 @@ export const ROTULO_PERFIL: Record<Perfil, string> = {
   passageiro: "Passageiro",
   motorista: "Motorista",
   frotista: "Frotista",
-  admin: "Administrador master",
+  admin: "Administrador",
   admin_secundario: "Administrador secundário",
   gerente: "Gerente",
   operacional: "Operacional",

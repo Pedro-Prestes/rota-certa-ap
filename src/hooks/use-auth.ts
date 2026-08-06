@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { temAcesso, type Perfil } from "@/lib/acessos";
+import { temAcesso, PERFIS_COLABORADOR, PERFIS_GESTAO, type Perfil } from "@/lib/acessos";
 
 export type { Perfil };
 
@@ -88,6 +88,8 @@ export function useAcesso() {
     ehMotorista: perfis.includes("motorista"),
     ehPassageiro: perfis.includes("passageiro"),
     ehFrotista: perfis.includes("frotista"),
+    ehColaborador: temAcesso(perfis, PERFIS_COLABORADOR),
+    ehGestao: temAcesso(perfis, PERFIS_GESTAO),
     pode: (permitidos: Perfil[]) => temAcesso(perfis, permitidos),
   };
 }
