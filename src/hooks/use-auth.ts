@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { provisionarConta } from "@/lib/conta.functions";
 import { temAcesso, PERFIS_COLABORADOR, PERFIS_GESTAO, type Perfil } from "@/lib/acessos";
 
 export type { Perfil };
@@ -27,8 +29,23 @@ export function useAuth() {
   return { session, user, carregando };
 }
 
+async function carregarPerfis(userId: string, provisionar: () => Promise<{ perfis: string[] }>) {
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  const perfis = (data ?? []).map((r) => r.role as Perfil);
+  if (perfis.length > 0) return perfis;
+  // Conta sem papéis (primeiro acesso): provisiona perfil e papéis no servidor.
+  try {
+    const resultado = await provisionar();
+    return resultado.perfis as Perfil[];
+  } catch (erro) {
+    console.error("[conta] falha ao provisionar perfis", erro);
+    return perfis;
+  }
+}
+
 export function usePerfis(userId: string | undefined) {
   const [perfis, setPerfis] = useState<Perfil[]>([]);
+  const provisionar = useServerFn(provisionarConta);
 
   useEffect(() => {
     if (!userId) {
@@ -36,17 +53,13 @@ export function usePerfis(userId: string | undefined) {
       return;
     }
     let ativo = true;
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .then(({ data }) => {
-        if (ativo) setPerfis((data ?? []).map((r) => r.role as Perfil));
-      });
+    carregarPerfis(userId, provisionar).then((lista) => {
+      if (ativo) setPerfis(lista);
+    });
     return () => {
       ativo = false;
     };
-  }, [userId]);
+  }, [userId, provisionar]);
 
   return perfis;
 }
@@ -56,6 +69,7 @@ export function useAcesso() {
   const { user, session, carregando: carregandoSessao } = useAuth();
   const [perfis, setPerfis] = useState<Perfil[]>([]);
   const [carregandoPerfis, setCarregandoPerfis] = useState(true);
+  const provisionar = useServerFn(provisionarConta);
 
   useEffect(() => {
     if (!user?.id) {
@@ -65,19 +79,15 @@ export function useAcesso() {
     }
     let ativo = true;
     setCarregandoPerfis(true);
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        if (!ativo) return;
-        setPerfis((data ?? []).map((r) => r.role as Perfil));
-        setCarregandoPerfis(false);
-      });
+    carregarPerfis(user.id, provisionar).then((lista) => {
+      if (!ativo) return;
+      setPerfis(lista);
+      setCarregandoPerfis(false);
+    });
     return () => {
       ativo = false;
     };
-  }, [user?.id, user]);
+  }, [user?.id, user, provisionar]);
 
   return {
     user,
