@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
+import { CampoSenha } from "@/components/CampoSenha";
 import {
   criarContaPorTelefone,
   enviarCodigoCadastro,
@@ -575,14 +576,15 @@ function AuthPage() {
                 required
               />
               {modo !== "recuperar" && (
-                <input
+                <CampoSenha
                   className={campo}
-                  type="password"
                   placeholder="Senha"
                   minLength={6}
                   value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
+                  onChange={setSenha}
                   required
+                  autoComplete={modo === "cadastrar" ? "new-password" : "current-password"}
+                  mostrarForca={modo === "cadastrar"}
                 />
               )}
               <button
