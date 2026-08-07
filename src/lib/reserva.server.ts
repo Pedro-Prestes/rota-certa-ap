@@ -44,7 +44,8 @@ async function rotaEComposicao(dados: EntradaReserva) {
   if (!rota || rota.status !== "ativa") throw new Error("Esta saída não está mais disponível.");
 
   const preco = Number(rota.preco_assento) || 0;
-  const base = arred(preco * (dados.assentos + Math.max(0, dados.assentosBagagem)));
+  // Bagagem excedente equivale a 60% do preço do assento (mesma regra da vitrine).
+  const base = arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
   if (base <= 0) throw new Error("Esta saída ainda não tem tarifa publicada.");
 
   const cfg = await configDoUsuario(dados.userId, dados.environment);
@@ -165,7 +166,7 @@ export async function reservarComCreditos(dados: EntradaReserva) {
       assentos: dados.assentos,
       bagagem_l: 0,
       valor_tarifa: arred(Number(rota.preco_assento) * dados.assentos),
-      valor_bagagem: arred(Number(rota.preco_assento) * Math.max(0, dados.assentosBagagem)),
+      valor_bagagem: arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
       valor_pedagios: 0,
       valor_extras: 0,
       desconto: 0,
