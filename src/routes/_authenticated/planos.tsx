@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { TopNav } from "@/components/TopNav";
 import { PainelSimulacao } from "@/components/PainelSimulacao";
+import { CheckoutPix } from "@/components/CheckoutPix";
 import {
   abrirPortalCobranca,
   alterarPlano,
@@ -124,6 +125,7 @@ function PlanosPage() {
   const [saldo, setSaldo] = useState(0);
   const [extrato, setExtrato] = useState<any[]>([]);
   const [checkout, setCheckout] = useState<string | null>(null);
+  const [checkoutPix, setCheckoutPix] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
   const recarregar = async () => {
@@ -425,6 +427,14 @@ function PlanosPage() {
                                 <Wallet className="size-4" /> Pagar com créditos (Pix)
                               </button>
                             )}
+                            {mensal && (
+                              <button
+                                onClick={() => setCheckoutPix(preco.priceId)}
+                                className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary"
+                              >
+                                Pix (Mercado Pago)
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -456,7 +466,13 @@ function PlanosPage() {
                   onClick={() => setCheckout(p.priceId)}
                   className="mt-4 w-full rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                 >
-                  Comprar
+                  Comprar no cartão
+                </button>
+                <button
+                  onClick={() => setCheckoutPix(p.priceId)}
+                  className="mt-2 w-full rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary"
+                >
+                  Pagar com Pix
                 </button>
               </article>
             ))}
@@ -502,6 +518,17 @@ function PlanosPage() {
           </div>
         </section>
       </main>
+
+      {checkoutPix && (
+        <CheckoutPix
+          priceId={checkoutPix}
+          onAprovado={() => void recarregar()}
+          onFechar={() => {
+            setCheckoutPix(null);
+            void recarregar();
+          }}
+        />
+      )}
 
       {checkout && (
         <CheckoutProduto
