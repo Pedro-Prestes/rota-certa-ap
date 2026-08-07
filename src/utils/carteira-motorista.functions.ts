@@ -105,8 +105,7 @@ export const solicitarSaqueMotorista = createServerFn({ method: "POST" })
 export const listarRepassesPendentes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const meus = await papeis(context.supabase as never, context.userId);
-    if (!meus.some((p) => ["admin", "admin_secundario", "gerente"].includes(p))) {
+    if (!(await ehGestao(context.supabase, context.userId))) {
       return { error: "Apenas a gestão pode acompanhar os repasses." };
     }
     const { repassesPendentes } = await import("@/lib/carteira-motorista.server");
@@ -122,8 +121,7 @@ export const concluirRepasse = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data, context }) => {
-    const meus = await papeis(context.supabase as never, context.userId);
-    if (!meus.some((p) => ["admin", "admin_secundario", "gerente"].includes(p))) {
+    if (!(await ehGestao(context.supabase, context.userId))) {
       return { error: "Apenas a gestão pode liquidar repasses." };
     }
     try {
