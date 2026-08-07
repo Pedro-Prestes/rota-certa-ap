@@ -370,7 +370,7 @@ function AbaRotas() {
               </select>
             </label>
             <label>
-              <span className={rotulo}>Saída (ida)</span>
+              <span className={rotulo}>Ponto A</span>
               <input
                 type="time"
                 className={campo}
@@ -379,7 +379,7 @@ function AbaRotas() {
               />
             </label>
             <label>
-              <span className={rotulo}>Chegada (ida)</span>
+              <span className={rotulo}>Ponto B</span>
               <input
                 type="time"
                 className={campo}
@@ -388,7 +388,7 @@ function AbaRotas() {
               />
             </label>
             <label>
-              <span className={rotulo}>Saída (retorno)</span>
+              <span className={rotulo}>Ponto B</span>
               <input
                 type="time"
                 className={campo}
@@ -397,7 +397,7 @@ function AbaRotas() {
               />
             </label>
             <label>
-              <span className={rotulo}>Chegada (retorno)</span>
+              <span className={rotulo}>Ponto A</span>
               <input
                 type="time"
                 className={campo}
