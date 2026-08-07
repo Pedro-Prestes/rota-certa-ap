@@ -262,6 +262,47 @@ function Embarque() {
                 />
               </label>
               <button
+                onClick={() => estimativa.mutate()}
+                disabled={estimativa.isPending || !rotaId || endereco.trim().length < 6}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              >
+                {estimativa.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Calculator className="size-4" />
+                )}
+                Calcular preço com desvio
+              </button>
+              {estimativa.data && (
+                <div className="rounded-2xl bg-secondary p-4 text-sm">
+                  <p className="text-[11px] text-muted-foreground">{estimativa.data.enderecoFormatado}</p>
+                  <dl className="mt-2 space-y-1">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Assento base</dt>
+                      <dd>{brl(estimativa.data.precoBase)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">
+                        Desvio (+{estimativa.data.metricas.kmExtra} km ·{" "}
+                        {estimativa.data.metricas.minutosExtra} min)
+                      </dt>
+                      <dd>{brl(estimativa.data.taxaDesvio)}</dd>
+                    </div>
+                    <div className="flex justify-between border-t border-border pt-1 font-bold">
+                      <dt>Total do assento</dt>
+                      <dd>{brl(estimativa.data.precoTotalAssento)}</dd>
+                    </div>
+                  </dl>
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Cálculo por{" "}
+                    {estimativa.data.metricas.provedor === "google_routes"
+                      ? "malha viária real"
+                      : "estimativa geodésica"}
+                    . O valor final vale após o motorista aceitar o ponto.
+                  </p>
+                </div>
+              )}
+              <button
                 onClick={() => propor.mutate()}
                 disabled={propor.isPending}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
