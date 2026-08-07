@@ -67,6 +67,7 @@ function Embarque() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const geocodificar = useServerFn(localizarEndereco);
+  const estimarPreco = useServerFn(estimarPrecoPontoRota);
 
   const [rotaId, setRotaId] = useState("");
   const [dataViagem, setDataViagem] = useState(() => new Date().toISOString().slice(0, 10));
