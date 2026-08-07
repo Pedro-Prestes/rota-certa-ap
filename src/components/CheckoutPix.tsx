@@ -136,8 +136,12 @@ export function CheckoutPix({
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">
-                Taxa administrativa ({previa.taxaPercentual}% + {brl(previa.taxaFixa)})
+                Taxa administrativa
+                {previa.taxaPercentual > 0 || previa.taxaFixa > 0
+                  ? ` (${previa.taxaPercentual}% + ${brl(previa.taxaFixa)})`
+                  : ""}
               </dt>
+
               <dd className="font-medium">{brl(previa.taxaAdmin)}</dd>
             </div>
             <div className="flex justify-between border-t border-border pt-2">
