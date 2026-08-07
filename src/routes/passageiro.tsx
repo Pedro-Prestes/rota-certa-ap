@@ -450,6 +450,23 @@ function Passageiro() {
           </aside>
         </div>
       </main>
+
+      {pixPrice && (
+        <CheckoutPix
+          priceId={pixPrice}
+          onFechar={() => setPixPrice(null)}
+          onAprovado={() => {
+            setPixPrice(null);
+            void pagarComCreditos(false).then((ok) => {
+              if (!ok)
+                toast.info(
+                  "Créditos adicionados. Toque em “Pagar e garantir a lotação” para concluir.",
+                );
+            });
+          }}
+        />
+      )}
     </div>
+
   );
 }
