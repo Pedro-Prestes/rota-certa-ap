@@ -2,28 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  ArrowRight,
-  Clock,
-  Loader2,
-  Luggage,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { ArrowRight, Clock, Loader2, Luggage, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
 import { pagarReservaComCreditos } from "@/utils/reserva.functions";
 
-import {
-  avaliarBagagem,
-  brl,
-  calcularTarifa,
-  rotuloClasse,
-  type Volume,
-} from "@/lib/logistica";
-
+import { avaliarBagagem, brl, calcularTarifa, rotuloClasse, type Volume } from "@/lib/logistica";
 
 type RotaPublica = {
   id: string;
@@ -38,7 +24,6 @@ type RotaPublica = {
   dificuldade_via: number;
   preco_assento: number;
 };
-
 
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
@@ -76,8 +61,6 @@ function Passageiro() {
   const [pixPrice, setPixPrice] = useState<string | null>(null);
   const navigate = useNavigate();
 
-
-
   const [bag, setBag] = useState<Volume>({
     comprimentoCm: 55,
     larguraCm: 35,
@@ -114,9 +97,7 @@ function Passageiro() {
 
   const resultados = useMemo(
     () =>
-      todas.filter(
-        (r) => (!origem || r.origem === origem) && (!destino || r.destino === destino),
-      ),
+      todas.filter((r) => (!origem || r.origem === origem) && (!destino || r.destino === destino)),
     [todas, origem, destino],
   );
 
@@ -140,7 +121,6 @@ function Passageiro() {
         : null,
     [viagem, veiculo],
   );
-
 
   const total = tarifa
     ? tarifa.precoAssento * assentos + tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes
@@ -198,11 +178,6 @@ function Passageiro() {
     }
   };
 
-
-
-
-
-
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
@@ -221,7 +196,11 @@ function Passageiro() {
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
                     Origem
                   </span>
-                  <select className={campo} value={origem} onChange={(e) => setOrigem(e.target.value)}>
+                  <select
+                    className={campo}
+                    value={origem}
+                    onChange={(e) => setOrigem(e.target.value)}
+                  >
                     <option value="">Qualquer origem</option>
                     {localidades.map((n) => (
                       <option key={n}>{n}</option>
@@ -242,7 +221,6 @@ function Passageiro() {
                       <option key={n}>{n}</option>
                     ))}
                   </select>
-
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
@@ -283,7 +261,9 @@ function Passageiro() {
                     key={v.id}
                     onClick={() => setSelecionada(v.id)}
                     className={`w-full rounded-2xl border p-5 text-left transition-all ${
-                      ativa ? "border-accent bg-accent/10" : "border-border bg-card hover:border-foreground/25"
+                      ativa
+                        ? "border-accent bg-accent/10"
+                        : "border-border bg-card hover:border-foreground/25"
                     }`}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -321,7 +301,6 @@ function Passageiro() {
                 </p>
               )}
             </div>
-
           </div>
 
           {/* Painel lateral */}
@@ -402,9 +381,7 @@ function Passageiro() {
                   </p>
                   <dl className="mt-4 space-y-1.5 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-primary-foreground/70">
-                        {assentos} assento(s)
-                      </dt>
+                      <dt className="text-primary-foreground/70">{assentos} assento(s)</dt>
                       <dd>{brl(tarifa.precoAssento * assentos)}</dd>
                     </div>
                     <div className="flex justify-between">
@@ -437,7 +414,6 @@ function Passageiro() {
                     Pix e o assento é garantido logo após a confirmação. Em caso de pane, folga ou
                     força maior registrada pelo motorista, o valor é devolvido integralmente.
                   </p>
-
                 </>
               ) : (
                 <p className="mt-3 text-xs text-primary-foreground/60">
@@ -465,6 +441,5 @@ function Passageiro() {
         />
       )}
     </div>
-
   );
 }

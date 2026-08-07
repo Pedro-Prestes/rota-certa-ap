@@ -35,7 +35,9 @@ export function pacoteSugerido(faltando: number): string {
 async function rotaEComposicao(dados: EntradaReserva) {
   const { data: rota, error } = await supabaseAdmin
     .from("rotas")
-    .select("id, user_id, origem, destino, saida_ida, chegada_ida, distancia_km, assentos, preco_assento, status")
+    .select(
+      "id, user_id, origem, destino, saida_ida, chegada_ida, distancia_km, assentos, preco_assento, status",
+    )
     .eq("id", dados.rotaId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -170,7 +172,11 @@ export async function reservarComCreditos(dados: EntradaReserva) {
   const comp = competencia();
   await supabaseAdmin.from("lancamentos_contabeis").insert(
     [
-      { tipo: "receita_bruta" as const, valor: composicao.total, descricao: "Reserva de assento paga com créditos" },
+      {
+        tipo: "receita_bruta" as const,
+        valor: composicao.total,
+        descricao: "Reserva de assento paga com créditos",
+      },
       {
         tipo: "taxa_plataforma" as const,
         valor: composicao.taxaAdministrativa,
