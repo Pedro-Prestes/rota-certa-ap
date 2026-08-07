@@ -7,7 +7,11 @@ import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
-import { pagarReservaComCreditos } from "@/utils/reserva.functions";
+import {
+  gerarPixDaCorrida,
+  pagarReservaComCreditos,
+  previaDaReserva,
+} from "@/utils/reserva.functions";
 
 import { avaliarBagagem, brl, calcularTarifa, rotuloClasse, type Volume } from "@/lib/logistica";
 
