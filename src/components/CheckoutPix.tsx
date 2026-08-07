@@ -32,10 +32,18 @@ interface Pix {
 
 export function CheckoutPix({
   priceId,
+  titulo = "Pagar com Pix",
+  carregarPrevia,
+  gerarPix,
   onFechar,
   onAprovado,
 }: {
-  priceId: string;
+  priceId?: string;
+  titulo?: string;
+  /** Prévia customizada (ex.: valor exato da corrida). */
+  carregarPrevia?: () => Promise<Previa>;
+  /** Geração customizada do Pix (ex.: cobrança avulsa da corrida). */
+  gerarPix?: (cpf?: string) => Promise<Pix>;
   onFechar: () => void;
   onAprovado: () => void;
 }) {
@@ -47,14 +55,18 @@ export function CheckoutPix({
 
   useEffect(() => {
     let ativo = true;
-    void previaValorPix({ data: { priceId } })
-      .then((r) => ativo && setPrevia(r as Previa))
+    const promessa = carregarPrevia
+      ? carregarPrevia()
+      : previaValorPix({ data: { priceId: priceId as string } }).then((r) => r as Previa);
+    void promessa
+      .then((r) => ativo && setPrevia(r))
       .catch((e: unknown) =>
         toast.error(e instanceof Error ? e.message : "Não foi possível calcular o valor."),
       );
     return () => {
       ativo = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceId]);
 
   useEffect(() => {
@@ -74,8 +86,13 @@ export function CheckoutPix({
   const gerar = async () => {
     setGerando(true);
     try {
+      const cpfLimpo = cpf.replace(/\D/g, "").length === 11 ? cpf : undefined;
+      if (gerarPix) {
+        setPix(await gerarPix(cpfLimpo));
+        return;
+      }
       const r = await gerarPixMercadoPago({
-        data: { priceId, ...(cpf.replace(/\D/g, "").length === 11 ? { cpf } : {}) },
+        data: { priceId: priceId as string, ...(cpfLimpo ? { cpf: cpfLimpo } : {}) },
       });
       if (r && "error" in r) throw new Error(r.error);
       setPix(r as unknown as Pix);
@@ -85,6 +102,7 @@ export function CheckoutPix({
       setGerando(false);
     }
   };
+
 
   const validade = useMemo(
     () => (pix?.expiraEm ? new Date(pix.expiraEm).toLocaleString("pt-BR") : null),
