@@ -100,7 +100,7 @@ export async function criarPixDaCorrida(
       composicao: {
         base: composicao.base,
         taxaPercentual: composicao.taxaPercentualAplicada,
-        taxaFixa: composicao.taxaFixaAplicada,
+        taxaFixa: composicao.taxaFixa,
         taxaAdmin: composicao.taxaAdministrativa,
         total: composicao.total,
       },
