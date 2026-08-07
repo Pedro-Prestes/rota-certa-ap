@@ -9,6 +9,8 @@ import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { localizarEndereco } from "@/utils/embarque.functions";
+import { estimarPrecoPontoRota } from "@/utils/desvio.functions";
+import { brl } from "@/lib/logistica";
 import { COR_STATUS_PONTO, STATUS_PONTO, horaLocal, type StatusPonto } from "@/lib/embarque";
 import { GuardaPerfil } from "@/components/GuardaPerfil";
 
