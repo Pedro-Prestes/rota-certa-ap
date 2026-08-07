@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowRight, Clock, Loader2, Luggage, Users, Wallet } from "lucide-react";
+import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,7 +64,17 @@ function Passageiro() {
   const [pagando, setPagando] = useState(false);
   const [pixPrice, setPixPrice] = useState<string | null>(null);
   const [pixCorrida, setPixCorrida] = useState(false);
+  const [endereco, setEndereco] = useState("");
+  const [enderecoDebounced, setEnderecoDebounced] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const t = setTimeout(() => setEnderecoDebounced(endereco.trim()), 700);
+    return () => clearTimeout(t);
+  }, [endereco]);
+
+  const enderecoValido = enderecoDebounced.length >= 6;
+
 
   const [bag, setBag] = useState<Volume>({
     comprimentoCm: 55,
@@ -136,18 +146,28 @@ function Passageiro() {
     dataViagem: data,
     assentos,
     assentosBagagem: avaliacao.assentosEquivalentes,
+    ...(enderecoValido ? { enderecoEmbarque: enderecoDebounced } : {}),
     environment: "live" as const,
   });
 
   const previa = useQuery({
-    queryKey: ["previa-reserva", selecionada, data, assentos, avaliacao.assentosEquivalentes],
+    queryKey: [
+      "previa-reserva",
+      selecionada,
+      data,
+      assentos,
+      avaliacao.assentosEquivalentes,
+      enderecoValido ? enderecoDebounced : "",
+    ],
     enabled: Boolean(selecionada),
     queryFn: async () => {
       const r = await previaDaReserva({ data: entradaReserva() });
-      if ("error" in r) return null;
+      if ("error" in r) throw new Error(r.error);
       return r;
     },
   });
+
+
 
 
   const pagarComCreditos = async (avisarFalta = true) => {
@@ -395,6 +415,27 @@ function Passageiro() {
                     <Clock className="size-3" /> {data} · saída {hora(viagem.saida_ida)} · chegada{" "}
                     {hora(viagem.chegada_ida)}
                   </p>
+
+                  <label className="mt-4 block">
+                    <span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-primary-foreground/70">
+                      <MapPin className="size-3 text-accent" /> Onde será o seu embarque?
+                    </span>
+                    <input
+                      className="w-full rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-3.5 py-2.5 text-sm text-primary-foreground outline-none placeholder:text-primary-foreground/40 focus:ring-2 focus:ring-accent"
+                      placeholder="Rua, número e bairro"
+                      value={endereco}
+                      onChange={(e) => setEndereco(e.target.value)}
+                    />
+                    <span className="mt-1 block text-[11px] text-primary-foreground/55">
+                      {enderecoValido
+                        ? previa.isFetching
+                          ? "Calculando o desvio até o seu ponto…"
+                          : (previa.data?.desvio?.endereco ??
+                            "Sem desvio adicional para este ponto.")
+                        : "Informe o ponto de apanhe para calcular o desvio imediatamente."}
+                    </span>
+                  </label>
+
                   <dl className="mt-4 space-y-1.5 text-sm">
                     <div className="flex justify-between">
                       <dt className="text-primary-foreground/70">{assentos} assento(s)</dt>
@@ -406,28 +447,46 @@ function Passageiro() {
                       </dt>
                       <dd>{brl(tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes)}</dd>
                     </div>
+                    <div className="flex justify-between">
+                      <dt className="text-primary-foreground/70">
+                        Desvio do embarque
+                        {previa.data?.desvio
+                          ? ` (+${previa.data.desvio.kmExtra} km · +${previa.data.desvio.minutosExtra} min)`
+                          : ""}
+                      </dt>
+                      <dd>
+                        {enderecoValido
+                          ? previa.isFetching
+                            ? "calculando…"
+                            : brl(previa.data?.desvio?.taxa ?? 0)
+                          : "—"}
+                      </dd>
+                    </div>
                     <div className="flex justify-between border-t border-primary-foreground/15 pt-2">
                       <dt className="text-primary-foreground/70">Subtotal da corrida</dt>
                       <dd>{brl(previa.data?.base ?? total)}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-primary-foreground/70">Taxa administrativa</dt>
-                      <dd>
-                        {previa.data ? brl(previa.data.taxaAdministrativa) : "calculando…"}
-                      </dd>
+                      <dd>{previa.data ? brl(previa.data.taxaAdministrativa) : "calculando…"}</dd>
                     </div>
                     <div className="flex justify-between border-t border-primary-foreground/15 pt-2 font-display text-lg font-bold">
                       <dt>Total</dt>
                       <dd className="text-accent">{brl(previa.data?.total ?? total)}</dd>
                     </div>
                   </dl>
+                  {previa.error && (
+                    <p className="mt-2 rounded-xl bg-destructive/20 p-3 text-[11px] text-primary-foreground">
+                      {(previa.error as Error).message}
+                    </p>
+                  )}
                   <p className="mt-2 text-[11px] text-primary-foreground/55">
                     A taxa administrativa custeia gateway de pagamento, telefonia/SMS, hospedagem,
                     consultas de idoneidade e o registro do trajeto em cadeia de blocos.
                   </p>
                   <button
                     onClick={() => void pagarComCreditos()}
-                    disabled={pagando}
+                    disabled={pagando || !enderecoValido || previa.isFetching || !previa.data}
                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:opacity-60"
                   >
                     {pagando && <Loader2 className="size-4 animate-spin" />}
@@ -435,10 +494,12 @@ function Passageiro() {
                   </button>
                   <button
                     onClick={() => setPixCorrida(true)}
-                    className="mt-2 w-full rounded-full border border-primary-foreground/25 px-5 py-2.5 text-xs font-semibold text-primary-foreground/85 hover:bg-primary-foreground/10"
+                    disabled={!enderecoValido || previa.isFetching || !previa.data}
+                    className="mt-2 w-full rounded-full border border-primary-foreground/25 px-5 py-2.5 text-xs font-semibold text-primary-foreground/85 hover:bg-primary-foreground/10 disabled:opacity-60"
                   >
                     Pagar esta corrida no Pix (sem carteira)
                   </button>
+
                   <p className="mt-3 text-[11px] leading-relaxed text-primary-foreground/55">
                     Você pode pagar com os créditos da carteira ou gerar um Pix avulso pelo valor
                     exato desta corrida, sem precisar de saldo. O assento é garantido logo após a

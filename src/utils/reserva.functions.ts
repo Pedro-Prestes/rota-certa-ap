@@ -6,6 +6,7 @@ interface EntradaReservaCliente {
   dataViagem: string;
   assentos: number;
   assentosBagagem?: number;
+  enderecoEmbarque?: string;
   environment?: "sandbox" | "live";
 }
 
@@ -17,8 +18,15 @@ const validar = (data: EntradaReservaCliente) => {
   }
   const bagagem = Math.trunc(data.assentosBagagem ?? 0);
   if (bagagem < 0 || bagagem > 8) throw new Error("Bagagem excedente inválida.");
-  return { ...data, assentosBagagem: bagagem };
+  const endereco = data.enderecoEmbarque?.trim() ?? "";
+  if (endereco.length > 240) throw new Error("Endereço de embarque muito longo.");
+  return {
+    ...data,
+    assentosBagagem: bagagem,
+    ...(endereco ? { enderecoEmbarque: endereco } : {}),
+  };
 };
+
 
 /** Valor da reserva, saldo de créditos e quanto falta para garantir o assento. */
 export const previaDaReserva = createServerFn({ method: "POST" })
@@ -33,7 +41,9 @@ export const previaDaReserva = createServerFn({ method: "POST" })
         dataViagem: data.dataViagem,
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
+        enderecoEmbarque: data.enderecoEmbarque,
         environment: data.environment ?? "live",
+
       });
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Não foi possível calcular a reserva." };
@@ -68,7 +78,9 @@ export const gerarPixDaCorrida = createServerFn({ method: "POST" })
         dataViagem: data.dataViagem,
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
+        enderecoEmbarque: data.enderecoEmbarque,
         environment: data.environment ?? "live",
+
         email,
         nome: perfil?.nome_completo ?? undefined,
         cpf: (data as { cpf?: string }).cpf,
@@ -95,7 +107,9 @@ export const pagarReservaComCreditos = createServerFn({ method: "POST" })
         dataViagem: data.dataViagem,
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
+        enderecoEmbarque: data.enderecoEmbarque,
         environment: data.environment ?? "live",
+
       });
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Não foi possível concluir a reserva." };
