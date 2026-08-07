@@ -1,23 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  Clock,
-  Luggage,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { toast } from "sonner";
+import { ArrowRight, Clock, Loader2, Luggage, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
-import {
-  avaliarBagagem,
-  brl,
-  calcularTarifa,
-  rotuloClasse,
-  type Volume,
-} from "@/lib/logistica";
+import { pagarReservaComCreditos } from "@/utils/reserva.functions";
+
+import { avaliarBagagem, brl, calcularTarifa, rotuloClasse, type Volume } from "@/lib/logistica";
 
 type RotaPublica = {
   id: string;
@@ -32,7 +24,6 @@ type RotaPublica = {
   dificuldade_via: number;
   preco_assento: number;
 };
-
 
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
@@ -66,6 +57,9 @@ function Passageiro() {
   const [data, setData] = useState(() => new Date().toISOString().slice(0, 10));
   const [assentos, setAssentos] = useState(1);
   const [selecionada, setSelecionada] = useState<string | null>(null);
+  const [pagando, setPagando] = useState(false);
+  const [pixPrice, setPixPrice] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const [bag, setBag] = useState<Volume>({
     comprimentoCm: 55,
@@ -103,9 +97,7 @@ function Passageiro() {
 
   const resultados = useMemo(
     () =>
-      todas.filter(
-        (r) => (!origem || r.origem === origem) && (!destino || r.destino === destino),
-      ),
+      todas.filter((r) => (!origem || r.origem === origem) && (!destino || r.destino === destino)),
     [todas, origem, destino],
   );
 
@@ -130,10 +122,61 @@ function Passageiro() {
     [viagem, veiculo],
   );
 
-
   const total = tarifa
     ? tarifa.precoAssento * assentos + tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes
     : 0;
+
+  const entradaReserva = () => ({
+    rotaId: selecionada as string,
+    dataViagem: data,
+    assentos,
+    assentosBagagem: avaliacao.assentosEquivalentes,
+    environment: "live" as const,
+  });
+
+  const pagarComCreditos = async (avisarFalta = true) => {
+    if (!selecionada) return false;
+    const { data: sessao } = await supabase.auth.getSession();
+    if (!sessao.session) {
+      toast.info("Entre na sua conta para garantir o assento.");
+      void navigate({ to: "/auth" });
+      return false;
+    }
+
+    setPagando(true);
+    try {
+      const r = await pagarReservaComCreditos({ data: entradaReserva() });
+      if ("error" in r) throw new Error(r.error);
+      if (r.status === "lotado") {
+        toast.error(
+          r.disponiveis > 0
+            ? `Restam apenas ${r.disponiveis} assento(s) nesta saída.`
+            : "Esta saída já está com a lotação completa.",
+        );
+        return false;
+      }
+      if (r.status === "sem_saldo") {
+        if (avisarFalta) {
+          toast.info(
+            `Faltam ${brl(r.faltando)} em créditos. Complete o pagamento via Pix para garantir o assento.`,
+          );
+          setPixPrice(r.pacoteSugerido);
+        }
+        return false;
+      }
+      toast.success(
+        `Assento garantido! Pagamos ${brl(r.total)} com seus créditos (saldo restante ${brl(
+          r.saldoRestante,
+        )}).`,
+      );
+      return true;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível concluir a reserva.");
+      return false;
+    } finally {
+      setPagando(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,7 +196,11 @@ function Passageiro() {
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
                     Origem
                   </span>
-                  <select className={campo} value={origem} onChange={(e) => setOrigem(e.target.value)}>
+                  <select
+                    className={campo}
+                    value={origem}
+                    onChange={(e) => setOrigem(e.target.value)}
+                  >
                     <option value="">Qualquer origem</option>
                     {localidades.map((n) => (
                       <option key={n}>{n}</option>
@@ -174,7 +221,6 @@ function Passageiro() {
                       <option key={n}>{n}</option>
                     ))}
                   </select>
-
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
@@ -215,7 +261,9 @@ function Passageiro() {
                     key={v.id}
                     onClick={() => setSelecionada(v.id)}
                     className={`w-full rounded-2xl border p-5 text-left transition-all ${
-                      ativa ? "border-accent bg-accent/10" : "border-border bg-card hover:border-foreground/25"
+                      ativa
+                        ? "border-accent bg-accent/10"
+                        : "border-border bg-card hover:border-foreground/25"
                     }`}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -253,7 +301,6 @@ function Passageiro() {
                 </p>
               )}
             </div>
-
           </div>
 
           {/* Painel lateral */}
@@ -334,9 +381,7 @@ function Passageiro() {
                   </p>
                   <dl className="mt-4 space-y-1.5 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-primary-foreground/70">
-                        {assentos} assento(s)
-                      </dt>
+                      <dt className="text-primary-foreground/70">{assentos} assento(s)</dt>
                       <dd>{brl(tarifa.precoAssento * assentos)}</dd>
                     </div>
                     <div className="flex justify-between">
@@ -350,12 +395,24 @@ function Passageiro() {
                       <dd className="text-accent">{brl(total)}</dd>
                     </div>
                   </dl>
-                  <button className="mt-5 w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-transform hover:-translate-y-0.5">
+                  <button
+                    onClick={() => void pagarComCreditos()}
+                    disabled={pagando}
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+                  >
+                    {pagando && <Loader2 className="size-4 animate-spin" />}
                     Pagar e garantir a lotação
                   </button>
+                  <button
+                    onClick={() => setPixPrice("creditos_50")}
+                    className="mt-2 w-full rounded-full border border-primary-foreground/25 px-5 py-2.5 text-xs font-semibold text-primary-foreground/85 hover:bg-primary-foreground/10"
+                  >
+                    Pagar com Pix (sem créditos)
+                  </button>
                   <p className="mt-3 text-[11px] leading-relaxed text-primary-foreground/55">
-                    Pagamento antecipado obrigatório. Em caso de pane, folga ou força maior
-                    registrada pelo motorista, o valor é devolvido integralmente.
+                    O pagamento usa os créditos da sua carteira. Sem saldo suficiente, geramos um
+                    Pix e o assento é garantido logo após a confirmação. Em caso de pane, folga ou
+                    força maior registrada pelo motorista, o valor é devolvido integralmente.
                   </p>
                 </>
               ) : (
@@ -367,6 +424,22 @@ function Passageiro() {
           </aside>
         </div>
       </main>
+
+      {pixPrice && (
+        <CheckoutPix
+          priceId={pixPrice}
+          onFechar={() => setPixPrice(null)}
+          onAprovado={() => {
+            setPixPrice(null);
+            void pagarComCreditos(false).then((ok) => {
+              if (!ok)
+                toast.info(
+                  "Créditos adicionados. Toque em “Pagar e garantir a lotação” para concluir.",
+                );
+            });
+          }}
+        />
+      )}
     </div>
   );
 }
