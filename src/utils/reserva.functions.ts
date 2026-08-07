@@ -107,7 +107,9 @@ export const pagarReservaComCreditos = createServerFn({ method: "POST" })
         dataViagem: data.dataViagem,
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
+        enderecoEmbarque: data.enderecoEmbarque,
         environment: data.environment ?? "live",
+
       });
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Não foi possível concluir a reserva." };
