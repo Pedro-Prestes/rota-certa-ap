@@ -741,6 +741,81 @@ export type Database = {
           },
         ]
       }
+      pagamentos_pix: {
+        Row: {
+          created_at: string
+          creditado_em: string | null
+          creditos: number
+          descricao: string
+          environment: string
+          expira_em: string | null
+          finalidade: string
+          id: string
+          price_id: string
+          provedor: string
+          provedor_payment_id: string | null
+          qr_code: string | null
+          qr_code_base64: string | null
+          status: string
+          taxa_admin: number
+          taxa_fixa: number
+          taxa_percentual: number
+          ticket_url: string | null
+          updated_at: string
+          user_id: string
+          valor_base: number
+          valor_total: number
+        }
+        Insert: {
+          created_at?: string
+          creditado_em?: string | null
+          creditos?: number
+          descricao: string
+          environment?: string
+          expira_em?: string | null
+          finalidade?: string
+          id?: string
+          price_id: string
+          provedor?: string
+          provedor_payment_id?: string | null
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          status?: string
+          taxa_admin?: number
+          taxa_fixa?: number
+          taxa_percentual?: number
+          ticket_url?: string | null
+          updated_at?: string
+          user_id: string
+          valor_base: number
+          valor_total: number
+        }
+        Update: {
+          created_at?: string
+          creditado_em?: string | null
+          creditos?: number
+          descricao?: string
+          environment?: string
+          expira_em?: string | null
+          finalidade?: string
+          id?: string
+          price_id?: string
+          provedor?: string
+          provedor_payment_id?: string | null
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          status?: string
+          taxa_admin?: number
+          taxa_fixa?: number
+          taxa_percentual?: number
+          ticket_url?: string | null
+          updated_at?: string
+          user_id?: string
+          valor_base?: number
+          valor_total?: number
+        }
+        Relationships: []
+      }
       planos_embarque: {
         Row: {
           created_at: string
@@ -1662,6 +1737,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webhook_eventos: {
+        Row: {
+          created_at: string
+          evento_id: string
+          id: string
+          payload: Json
+          provedor: string
+          tipo: string | null
+        }
+        Insert: {
+          created_at?: string
+          evento_id: string
+          id?: string
+          payload?: Json
+          provedor: string
+          tipo?: string | null
+        }
+        Update: {
+          created_at?: string
+          evento_id?: string
+          id?: string
+          payload?: Json
+          provedor?: string
+          tipo?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
