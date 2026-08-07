@@ -35,6 +35,7 @@ import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 
 const IndexRoute = IndexRouteImport.update({
@@ -172,6 +173,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksMercadopagoRoute =
+  ApiPublicWebhooksMercadopagoRouteImport.update({
+    id: '/api/public/webhooks/mercadopago',
+    path: '/api/public/webhooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -204,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesByTo {
@@ -232,6 +240,7 @@ export interface FileRoutesByTo {
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesById {
@@ -262,6 +271,7 @@ export interface FileRoutesById {
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRouteTypes {
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   id:
     | '__root__'
@@ -349,6 +361,7 @@ export interface FileRouteTypes {
     | '/_authenticated/viagem'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
 }
@@ -365,6 +378,7 @@ export interface RootRouteChildren {
   SouFrotistaRoute: typeof SouFrotistaRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
 
@@ -552,6 +566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/mercadopago': {
+      id: '/api/public/webhooks/mercadopago'
+      path: '/api/public/webhooks/mercadopago'
+      fullPath: '/api/public/webhooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -612,18 +633,9 @@ const rootRouteChildren: RootRouteChildren = {
   SouFrotistaRoute: SouFrotistaRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
