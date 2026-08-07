@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
+import { Route as AuthenticatedCarteiraRouteImport } from './routes/_authenticated/carteira'
 import { Route as AuthenticatedColaboradorRouteImport } from './routes/_authenticated/colaborador'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
@@ -108,6 +109,11 @@ const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
 const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
   id: '/biometria',
   path: '/biometria',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCarteiraRoute = AuthenticatedCarteiraRouteImport.update({
+  id: '/carteira',
+  path: '/carteira',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedColaboradorRoute =
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/carteira': typeof AuthenticatedCarteiraRoute
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/carteira': typeof AuthenticatedCarteiraRoute
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
+  '/_authenticated/carteira': typeof AuthenticatedCarteiraRoute
   '/_authenticated/colaborador': typeof AuthenticatedColaboradorRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/assistencia'
     | '/auditoria'
     | '/biometria'
+    | '/carteira'
     | '/colaborador'
     | '/conta'
     | '/contabil'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/assistencia'
     | '/auditoria'
     | '/biometria'
+    | '/carteira'
     | '/colaborador'
     | '/conta'
     | '/contabil'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
     | '/_authenticated/biometria'
+    | '/_authenticated/carteira'
     | '/_authenticated/colaborador'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
@@ -510,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/carteira': {
+      id: '/_authenticated/carteira'
+      path: '/carteira'
+      fullPath: '/carteira'
+      preLoaderRoute: typeof AuthenticatedCarteiraRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/colaborador': {
       id: '/_authenticated/colaborador'
       path: '/colaborador'
@@ -630,6 +649,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistenciaRoute: typeof AuthenticatedAssistenciaRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
+  AuthenticatedCarteiraRoute: typeof AuthenticatedCarteiraRoute
   AuthenticatedColaboradorRoute: typeof AuthenticatedColaboradorRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
@@ -647,6 +667,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistenciaRoute: AuthenticatedAssistenciaRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
+  AuthenticatedCarteiraRoute: AuthenticatedCarteiraRoute,
   AuthenticatedColaboradorRoute: AuthenticatedColaboradorRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
