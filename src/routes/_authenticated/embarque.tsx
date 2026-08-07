@@ -3,12 +3,14 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Clock, Handshake, Loader2, MapPin, Navigation } from "lucide-react";
+import { Calculator, Clock, Handshake, Loader2, MapPin, Navigation } from "lucide-react";
 import { AcompanhamentoAoVivo } from "@/components/AcompanhamentoAoVivo";
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { localizarEndereco } from "@/utils/embarque.functions";
+import { estimarPrecoPontoRota } from "@/utils/desvio.functions";
+import { brl } from "@/lib/logistica";
 import { COR_STATUS_PONTO, STATUS_PONTO, horaLocal, type StatusPonto } from "@/lib/embarque";
 import { GuardaPerfil } from "@/components/GuardaPerfil";
 
@@ -65,6 +67,7 @@ function Embarque() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const geocodificar = useServerFn(localizarEndereco);
+  const estimarPreco = useServerFn(estimarPrecoPontoRota);
 
   const [rotaId, setRotaId] = useState("");
   const [dataViagem, setDataViagem] = useState(() => new Date().toISOString().slice(0, 10));
@@ -104,6 +107,17 @@ function Embarque() {
     () => (rotas.data ?? []).find((r) => r.id === rotaId) ?? null,
     [rotas.data, rotaId],
   );
+
+  const estimativa = useMutation({
+    mutationFn: async () => {
+      if (!rotaId) throw new Error("Escolha a saída desejada.");
+      const r = await estimarPreco({ data: { rotaId, endereco } });
+      if ("error" in r) throw new Error(r.error);
+      return r;
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const propor = useMutation({
     mutationFn: async () => {
@@ -247,6 +261,47 @@ function Embarque() {
                   onChange={(e) => setAssentos(Math.max(1, Number(e.target.value)))}
                 />
               </label>
+              <button
+                onClick={() => estimativa.mutate()}
+                disabled={estimativa.isPending || !rotaId || endereco.trim().length < 6}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              >
+                {estimativa.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Calculator className="size-4" />
+                )}
+                Calcular preço com desvio
+              </button>
+              {estimativa.data && (
+                <div className="rounded-2xl bg-secondary p-4 text-sm">
+                  <p className="text-[11px] text-muted-foreground">{estimativa.data.enderecoFormatado}</p>
+                  <dl className="mt-2 space-y-1">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Assento base</dt>
+                      <dd>{brl(estimativa.data.precoBase)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">
+                        Desvio (+{estimativa.data.metricas.kmExtra} km ·{" "}
+                        {estimativa.data.metricas.minutosExtra} min)
+                      </dt>
+                      <dd>{brl(estimativa.data.taxaDesvio)}</dd>
+                    </div>
+                    <div className="flex justify-between border-t border-border pt-1 font-bold">
+                      <dt>Total do assento</dt>
+                      <dd>{brl(estimativa.data.precoTotalAssento)}</dd>
+                    </div>
+                  </dl>
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Cálculo por{" "}
+                    {estimativa.data.metricas.provedor === "google_routes"
+                      ? "malha viária real"
+                      : "estimativa geodésica"}
+                    . O valor final vale após o motorista aceitar o ponto.
+                  </p>
+                </div>
+              )}
               <button
                 onClick={() => propor.mutate()}
                 disabled={propor.isPending}

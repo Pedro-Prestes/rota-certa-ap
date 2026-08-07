@@ -62,7 +62,7 @@ export async function geocodificar(
 
 const cacheLocalidade = new Map<string, Coordenada>();
 
-async function coordenadaLocalidade(nome: string): Promise<Coordenada> {
+export async function coordenadaLocalidade(nome: string): Promise<Coordenada> {
   const chave = nome.toLowerCase();
   const cache = cacheLocalidade.get(chave);
   if (cache) return cache;

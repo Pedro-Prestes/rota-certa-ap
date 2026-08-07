@@ -100,3 +100,38 @@ export async function calcularPrecoAssentoComDesvio(
     metricas: { ...preco.metricas, provedor: usouProvedor ? "google_routes" : "geometrico" },
   };
 }
+
+/**
+ * Estimativa do assento para o ponto que o passageiro está propondo em uma
+ * rota já ofertada: geocodifica o endereço e mede o desvio real.
+ */
+export async function estimarPrecoPonto(
+  supabase: import("@supabase/supabase-js").SupabaseClient<
+    import("@/integrations/supabase/types").Database
+  >,
+  rotaId: string,
+  endereco: string,
+) {
+  const { geocodificar, coordenadaLocalidade } = await import("./embarque.server");
+  const { data: rota, error } = await supabase
+    .from("rotas")
+    .select("origem, destino, preco_assento")
+    .eq("id", rotaId)
+    .single();
+  if (error || !rota) throw new Error("Rota não encontrada.");
+
+  const [origem, destino, apanhe] = await Promise.all([
+    coordenadaLocalidade(rota.origem),
+    coordenadaLocalidade(rota.destino),
+    geocodificar(endereco),
+  ]);
+
+  const preco = await calcularPrecoAssentoComDesvio({
+    origemMotorista: origem,
+    destinoMotorista: destino,
+    apanhePassageiro: { latitude: apanhe.latitude, longitude: apanhe.longitude },
+    precoBase: Number(rota.preco_assento ?? 0),
+  });
+
+  return { ...preco, enderecoFormatado: apanhe.enderecoFormatado };
+}

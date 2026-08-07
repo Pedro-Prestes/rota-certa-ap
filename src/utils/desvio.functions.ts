@@ -48,3 +48,22 @@ export const precoAssentoComDesvio = createServerFn({ method: "POST" })
       return { error: (e as Error).message };
     }
   });
+
+/** Estimativa do assento (base + desvio) para o ponto proposto numa rota. */
+export const estimarPrecoPontoRota = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { rotaId: string; endereco: string }) => {
+    if (!/^[0-9a-fA-F-]{36}$/.test(data.rotaId ?? "")) throw new Error("Rota inválida.");
+    const endereco = data.endereco?.trim() ?? "";
+    if (endereco.length < 6) throw new Error("Descreva o ponto com rua, número e bairro.");
+    if (endereco.length > 240) throw new Error("Endereço muito longo.");
+    return { rotaId: data.rotaId, endereco };
+  })
+  .handler(async ({ data, context }) => {
+    try {
+      const { estimarPrecoPonto } = await import("@/lib/desvio.server");
+      return await estimarPrecoPonto(context.supabase, data.rotaId, data.endereco);
+    } catch (e) {
+      return { error: (e as Error).message };
+    }
+  });
