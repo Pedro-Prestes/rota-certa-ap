@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowRight, Clock, Loader2, Luggage, Users, Wallet } from "lucide-react";
@@ -64,7 +64,17 @@ function Passageiro() {
   const [pagando, setPagando] = useState(false);
   const [pixPrice, setPixPrice] = useState<string | null>(null);
   const [pixCorrida, setPixCorrida] = useState(false);
+  const [endereco, setEndereco] = useState("");
+  const [enderecoDebounced, setEnderecoDebounced] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const t = setTimeout(() => setEnderecoDebounced(endereco.trim()), 700);
+    return () => clearTimeout(t);
+  }, [endereco]);
+
+  const enderecoValido = enderecoDebounced.length >= 6;
+
 
   const [bag, setBag] = useState<Volume>({
     comprimentoCm: 55,
