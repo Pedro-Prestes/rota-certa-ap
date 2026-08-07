@@ -108,6 +108,17 @@ function Embarque() {
     [rotas.data, rotaId],
   );
 
+  const estimativa = useMutation({
+    mutationFn: async () => {
+      if (!rotaId) throw new Error("Escolha a saída desejada.");
+      const r = await estimarPreco({ data: { rotaId, endereco } });
+      if ("error" in r) throw new Error(r.error);
+      return r;
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const propor = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Faça login para combinar o ponto.");
