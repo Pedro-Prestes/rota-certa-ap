@@ -69,24 +69,26 @@ function ResetPassword() {
         <h1 className="mt-5 text-3xl font-bold">Definir nova senha</h1>
         {pronto ? (
           <form onSubmit={salvar} className="mt-6 space-y-3">
-            <input
+            <CampoSenha
               className={campo}
-              type="password"
               placeholder="Nova senha"
               minLength={6}
               value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              onChange={setSenha}
               required
+              autoComplete="new-password"
+              mostrarForca
             />
-            <input
+            <CampoSenha
               className={campo}
-              type="password"
               placeholder="Repita a nova senha"
               minLength={6}
               value={confirma}
-              onChange={(e) => setConfirma(e.target.value)}
+              onChange={setConfirma}
               required
+              autoComplete="new-password"
             />
+
             <button
               type="submit"
               disabled={ocupado}
