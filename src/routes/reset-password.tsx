@@ -4,6 +4,7 @@ import { Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
+import { CampoSenha } from "@/components/CampoSenha";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
