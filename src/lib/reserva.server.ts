@@ -23,6 +23,8 @@ export interface EntradaReserva {
   assentos: number;
   assentosBagagem: number;
   environment: StripeEnv;
+  /** Endereço do embarque combinado — gera a taxa de desvio da rota. */
+  enderecoEmbarque?: string | undefined;
 }
 
 /** Menor pacote de créditos que cobre o valor faltante. */
@@ -30,6 +32,32 @@ export function pacoteSugerido(faltando: number): string {
   const ordenados = [...PACOTES_CREDITO].sort((a, b) => a.valor - b.valor);
   const escolhido = ordenados.find((p) => p.valor + p.bonus >= faltando) ?? ordenados.at(-1)!;
   return escolhido.priceId;
+}
+
+interface DesvioReserva {
+  endereco: string;
+  taxa: number;
+  kmExtra: number;
+  minutosExtra: number;
+  provedor: string | undefined;
+}
+
+/** Taxa de desvio do ponto de embarque informado (0 quando não informado). */
+async function desvioDoEmbarque(
+  rotaId: string,
+  endereco: string | undefined,
+): Promise<DesvioReserva | null> {
+  const alvo = endereco?.trim();
+  if (!alvo || alvo.length < 6) return null;
+  const { estimarPrecoPonto } = await import("./desvio.server");
+  const r = await estimarPrecoPonto(supabaseAdmin, rotaId, alvo);
+  return {
+    endereco: r.enderecoFormatado,
+    taxa: arred(r.taxaDesvio),
+    kmExtra: r.metricas.kmExtra,
+    minutosExtra: r.metricas.minutosExtra,
+    provedor: r.metricas.provedor,
+  };
 }
 
 async function rotaEComposicao(dados: EntradaReserva) {
@@ -45,12 +73,16 @@ async function rotaEComposicao(dados: EntradaReserva) {
 
   const preco = Number(rota.preco_assento) || 0;
   // Bagagem excedente equivale a 60% do preço do assento (mesma regra da vitrine).
-  const base = arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
-  if (base <= 0) throw new Error("Esta saída ainda não tem tarifa publicada.");
+  const assentosValor = arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
+  if (assentosValor <= 0) throw new Error("Esta saída ainda não tem tarifa publicada.");
+
+  const desvio = await desvioDoEmbarque(dados.rotaId, dados.enderecoEmbarque);
+  const base = arred(assentosValor + (desvio?.taxa ?? 0));
 
   const cfg = await configDoUsuario(dados.userId, dados.environment);
-  return { rota, base, composicao: comporCobranca(base, cfg) };
+  return { rota, base, assentosValor, desvio, composicao: comporCobranca(base, cfg) };
 }
+
 
 /** Prévia do valor da reserva e do saldo disponível em créditos. */
 export async function previaReserva(dados: EntradaReserva) {
