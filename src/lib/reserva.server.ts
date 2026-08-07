@@ -68,6 +68,46 @@ export async function previaReserva(dados: EntradaReserva) {
   };
 }
 
+/**
+ * Pix avulso pelo valor exato da corrida — não exige saldo prévio na carteira.
+ * O valor cobrado é a base da reserva mais a taxa administrativa já apurada
+ * (sem taxa dupla) e é creditado integralmente para liquidar a reserva.
+ */
+export async function criarPixDaCorrida(
+  dados: EntradaReserva & {
+    email: string;
+    nome?: string | undefined;
+    cpf?: string | undefined;
+    notificationUrl: string;
+  },
+) {
+  const { rota, composicao } = await rotaEComposicao(dados);
+  const { criarPagamentoPix } = await import("./mercadopago.server");
+
+  return criarPagamentoPix({
+    userId: dados.userId,
+    priceId: `corrida:${rota.id}:${dados.dataViagem}`,
+    email: dados.email,
+    ...(dados.nome ? { nome: dados.nome } : {}),
+    ...(dados.cpf ? { cpf: dados.cpf } : {}),
+    environment: dados.environment,
+    notificationUrl: dados.notificationUrl,
+    item: {
+      finalidade: "corrida",
+      base: composicao.base,
+      creditos: composicao.total,
+      descricao: `RotaCerta — Corrida ${rota.origem} → ${rota.destino} em ${dados.dataViagem}`,
+      composicao: {
+        base: composicao.base,
+        taxaPercentual: composicao.taxaPercentualAplicada,
+        taxaFixa: composicao.taxaFixa,
+        taxaAdmin: composicao.taxaAdministrativa,
+        total: composicao.total,
+      },
+    },
+  });
+}
+
 /** Débita os créditos, registra o pagamento e garante o assento na saída. */
 export async function reservarComCreditos(dados: EntradaReserva) {
   const { rota, composicao } = await rotaEComposicao(dados);

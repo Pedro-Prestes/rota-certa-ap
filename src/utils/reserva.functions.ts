@@ -40,7 +40,49 @@ export const previaDaReserva = createServerFn({ method: "POST" })
     }
   });
 
+/** Gera um Pix avulso pelo valor exato da corrida (sem exigir saldo). */
+export const gerarPixDaCorrida = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: EntradaReservaCliente & { cpf?: string }) => {
+    if (data.cpf && data.cpf.replace(/\D/g, "").length !== 11) throw new Error("CPF inválido.");
+    return { ...validar(data), ...(data.cpf ? { cpf: data.cpf } : {}) };
+  })
+  .handler(async ({ data, context }) => {
+    const { criarPixDaCorrida } = await import("@/lib/reserva.server");
+    try {
+      const {
+        data: { user },
+      } = await context.supabase.auth.getUser();
+      const email = user?.email;
+      if (!email) return { error: "Sua conta precisa de um e-mail válido para pagar com Pix." };
+
+      const { data: perfil } = await context.supabase
+        .from("profiles")
+        .select("nome_completo")
+        .eq("id", context.userId)
+        .maybeSingle();
+
+      return await criarPixDaCorrida({
+        userId: context.userId,
+        rotaId: data.rotaId,
+        dataViagem: data.dataViagem,
+        assentos: data.assentos,
+        assentosBagagem: data.assentosBagagem,
+        environment: data.environment ?? "live",
+        email,
+        nome: perfil?.nome_completo ?? undefined,
+        cpf: (data as { cpf?: string }).cpf,
+        notificationUrl:
+          process.env["MERCADOPAGO_NOTIFICATION_URL"] ??
+          "https://rota-certa-ap.lovable.app/api/public/webhooks/mercadopago",
+      });
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Não foi possível gerar o Pix." };
+    }
+  });
+
 /** Paga a reserva com os créditos da carteira e garante a lotação. */
+
 export const pagarReservaComCreditos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(validar)

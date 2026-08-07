@@ -117,6 +117,15 @@ export interface PixCriado {
   descricao: string;
 }
 
+/** Item calculado no servidor (usado em cobranças avulsas, como a corrida). */
+export interface ItemPixManual {
+  finalidade: "creditos" | "assinatura" | "corrida";
+  base: number;
+  creditos: number;
+  descricao: string;
+  composicao: ComposicaoPix;
+}
+
 /** Cria a transação interna e o pagamento Pix no Mercado Pago. */
 export async function criarPagamentoPix(dados: {
   userId: string;
@@ -126,10 +135,12 @@ export async function criarPagamentoPix(dados: {
   cpf?: string;
   environment?: MpEnv;
   notificationUrl: string;
+  item?: ItemPixManual;
 }): Promise<PixCriado> {
-  const item = itemDoPrice(dados.priceId);
-  const composicao = comporValorPix(item.base);
+  const item = dados.item ?? itemDoPrice(dados.priceId);
+  const composicao = dados.item?.composicao ?? comporValorPix(item.base);
   const env: MpEnv = dados.environment ?? "live";
+
 
   const { data: registro, error } = await supabaseAdmin
     .from("pagamentos_pix")
