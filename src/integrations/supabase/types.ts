@@ -378,6 +378,51 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_routes: {
+        Row: {
+          base_distance_km: number
+          base_seat_price: number
+          created_at: string
+          destination_border_neighborhood: string | null
+          destination_city: string
+          driver_id: string
+          id: string
+          origin_border_neighborhood: string | null
+          origin_city: string
+          status: string
+          total_seats: number
+          updated_at: string
+        }
+        Insert: {
+          base_distance_km: number
+          base_seat_price: number
+          created_at?: string
+          destination_border_neighborhood?: string | null
+          destination_city: string
+          driver_id: string
+          id?: string
+          origin_border_neighborhood?: string | null
+          origin_city: string
+          status?: string
+          total_seats: number
+          updated_at?: string
+        }
+        Update: {
+          base_distance_km?: number
+          base_seat_price?: number
+          created_at?: string
+          destination_border_neighborhood?: string | null
+          destination_city?: string
+          driver_id?: string
+          id?: string
+          origin_border_neighborhood?: string | null
+          origin_city?: string
+          status?: string
+          total_seats?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       estornos: {
         Row: {
           autorizado_por: string | null
@@ -1145,6 +1190,56 @@ export type Database = {
             columns: ["frotista_id"]
             isOneToOne: false
             referencedRelation: "frotistas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seat_reservations: {
+        Row: {
+          calculated_detour_fee: number | null
+          calculated_detour_km: number | null
+          created_at: string
+          final_seat_price: number
+          id: string
+          passenger_id: string
+          pickup_location: unknown
+          pickup_type: string
+          route_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          calculated_detour_fee?: number | null
+          calculated_detour_km?: number | null
+          created_at?: string
+          final_seat_price: number
+          id?: string
+          passenger_id: string
+          pickup_location: unknown
+          pickup_type: string
+          route_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          calculated_detour_fee?: number | null
+          calculated_detour_km?: number | null
+          created_at?: string
+          final_seat_price?: number
+          id?: string
+          passenger_id?: string
+          pickup_location?: unknown
+          pickup_type?: string
+          route_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seat_reservations_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "driver_routes"
             referencedColumns: ["id"]
           },
         ]
