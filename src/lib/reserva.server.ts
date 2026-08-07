@@ -86,12 +86,14 @@ async function rotaEComposicao(dados: EntradaReserva) {
 
 /** Prévia do valor da reserva e do saldo disponível em créditos. */
 export async function previaReserva(dados: EntradaReserva) {
-  const { rota, composicao } = await rotaEComposicao(dados);
+  const { rota, composicao, assentosValor, desvio } = await rotaEComposicao(dados);
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
   const faltando = arred(Math.max(0, composicao.total - saldo));
   return {
     origem: rota.origem,
     destino: rota.destino,
+    assentosValor,
+    desvio,
     base: composicao.base,
     taxaAdministrativa: composicao.taxaAdministrativa,
     total: composicao.total,
@@ -99,6 +101,7 @@ export async function previaReserva(dados: EntradaReserva) {
     faltando,
     ...(faltando > 0 ? { pacoteSugerido: pacoteSugerido(faltando) } : {}),
   };
+
 }
 
 /**
