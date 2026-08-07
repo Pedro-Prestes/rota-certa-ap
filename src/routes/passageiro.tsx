@@ -447,6 +447,42 @@ function Passageiro() {
           }}
         />
       )}
+
+      {pixCorrida && selecionada && (
+        <CheckoutPix
+          titulo="Pagar esta corrida no Pix"
+          carregarPrevia={async () => {
+            const r = await previaDaReserva({ data: entradaReserva() });
+            if ("error" in r) throw new Error(r.error);
+            return {
+              base: r.base,
+              taxaPercentual: 0,
+              taxaFixa: 0,
+              taxaAdmin: r.taxaAdministrativa,
+              total: r.total,
+              creditos: r.total,
+              descricao: `Corrida ${r.origem} → ${r.destino} em ${data}`,
+            };
+          }}
+          gerarPix={async (cpf) => {
+            const r = await gerarPixDaCorrida({
+              data: { ...entradaReserva(), ...(cpf ? { cpf } : {}) },
+            });
+            if ("error" in r) throw new Error(r.error);
+            return r as never;
+          }}
+          onFechar={() => setPixCorrida(false)}
+          onAprovado={() => {
+            setPixCorrida(false);
+            void pagarComCreditos(false).then((ok) => {
+              if (!ok)
+                toast.info(
+                  "Pix confirmado. Toque em “Pagar e garantir a lotação” para concluir a reserva.",
+                );
+            });
+          }}
+        />
+      )}
     </div>
   );
 }
