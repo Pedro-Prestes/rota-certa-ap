@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RotaCerta</string>
+    <string name="title_activity_main">RotaCerta</string>
+    <string name="package_name">app.rotacerta.twa</string>
+    <string name="custom_url_scheme">app.rotacerta.twa</string>
+</resources>
