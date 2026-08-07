@@ -202,76 +202,55 @@ function Passageiro() {
 
             {/* Resultados */}
             <h2 className="mt-8 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-              {resultados.length} saída(s) encontrada(s)
+              {rotas.isLoading ? "Buscando saídas…" : `${resultados.length} saída(s) encontrada(s)`}
             </h2>
             <div className="mt-4 space-y-3">
               {resultados.map((v) => {
-                const veic = frota.find((f) => f.id === v.veiculoId)!;
-                const t = calcularTarifa({
-                  distanciaKm: v.distanciaKm,
-                  dificuldadeVia: v.dificuldadeVia,
-                  precoCombustivel: PRECO_COMBUSTIVEL,
-                  consumoKmL: CONSUMO_KM_L,
-                  assentos: veic.assentos,
-                  ocupacaoMedia: 0.78,
-                  travessias: v.travessias,
-                });
                 const ativa = selecionada === v.id;
                 return (
                   <button
                     key={v.id}
                     onClick={() => setSelecionada(v.id)}
-                    disabled={v.status === "suspensa"}
                     className={`w-full rounded-2xl border p-5 text-left transition-all ${
                       ativa ? "border-accent bg-accent/10" : "border-border bg-card hover:border-foreground/25"
-                    } ${v.status === "suspensa" ? "opacity-70" : ""}`}
+                    }`}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2 font-display text-lg font-bold">
-                          {v.partida}
+                          {hora(v.saida_ida)}
                           <ArrowRight className="size-4 text-muted-foreground" />
-                          {v.chegada}
+                          {hora(v.chegada_ida)}
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {v.origem} → {v.destino} · {v.distanciaKm} km
+                          {v.origem} → {v.destino} · {Number(v.distancia_km)} km
                         </p>
                         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Star className="size-3 fill-accent text-accent" />
-                            {v.nota.toFixed(1)} · {v.motorista}
+                            <Users className="size-3" />
+                            {v.assentos} assento(s)
                           </span>
-                          <span className="flex items-center gap-1">
-                            {v.classe === "passageiro" ? (
-                              <Users className="size-3" />
-                            ) : (
-                              <Truck className="size-3" />
-                            )}
-                            {veic.modelo}
-                          </span>
-                          <span>{v.assentosLivres} vaga(s)</span>
+                          {v.saida_retorno && <span>retorno {hora(v.saida_retorno)}</span>}
+                          {v.travessias > 0 && <span>{v.travessias} travessia(s)</span>}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-display text-xl font-bold">{brl(t.precoAssento)}</p>
+                        <p className="font-display text-xl font-bold">
+                          {brl(Number(v.preco_assento))}
+                        </p>
                         <p className="text-[11px] text-muted-foreground">por assento</p>
                       </div>
                     </div>
-                    {v.status === "suspensa" && (
-                      <p className="mt-4 flex items-start gap-2 rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
-                        <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                        {v.aviso}
-                      </p>
-                    )}
                   </button>
                 );
               })}
-              {resultados.length === 0 && (
+              {!rotas.isLoading && resultados.length === 0 && (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                   Nenhuma saída cadastrada para esse trecho ainda.
                 </p>
               )}
             </div>
+
           </div>
 
           {/* Painel lateral */}
