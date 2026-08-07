@@ -610,6 +610,36 @@ export type Database = {
           },
         ]
       }
+      neighborhoods: {
+        Row: {
+          created_at: string
+          geom: unknown
+          id: string
+          municipio: string | null
+          name: string
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          geom: unknown
+          id?: string
+          municipio?: string | null
+          name: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          geom?: unknown
+          id?: string
+          municipio?: string | null
+          name?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notificacoes: {
         Row: {
           created_at: string
@@ -1771,6 +1801,16 @@ export type Database = {
     }
     Functions: {
       biometria_aprovada: { Args: { user_uuid: string }; Returns: boolean }
+      calculate_default_trunk_route: {
+        Args: { city_a_geom: unknown; city_b_geom: unknown }
+        Returns: {
+          destination_border_point: unknown
+          destination_neighborhood: string
+          distance_km: number
+          origin_border_point: unknown
+          origin_neighborhood: string
+        }[]
+      }
       eh_admin_master: { Args: { _user_id: string }; Returns: boolean }
       eh_colaborador: { Args: { _user_id: string }; Returns: boolean }
       eh_frotista_da_rota: {
