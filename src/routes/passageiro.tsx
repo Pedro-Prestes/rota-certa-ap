@@ -420,13 +420,26 @@ function Passageiro() {
                       <dd className="text-accent">{brl(total)}</dd>
                     </div>
                   </dl>
-                  <button className="mt-5 w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-transform hover:-translate-y-0.5">
+                  <button
+                    onClick={() => void pagarComCreditos()}
+                    disabled={pagando}
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+                  >
+                    {pagando && <Loader2 className="size-4 animate-spin" />}
                     Pagar e garantir a lotação
                   </button>
+                  <button
+                    onClick={() => setPixPrice("creditos_50")}
+                    className="mt-2 w-full rounded-full border border-primary-foreground/25 px-5 py-2.5 text-xs font-semibold text-primary-foreground/85 hover:bg-primary-foreground/10"
+                  >
+                    Pagar com Pix (sem créditos)
+                  </button>
                   <p className="mt-3 text-[11px] leading-relaxed text-primary-foreground/55">
-                    Pagamento antecipado obrigatório. Em caso de pane, folga ou força maior
-                    registrada pelo motorista, o valor é devolvido integralmente.
+                    O pagamento usa os créditos da sua carteira. Sem saldo suficiente, geramos um
+                    Pix e o assento é garantido logo após a confirmação. Em caso de pane, folga ou
+                    força maior registrada pelo motorista, o valor é devolvido integralmente.
                   </p>
+
                 </>
               ) : (
                 <p className="mt-3 text-xs text-primary-foreground/60">
