@@ -79,6 +79,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#0f766e" },
+      { name: "mobile-web-app-capable", content: "yes" },
+
       { title: "RotaCerta — transporte intermunicipal agendado no Amapá" },
       { name: "description", content: "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas entre sedes, distritos e vilarejos do Amapá. Para motoristas e passageiros." },
       { name: "author", content: "Lovable" },
@@ -103,7 +106,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+
     ],
 
   }),
