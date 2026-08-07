@@ -73,18 +73,42 @@ function Passageiro() {
     quantidade: 1,
   });
 
+  const rotas = useQuery({
+    queryKey: ["rotas-publicas"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rotas")
+        .select(
+          "id, origem, destino, saida_ida, chegada_ida, saida_retorno, distancia_km, assentos, travessias, dificuldade_via, preco_assento",
+        )
+        .eq("status", "ativa")
+        .order("saida_ida", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as unknown as RotaPublica[];
+    },
+  });
+
+  const todas = rotas.data ?? [];
+
+  const localidades = useMemo(() => {
+    const nomes = new Set<string>(localidadesAP.map((l) => l.nome));
+    for (const r of todas) {
+      nomes.add(r.origem);
+      nomes.add(r.destino);
+    }
+    return [...nomes].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [todas]);
+
   const resultados = useMemo(
     () =>
-      viagens.filter(
-        (v) =>
-          (!origem || v.origem === origem) &&
-          (!destino || v.destino === destino),
+      todas.filter(
+        (r) => (!origem || r.origem === origem) && (!destino || r.destino === destino),
       ),
-    [origem, destino],
+    [todas, origem, destino],
   );
 
-  const viagem = viagens.find((v) => v.id === selecionada) ?? null;
-  const veiculo = viagem ? frota.find((f) => f.id === viagem.veiculoId)! : frota[2]!;
+  const viagem = todas.find((r) => r.id === selecionada) ?? null;
+  const veiculo = frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
 
@@ -92,17 +116,18 @@ function Passageiro() {
     () =>
       viagem
         ? calcularTarifa({
-            distanciaKm: viagem.distanciaKm,
-            dificuldadeVia: viagem.dificuldadeVia,
+            distanciaKm: Number(viagem.distancia_km),
+            dificuldadeVia: Number(viagem.dificuldade_via),
             precoCombustivel: PRECO_COMBUSTIVEL,
             consumoKmL: CONSUMO_KM_L,
-            assentos: veiculo.assentos,
+            assentos: viagem.assentos || veiculo.assentos,
             ocupacaoMedia: 0.78,
             travessias: viagem.travessias,
           })
         : null,
     [viagem, veiculo],
   );
+
 
   const total = tarifa
     ? tarifa.precoAssento * assentos + tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes
