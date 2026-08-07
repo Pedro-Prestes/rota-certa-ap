@@ -139,6 +139,17 @@ function Passageiro() {
     environment: "live" as const,
   });
 
+  const previa = useQuery({
+    queryKey: ["previa-reserva", selecionada, data, assentos, avaliacao.assentosEquivalentes],
+    enabled: Boolean(selecionada),
+    queryFn: async () => {
+      const r = await previaDaReserva({ data: entradaReserva() });
+      if ("error" in r) return null;
+      return r;
+    },
+  });
+
+
   const pagarComCreditos = async (avisarFalta = true) => {
     if (!selecionada) return false;
     const { data: sessao } = await supabase.auth.getSession();
