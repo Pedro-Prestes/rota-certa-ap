@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   ArrowRight,
   Clock,
   Luggage,
-  Star,
-  Truck,
   Users,
   Wallet,
 } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
-import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP, viagens } from "@/lib/dados";
+import { supabase } from "@/integrations/supabase/client";
+import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
 import {
   avaliarBagagem,
   brl,
@@ -19,6 +18,21 @@ import {
   rotuloClasse,
   type Volume,
 } from "@/lib/logistica";
+
+type RotaPublica = {
+  id: string;
+  origem: string;
+  destino: string;
+  saida_ida: string | null;
+  chegada_ida: string | null;
+  saida_retorno: string | null;
+  distancia_km: number;
+  assentos: number;
+  travessias: number;
+  dificuldade_via: number;
+  preco_assento: number;
+};
+
 
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
@@ -44,6 +58,8 @@ export const Route = createFileRoute("/passageiro")({
 const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring";
 
+const hora = (v: string | null) => (v ? v.slice(0, 5) : "--:--");
+
 function Passageiro() {
   const [origem, setOrigem] = useState("Macapá (sede)");
   const [destino, setDestino] = useState("");
@@ -59,18 +75,42 @@ function Passageiro() {
     quantidade: 1,
   });
 
+  const rotas = useQuery({
+    queryKey: ["rotas-publicas"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rotas")
+        .select(
+          "id, origem, destino, saida_ida, chegada_ida, saida_retorno, distancia_km, assentos, travessias, dificuldade_via, preco_assento",
+        )
+        .eq("status", "ativa")
+        .order("saida_ida", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as unknown as RotaPublica[];
+    },
+  });
+
+  const todas = rotas.data ?? [];
+
+  const localidades = useMemo(() => {
+    const nomes = new Set<string>(localidadesAP.map((l) => l.nome));
+    for (const r of todas) {
+      nomes.add(r.origem);
+      nomes.add(r.destino);
+    }
+    return [...nomes].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [todas]);
+
   const resultados = useMemo(
     () =>
-      viagens.filter(
-        (v) =>
-          (!origem || v.origem === origem) &&
-          (!destino || v.destino === destino),
+      todas.filter(
+        (r) => (!origem || r.origem === origem) && (!destino || r.destino === destino),
       ),
-    [origem, destino],
+    [todas, origem, destino],
   );
 
-  const viagem = viagens.find((v) => v.id === selecionada) ?? null;
-  const veiculo = viagem ? frota.find((f) => f.id === viagem.veiculoId)! : frota[2]!;
+  const viagem = todas.find((r) => r.id === selecionada) ?? null;
+  const veiculo = frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
 
@@ -78,17 +118,18 @@ function Passageiro() {
     () =>
       viagem
         ? calcularTarifa({
-            distanciaKm: viagem.distanciaKm,
-            dificuldadeVia: viagem.dificuldadeVia,
+            distanciaKm: Number(viagem.distancia_km),
+            dificuldadeVia: Number(viagem.dificuldade_via),
             precoCombustivel: PRECO_COMBUSTIVEL,
             consumoKmL: CONSUMO_KM_L,
-            assentos: veiculo.assentos,
+            assentos: viagem.assentos || veiculo.assentos,
             ocupacaoMedia: 0.78,
             travessias: viagem.travessias,
           })
         : null,
     [viagem, veiculo],
   );
+
 
   const total = tarifa
     ? tarifa.precoAssento * assentos + tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes
@@ -114,8 +155,8 @@ function Passageiro() {
                   </span>
                   <select className={campo} value={origem} onChange={(e) => setOrigem(e.target.value)}>
                     <option value="">Qualquer origem</option>
-                    {localidadesAP.map((l) => (
-                      <option key={l.nome}>{l.nome}</option>
+                    {localidades.map((n) => (
+                      <option key={n}>{n}</option>
                     ))}
                   </select>
                 </label>
@@ -129,10 +170,11 @@ function Passageiro() {
                     onChange={(e) => setDestino(e.target.value)}
                   >
                     <option value="">Qualquer destino</option>
-                    {localidadesAP.map((l) => (
-                      <option key={l.nome}>{l.nome}</option>
+                    {localidades.map((n) => (
+                      <option key={n}>{n}</option>
                     ))}
                   </select>
+
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
@@ -163,76 +205,55 @@ function Passageiro() {
 
             {/* Resultados */}
             <h2 className="mt-8 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-              {resultados.length} saída(s) encontrada(s)
+              {rotas.isLoading ? "Buscando saídas…" : `${resultados.length} saída(s) encontrada(s)`}
             </h2>
             <div className="mt-4 space-y-3">
               {resultados.map((v) => {
-                const veic = frota.find((f) => f.id === v.veiculoId)!;
-                const t = calcularTarifa({
-                  distanciaKm: v.distanciaKm,
-                  dificuldadeVia: v.dificuldadeVia,
-                  precoCombustivel: PRECO_COMBUSTIVEL,
-                  consumoKmL: CONSUMO_KM_L,
-                  assentos: veic.assentos,
-                  ocupacaoMedia: 0.78,
-                  travessias: v.travessias,
-                });
                 const ativa = selecionada === v.id;
                 return (
                   <button
                     key={v.id}
                     onClick={() => setSelecionada(v.id)}
-                    disabled={v.status === "suspensa"}
                     className={`w-full rounded-2xl border p-5 text-left transition-all ${
                       ativa ? "border-accent bg-accent/10" : "border-border bg-card hover:border-foreground/25"
-                    } ${v.status === "suspensa" ? "opacity-70" : ""}`}
+                    }`}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2 font-display text-lg font-bold">
-                          {v.partida}
+                          {hora(v.saida_ida)}
                           <ArrowRight className="size-4 text-muted-foreground" />
-                          {v.chegada}
+                          {hora(v.chegada_ida)}
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {v.origem} → {v.destino} · {v.distanciaKm} km
+                          {v.origem} → {v.destino} · {Number(v.distancia_km)} km
                         </p>
                         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Star className="size-3 fill-accent text-accent" />
-                            {v.nota.toFixed(1)} · {v.motorista}
+                            <Users className="size-3" />
+                            {v.assentos} assento(s)
                           </span>
-                          <span className="flex items-center gap-1">
-                            {v.classe === "passageiro" ? (
-                              <Users className="size-3" />
-                            ) : (
-                              <Truck className="size-3" />
-                            )}
-                            {veic.modelo}
-                          </span>
-                          <span>{v.assentosLivres} vaga(s)</span>
+                          {v.saida_retorno && <span>retorno {hora(v.saida_retorno)}</span>}
+                          {v.travessias > 0 && <span>{v.travessias} travessia(s)</span>}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-display text-xl font-bold">{brl(t.precoAssento)}</p>
+                        <p className="font-display text-xl font-bold">
+                          {brl(Number(v.preco_assento))}
+                        </p>
                         <p className="text-[11px] text-muted-foreground">por assento</p>
                       </div>
                     </div>
-                    {v.status === "suspensa" && (
-                      <p className="mt-4 flex items-start gap-2 rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
-                        <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                        {v.aviso}
-                      </p>
-                    )}
                   </button>
                 );
               })}
-              {resultados.length === 0 && (
+              {!rotas.isLoading && resultados.length === 0 && (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                   Nenhuma saída cadastrada para esse trecho ainda.
                 </p>
               )}
             </div>
+
           </div>
 
           {/* Painel lateral */}
@@ -308,8 +329,8 @@ function Passageiro() {
                     {viagem.origem} → {viagem.destino}
                   </p>
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-primary-foreground/70">
-                    <Clock className="size-3" /> {data} · saída {viagem.partida} · chegada{" "}
-                    {viagem.chegada}
+                    <Clock className="size-3" /> {data} · saída {hora(viagem.saida_ida)} · chegada{" "}
+                    {hora(viagem.chegada_ida)}
                   </p>
                   <dl className="mt-4 space-y-1.5 text-sm">
                     <div className="flex justify-between">

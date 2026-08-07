@@ -1,0 +1,1 @@
+CREATE POLICY "Rotas ativas publicas" ON public.rotas FOR SELECT TO anon USING (status = 'ativa');
