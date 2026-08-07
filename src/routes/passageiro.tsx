@@ -1,16 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ArrowRight,
   Clock,
+  Loader2,
   Luggage,
   Users,
   Wallet,
 } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
+import {
+  pagarReservaComCreditos,
+  previaDaReserva,
+} from "@/utils/reserva.functions";
 import {
   avaliarBagagem,
   brl,
@@ -18,6 +25,7 @@ import {
   rotuloClasse,
   type Volume,
 } from "@/lib/logistica";
+
 
 type RotaPublica = {
   id: string;
