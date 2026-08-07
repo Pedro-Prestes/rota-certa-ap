@@ -409,16 +409,18 @@ function Passageiro() {
                     Pagar e garantir a lotação
                   </button>
                   <button
-                    onClick={() => setPixPrice("creditos_50")}
+                    onClick={() => setPixCorrida(true)}
                     className="mt-2 w-full rounded-full border border-primary-foreground/25 px-5 py-2.5 text-xs font-semibold text-primary-foreground/85 hover:bg-primary-foreground/10"
                   >
-                    Pagar com Pix (sem créditos)
+                    Pagar esta corrida no Pix (sem carteira)
                   </button>
                   <p className="mt-3 text-[11px] leading-relaxed text-primary-foreground/55">
-                    O pagamento usa os créditos da sua carteira. Sem saldo suficiente, geramos um
-                    Pix e o assento é garantido logo após a confirmação. Em caso de pane, folga ou
-                    força maior registrada pelo motorista, o valor é devolvido integralmente.
+                    Você pode pagar com os créditos da carteira ou gerar um Pix avulso pelo valor
+                    exato desta corrida, sem precisar de saldo. O assento é garantido logo após a
+                    confirmação. Em caso de pane, folga ou força maior registrada pelo motorista, o
+                    valor é devolvido integralmente.
                   </p>
+
                 </>
               ) : (
                 <p className="mt-3 text-xs text-primary-foreground/60">
