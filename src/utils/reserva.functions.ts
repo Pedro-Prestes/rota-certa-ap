@@ -78,7 +78,9 @@ export const gerarPixDaCorrida = createServerFn({ method: "POST" })
         dataViagem: data.dataViagem,
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
+        enderecoEmbarque: data.enderecoEmbarque,
         environment: data.environment ?? "live",
+
         email,
         nome: perfil?.nome_completo ?? undefined,
         cpf: (data as { cpf?: string }).cpf,
