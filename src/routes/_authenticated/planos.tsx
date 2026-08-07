@@ -415,8 +415,17 @@ function PlanosPage() {
                             </button>
                             {mensal && (
                               <button
-                                onClick={() => assinarCreditos(preco.priceId)}
-                                disabled={ocupado || !saldoSuficiente}
+                                onClick={() => {
+                                  if (!saldoSuficiente) {
+                                    toast.info(
+                                      "Saldo insuficiente. Compre créditos por Pix para ativar o plano.",
+                                    );
+                                    setCheckoutPix(preco.priceId);
+                                    return;
+                                  }
+                                  void assinarCreditos(preco.priceId);
+                                }}
+                                disabled={ocupado}
                                 title={
                                   saldoSuficiente
                                     ? "Debita o valor do saldo agora e a cada mês"
@@ -427,6 +436,7 @@ function PlanosPage() {
                                 <Wallet className="size-4" /> Pagar com créditos (Pix)
                               </button>
                             )}
+
                             {mensal && (
                               <button
                                 onClick={() => setCheckoutPix(preco.priceId)}
