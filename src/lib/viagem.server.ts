@@ -62,5 +62,20 @@ export async function finalizarViagem(params: {
     },
   });
 
-  return { viagem: fechada, distanciaKm: km, pontos: posicoes?.length ?? 0 };
+  // Libera o ganho líquido na carteira do motorista (idempotente por viagem).
+  let ganho: Awaited<ReturnType<typeof import("./carteira-motorista.server").creditarGanhosDaViagem>> | null =
+    null;
+  try {
+    const { creditarGanhosDaViagem } = await import("./carteira-motorista.server");
+    ganho = await creditarGanhosDaViagem({
+      viagemId: params.viagemId,
+      motoristaId: params.motoristaId,
+      env: params.env,
+    });
+  } catch (e) {
+    console.error("[carteira] falha ao creditar ganhos da viagem", e);
+  }
+
+  return { viagem: fechada, distanciaKm: km, pontos: posicoes?.length ?? 0, ganho };
 }
+

@@ -378,6 +378,140 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_bank_accounts: {
+        Row: {
+          account_number: string | null
+          account_type:
+            | Database["public"]["Enums"]["driver_account_type"]
+            | null
+          agency_number: string | null
+          bank_code: string | null
+          bank_name: string | null
+          created_at: string
+          driver_id: string
+          gateway_recipient_id: string | null
+          holder_document: string
+          holder_name: string
+          id: string
+          is_primary: boolean
+          is_verified: boolean
+          pix_key: string | null
+          pix_key_type:
+            | Database["public"]["Enums"]["driver_pix_key_type"]
+            | null
+          updated_at: string
+        }
+        Insert: {
+          account_number?: string | null
+          account_type?:
+            | Database["public"]["Enums"]["driver_account_type"]
+            | null
+          agency_number?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          driver_id: string
+          gateway_recipient_id?: string | null
+          holder_document: string
+          holder_name: string
+          id?: string
+          is_primary?: boolean
+          is_verified?: boolean
+          pix_key?: string | null
+          pix_key_type?:
+            | Database["public"]["Enums"]["driver_pix_key_type"]
+            | null
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string | null
+          account_type?:
+            | Database["public"]["Enums"]["driver_account_type"]
+            | null
+          agency_number?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          driver_id?: string
+          gateway_recipient_id?: string | null
+          holder_document?: string
+          holder_name?: string
+          id?: string
+          is_primary?: boolean
+          is_verified?: boolean
+          pix_key?: string | null
+          pix_key_type?:
+            | Database["public"]["Enums"]["driver_pix_key_type"]
+            | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      driver_payouts: {
+        Row: {
+          amount: number
+          bank_account_id: string | null
+          created_at: string
+          driver_id: string
+          failure_reason: string | null
+          fee: number
+          id: string
+          mode: string
+          net_amount: number
+          payout_method: string
+          processed_at: string | null
+          provider: string | null
+          provider_reference: string | null
+          requested_at: string
+          status: Database["public"]["Enums"]["driver_payout_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_account_id?: string | null
+          created_at?: string
+          driver_id: string
+          failure_reason?: string | null
+          fee?: number
+          id?: string
+          mode?: string
+          net_amount: number
+          payout_method?: string
+          processed_at?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          requested_at?: string
+          status?: Database["public"]["Enums"]["driver_payout_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_account_id?: string | null
+          created_at?: string
+          driver_id?: string
+          failure_reason?: string | null
+          fee?: number
+          id?: string
+          mode?: string
+          net_amount?: number
+          payout_method?: string
+          processed_at?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          requested_at?: string
+          status?: Database["public"]["Enums"]["driver_payout_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_payouts_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "driver_bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_routes: {
         Row: {
           base_distance_km: number
@@ -419,6 +553,33 @@ export type Database = {
           origin_city?: string
           status?: string
           total_seats?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      driver_wallet: {
+        Row: {
+          balance_available: number
+          balance_pending: number
+          created_at: string
+          currency: string
+          driver_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance_available?: number
+          balance_pending?: number
+          created_at?: string
+          currency?: string
+          driver_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance_available?: number
+          balance_pending?: number
+          created_at?: string
+          currency?: string
+          driver_id?: string
           updated_at?: string
         }
         Relationships: []
@@ -1863,6 +2024,70 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          corrida_id: string | null
+          created_at: string
+          description: string
+          driver_id: string
+          id: string
+          payout_id: string | null
+          status: Database["public"]["Enums"]["wallet_transaction_status"]
+          type: Database["public"]["Enums"]["wallet_transaction_type"]
+          updated_at: string
+          viagem_id: string | null
+        }
+        Insert: {
+          amount: number
+          corrida_id?: string | null
+          created_at?: string
+          description?: string
+          driver_id: string
+          id?: string
+          payout_id?: string | null
+          status?: Database["public"]["Enums"]["wallet_transaction_status"]
+          type: Database["public"]["Enums"]["wallet_transaction_type"]
+          updated_at?: string
+          viagem_id?: string | null
+        }
+        Update: {
+          amount?: number
+          corrida_id?: string | null
+          created_at?: string
+          description?: string
+          driver_id?: string
+          id?: string
+          payout_id?: string | null
+          status?: Database["public"]["Enums"]["wallet_transaction_status"]
+          type?: Database["public"]["Enums"]["wallet_transaction_type"]
+          updated_at?: string
+          viagem_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "driver_payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_viagem_id_fkey"
+            columns: ["viagem_id"]
+            isOneToOne: false
+            referencedRelation: "viagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_eventos: {
         Row: {
           created_at: string
@@ -1953,6 +2178,14 @@ export type Database = {
         | "admin_secundario"
         | "gerente"
         | "operacional"
+      driver_account_type: "CHECKING" | "SAVINGS"
+      driver_payout_status:
+        | "REQUESTED"
+        | "PROCESSING"
+        | "PAID"
+        | "FAILED"
+        | "CANCELED"
+      driver_pix_key_type: "CPF" | "CNPJ" | "EMAIL" | "PHONE" | "RANDOM"
       forma_pagamento: "pix" | "credito" | "debito" | "dinheiro"
       status_estorno:
         | "solicitado"
@@ -1975,6 +2208,13 @@ export type Database = {
         | "estorno"
         | "custo_terceiro"
         | "ajuste"
+      wallet_transaction_status: "PENDING" | "COMPLETED" | "FAILED"
+      wallet_transaction_type:
+        | "RIDE_EARNING"
+        | "PLATFORM_FEE"
+        | "PAYOUT"
+        | "BONUS"
+        | "ADJUSTMENT"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2112,6 +2352,15 @@ export const Constants = {
         "gerente",
         "operacional",
       ],
+      driver_account_type: ["CHECKING", "SAVINGS"],
+      driver_payout_status: [
+        "REQUESTED",
+        "PROCESSING",
+        "PAID",
+        "FAILED",
+        "CANCELED",
+      ],
+      driver_pix_key_type: ["CPF", "CNPJ", "EMAIL", "PHONE", "RANDOM"],
       forma_pagamento: ["pix", "credito", "debito", "dinheiro"],
       status_estorno: [
         "solicitado",
@@ -2136,6 +2385,14 @@ export const Constants = {
         "estorno",
         "custo_terceiro",
         "ajuste",
+      ],
+      wallet_transaction_status: ["PENDING", "COMPLETED", "FAILED"],
+      wallet_transaction_type: [
+        "RIDE_EARNING",
+        "PLATFORM_FEE",
+        "PAYOUT",
+        "BONUS",
+        "ADJUSTMENT",
       ],
     },
   },

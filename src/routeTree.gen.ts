@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAssistenciaRouteImport } from './routes/_authenticated/assistencia'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
+import { Route as AuthenticatedCarteiraRouteImport } from './routes/_authenticated/carteira'
 import { Route as AuthenticatedColaboradorRouteImport } from './routes/_authenticated/colaborador'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
@@ -36,6 +37,7 @@ import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated
 import { Route as ApiPaymentsMercadopagoPixRouteImport } from './routes/api/payments/mercadopago/pix'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicRepassesSemanalRouteImport } from './routes/api/public/repasses/semanal'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 
@@ -109,6 +111,11 @@ const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
   path: '/biometria',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCarteiraRoute = AuthenticatedCarteiraRouteImport.update({
+  id: '/carteira',
+  path: '/carteira',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedColaboradorRoute =
   AuthenticatedColaboradorRouteImport.update({
     id: '/colaborador',
@@ -180,6 +187,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRepassesSemanalRoute =
+  ApiPublicRepassesSemanalRouteImport.update({
+    id: '/api/public/repasses/semanal',
+    path: '/api/public/repasses/semanal',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksMercadopagoRoute =
   ApiPublicWebhooksMercadopagoRouteImport.update({
     id: '/api/public/webhooks/mercadopago',
@@ -206,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/carteira': typeof AuthenticatedCarteiraRoute
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
@@ -219,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/repasses/semanal': typeof ApiPublicRepassesSemanalRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -236,6 +251,7 @@ export interface FileRoutesByTo {
   '/assistencia': typeof AuthenticatedAssistenciaRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/carteira': typeof AuthenticatedCarteiraRoute
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
@@ -249,6 +265,7 @@ export interface FileRoutesByTo {
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/repasses/semanal': typeof ApiPublicRepassesSemanalRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -268,6 +285,7 @@ export interface FileRoutesById {
   '/_authenticated/assistencia': typeof AuthenticatedAssistenciaRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
+  '/_authenticated/carteira': typeof AuthenticatedCarteiraRoute
   '/_authenticated/colaborador': typeof AuthenticatedColaboradorRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
@@ -281,6 +299,7 @@ export interface FileRoutesById {
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/repasses/semanal': typeof ApiPublicRepassesSemanalRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -300,6 +319,7 @@ export interface FileRouteTypes {
     | '/assistencia'
     | '/auditoria'
     | '/biometria'
+    | '/carteira'
     | '/colaborador'
     | '/conta'
     | '/contabil'
@@ -313,6 +333,7 @@ export interface FileRouteTypes {
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/repasses/semanal'
     | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
@@ -330,6 +351,7 @@ export interface FileRouteTypes {
     | '/assistencia'
     | '/auditoria'
     | '/biometria'
+    | '/carteira'
     | '/colaborador'
     | '/conta'
     | '/contabil'
@@ -343,6 +365,7 @@ export interface FileRouteTypes {
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/repasses/semanal'
     | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   id:
@@ -361,6 +384,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistencia'
     | '/_authenticated/auditoria'
     | '/_authenticated/biometria'
+    | '/_authenticated/carteira'
     | '/_authenticated/colaborador'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
@@ -374,6 +398,7 @@ export interface FileRouteTypes {
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
+    | '/api/public/repasses/semanal'
     | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
@@ -392,6 +417,7 @@ export interface RootRouteChildren {
   ApiPaymentsMercadopagoPixRoute: typeof ApiPaymentsMercadopagoPixRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicRepassesSemanalRoute: typeof ApiPublicRepassesSemanalRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
@@ -496,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/carteira': {
+      id: '/_authenticated/carteira'
+      path: '/carteira'
+      fullPath: '/carteira'
+      preLoaderRoute: typeof AuthenticatedCarteiraRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/colaborador': {
       id: '/_authenticated/colaborador'
       path: '/colaborador'
@@ -587,6 +620,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/repasses/semanal': {
+      id: '/api/public/repasses/semanal'
+      path: '/api/public/repasses/semanal'
+      fullPath: '/api/public/repasses/semanal'
+      preLoaderRoute: typeof ApiPublicRepassesSemanalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/mercadopago': {
       id: '/api/public/webhooks/mercadopago'
       path: '/api/public/webhooks/mercadopago'
@@ -609,6 +649,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistenciaRoute: typeof AuthenticatedAssistenciaRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
+  AuthenticatedCarteiraRoute: typeof AuthenticatedCarteiraRoute
   AuthenticatedColaboradorRoute: typeof AuthenticatedColaboradorRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
@@ -626,6 +667,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistenciaRoute: AuthenticatedAssistenciaRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
+  AuthenticatedCarteiraRoute: AuthenticatedCarteiraRoute,
   AuthenticatedColaboradorRoute: AuthenticatedColaboradorRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
@@ -655,6 +697,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaymentsMercadopagoPixRoute: ApiPaymentsMercadopagoPixRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicRepassesSemanalRoute: ApiPublicRepassesSemanalRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
