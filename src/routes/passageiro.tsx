@@ -74,6 +74,11 @@ function Passageiro() {
   const [data, setData] = useState(() => new Date().toISOString().slice(0, 10));
   const [assentos, setAssentos] = useState(1);
   const [selecionada, setSelecionada] = useState<string | null>(null);
+  const [pagando, setPagando] = useState(false);
+  const [pixPrice, setPixPrice] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+
 
   const [bag, setBag] = useState<Volume>({
     comprimentoCm: 55,
