@@ -63,6 +63,7 @@ function Passageiro() {
   const [selecionada, setSelecionada] = useState<string | null>(null);
   const [pagando, setPagando] = useState(false);
   const [pixPrice, setPixPrice] = useState<string | null>(null);
+  const [pixCorrida, setPixCorrida] = useState(false);
   const navigate = useNavigate();
 
   const [bag, setBag] = useState<Volume>({
