@@ -261,55 +261,69 @@ function Embarque() {
                   onChange={(e) => setAssentos(Math.max(1, Number(e.target.value)))}
                 />
               </label>
-              <button
-                onClick={() => estimativa.mutate()}
-                disabled={estimativa.isPending || !rotaId || endereco.trim().length < 6}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
-              >
-                {estimativa.isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Calculator className="size-4" />
-                )}
-                Calcular preço com desvio
-              </button>
-              {estimativa.data && (
-                <div className="rounded-2xl bg-secondary p-4 text-sm">
-                  <p className="text-[11px] text-muted-foreground">{estimativa.data.enderecoFormatado}</p>
-                  <dl className="mt-2 space-y-1">
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Assento base</dt>
-                      <dd>{brl(estimativa.data.precoBase)}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">
-                        Desvio (+{estimativa.data.metricas.kmExtra} km ·{" "}
-                        {estimativa.data.metricas.minutosExtra} min)
-                      </dt>
-                      <dd>{brl(estimativa.data.taxaDesvio)}</dd>
-                    </div>
-                    <div className="flex justify-between border-t border-border pt-1 font-bold">
-                      <dt>Total do assento</dt>
-                      <dd>{brl(estimativa.data.precoTotalAssento)}</dd>
-                    </div>
-                  </dl>
+              <div className="rounded-2xl bg-secondary p-4 text-sm">
+                <p className="flex items-center gap-2 text-xs font-semibold">
+                  <Calculator className="size-3.5 text-accent" /> Preço do assento com desvio
+                </p>
+                {!rotaId || enderecoDebounce.trim().length < 6 ? (
                   <p className="mt-2 text-[11px] text-muted-foreground">
-                    Cálculo por{" "}
-                    {estimativa.data.metricas.provedor === "google_routes"
-                      ? "malha viária real"
-                      : "estimativa geodésica"}
-                    . O valor final vale após o motorista aceitar o ponto.
+                    Escolha a saída e digite o endereço do ponto — o cálculo aparece aqui
+                    automaticamente antes do envio da proposta.
                   </p>
-                </div>
-              )}
+                ) : estimativa.isFetching ? (
+                  <p className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <Loader2 className="size-3.5 animate-spin" /> Medindo o desvio na malha viária…
+                  </p>
+                ) : estimativa.error ? (
+                  <p className="mt-2 text-[11px] text-destructive">
+                    {(estimativa.error as Error).message}
+                  </p>
+                ) : estimativa.data ? (
+                  <>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {estimativa.data.enderecoFormatado}
+                    </p>
+                    <dl className="mt-2 space-y-1">
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Assento base</dt>
+                        <dd>{brl(estimativa.data.precoBase)}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">
+                          Desvio (Δkm {estimativa.data.metricas.kmExtra} · Δmin{" "}
+                          {estimativa.data.metricas.minutosExtra})
+                        </dt>
+                        <dd>{brl(estimativa.data.taxaDesvio)}</dd>
+                      </div>
+                      <div className="flex justify-between border-t border-border pt-1 font-bold">
+                        <dt>Total do assento</dt>
+                        <dd>{brl(estimativa.data.precoTotalAssento)}</dd>
+                      </div>
+                    </dl>
+                    <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                      taxa = Δkm · custo_km + Δmin · custo_min · preço = base + taxa. Cálculo por{" "}
+                      {estimativa.data.metricas.provedor === "google_routes"
+                        ? "malha viária real (Google Routes)"
+                        : "estimativa geodésica"}
+                      . O valor final vale após o motorista aceitar o ponto.
+                    </p>
+                  </>
+                ) : null}
+              </div>
               <button
                 onClick={() => propor.mutate()}
-                disabled={propor.isPending}
+                disabled={propor.isPending || !estimativa.data || estimativa.isFetching}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
               >
                 {propor.isPending ? <Loader2 className="size-4 animate-spin" /> : <Handshake className="size-4" />}
                 Enviar proposta ao motorista
               </button>
+              {!estimativa.data && (
+                <p className="text-[11px] text-muted-foreground">
+                  A proposta é liberada somente depois do cálculo do desvio.
+                </p>
+              )}
+
               {rotaEscolhida && (
                 <p className="text-[11px] leading-relaxed text-muted-foreground">
                   Partida programada às {(rotaEscolhida.saida_ida ?? "").slice(0, 5)} — o motorista
