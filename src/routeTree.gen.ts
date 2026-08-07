@@ -33,6 +33,7 @@ import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authenticated/solicitar-admin'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
+import { Route as ApiPaymentsMercadopagoPixRouteImport } from './routes/api/payments/mercadopago/pix'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
@@ -161,6 +162,12 @@ const AuthenticatedViagemRoute = AuthenticatedViagemRouteImport.update({
   path: '/viagem',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPaymentsMercadopagoPixRoute =
+  ApiPaymentsMercadopagoPixRouteImport.update({
+    id: '/api/payments/mercadopago/pix',
+    path: '/api/payments/mercadopago/pix',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicAssinaturasRenovarRoute =
   ApiPublicAssinaturasRenovarRouteImport.update({
     id: '/api/public/assinaturas/renovar',
@@ -209,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
+  '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
+  '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
@@ -269,6 +278,7 @@ export interface FileRoutesById {
   '/_authenticated/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
+  '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/solicitar-admin'
     | '/verificacao'
     | '/viagem'
+    | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
     | '/api/public/webhooks/mercadopago'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/solicitar-admin'
     | '/verificacao'
     | '/viagem'
+    | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
     | '/api/public/webhooks/mercadopago'
@@ -359,6 +371,7 @@ export interface FileRouteTypes {
     | '/_authenticated/solicitar-admin'
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
+    | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
     | '/api/public/webhooks/mercadopago'
@@ -376,6 +389,7 @@ export interface RootRouteChildren {
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SouFrotistaRoute: typeof SouFrotistaRoute
+  ApiPaymentsMercadopagoPixRoute: typeof ApiPaymentsMercadopagoPixRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
@@ -552,6 +566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedViagemRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/payments/mercadopago/pix': {
+      id: '/api/payments/mercadopago/pix'
+      path: '/api/payments/mercadopago/pix'
+      fullPath: '/api/payments/mercadopago/pix'
+      preLoaderRoute: typeof ApiPaymentsMercadopagoPixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/assinaturas/renovar': {
       id: '/api/public/assinaturas/renovar'
       path: '/api/public/assinaturas/renovar'
@@ -631,6 +652,7 @@ const rootRouteChildren: RootRouteChildren = {
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SouFrotistaRoute: SouFrotistaRoute,
+  ApiPaymentsMercadopagoPixRoute: ApiPaymentsMercadopagoPixRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
