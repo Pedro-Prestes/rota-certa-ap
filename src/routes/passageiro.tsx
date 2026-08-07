@@ -406,11 +406,25 @@ function Passageiro() {
                       </dt>
                       <dd>{brl(tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes)}</dd>
                     </div>
+                    <div className="flex justify-between border-t border-primary-foreground/15 pt-2">
+                      <dt className="text-primary-foreground/70">Subtotal da corrida</dt>
+                      <dd>{brl(previa.data?.base ?? total)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-primary-foreground/70">Taxa administrativa</dt>
+                      <dd>
+                        {previa.data ? brl(previa.data.taxaAdministrativa) : "calculando…"}
+                      </dd>
+                    </div>
                     <div className="flex justify-between border-t border-primary-foreground/15 pt-2 font-display text-lg font-bold">
                       <dt>Total</dt>
-                      <dd className="text-accent">{brl(total)}</dd>
+                      <dd className="text-accent">{brl(previa.data?.total ?? total)}</dd>
                     </div>
                   </dl>
+                  <p className="mt-2 text-[11px] text-primary-foreground/55">
+                    A taxa administrativa custeia gateway de pagamento, telefonia/SMS, hospedagem,
+                    consultas de idoneidade e o registro do trajeto em cadeia de blocos.
+                  </p>
                   <button
                     onClick={() => void pagarComCreditos()}
                     disabled={pagando}
