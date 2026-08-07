@@ -148,6 +148,71 @@ function Passageiro() {
     ? tarifa.precoAssento * assentos + tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes
     : 0;
 
+  const entradaReserva = () => ({
+    rotaId: selecionada as string,
+    dataViagem: data,
+    assentos,
+    assentosBagagem: avaliacao.assentosEquivalentes,
+    environment: "live" as const,
+  });
+
+  const pagarComCreditos = async (avisarFalta = true) => {
+    if (!selecionada) return false;
+    const { data: sessao } = await supabase.auth.getSession();
+    if (!sessao.session) {
+      toast.info("Entre na sua conta para garantir o assento.");
+      void navigate({ to: "/auth" });
+      return false;
+    }
+
+    setPagando(true);
+    try {
+      const r = await pagarReservaComCreditos({ data: entradaReserva() });
+      if ("error" in r) throw new Error(r.error);
+      if (r.status === "lotado") {
+        toast.error(
+          r.disponiveis > 0
+            ? `Restam apenas ${r.disponiveis} assento(s) nesta saída.`
+            : "Esta saída já está com a lotação completa.",
+        );
+        return false;
+      }
+      if (r.status === "sem_saldo") {
+        if (avisarFalta) {
+          toast.info(
+            `Faltam ${brl(r.faltando)} em créditos. Complete o pagamento via Pix para garantir o assento.`,
+          );
+          setPixPrice(r.pacoteSugerido);
+        }
+        return false;
+      }
+      toast.success(
+        `Assento garantido! Pagamos ${brl(r.total)} com seus créditos (saldo restante ${brl(
+          r.saldoRestante,
+        )}).`,
+      );
+      return true;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível concluir a reserva.");
+      return false;
+    } finally {
+      setPagando(false);
+    }
+  };
+
+  const conferirValor = async () => {
+    if (!selecionada) return;
+    const r = await previaDaReserva({ data: entradaReserva() });
+    if ("error" in r) return;
+    if (r.faltando > 0 && r.pacoteSugerido) {
+      toast.info(
+        `Total da reserva ${brl(r.total)} · saldo ${brl(r.saldo)}. Faltam ${brl(r.faltando)}.`,
+      );
+    }
+  };
+
+
+
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
