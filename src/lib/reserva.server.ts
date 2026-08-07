@@ -166,7 +166,7 @@ export async function reservarComCreditos(dados: EntradaReserva) {
       assentos: dados.assentos,
       bagagem_l: 0,
       valor_tarifa: arred(Number(rota.preco_assento) * dados.assentos),
-      valor_bagagem: arred(Number(rota.preco_assento) * Math.max(0, dados.assentosBagagem)),
+      valor_bagagem: arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
       valor_pedagios: 0,
       valor_extras: 0,
       desconto: 0,
