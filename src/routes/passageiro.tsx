@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   ArrowRight,
   Clock,
   Luggage,
-  Star,
-  Truck,
   Users,
   Wallet,
 } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
-import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP, viagens } from "@/lib/dados";
+import { supabase } from "@/integrations/supabase/client";
+import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
 import {
   avaliarBagagem,
   brl,
@@ -19,6 +18,21 @@ import {
   rotuloClasse,
   type Volume,
 } from "@/lib/logistica";
+
+type RotaPublica = {
+  id: string;
+  origem: string;
+  destino: string;
+  saida_ida: string | null;
+  chegada_ida: string | null;
+  saida_retorno: string | null;
+  distancia_km: number;
+  assentos: number;
+  travessias: number;
+  dificuldade_via: number;
+  preco_assento: number;
+};
+
 
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
