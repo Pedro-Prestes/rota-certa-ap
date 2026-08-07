@@ -4,16 +4,17 @@ import type { EntradaConta } from "@/lib/carteira-motorista";
 
 const uuid = /^[0-9a-fA-F-]{36}$/;
 
+const PERFIS_GESTAO_REPASSE = ["admin", "admin_secundario", "gerente"];
+
 /** Papéis do usuário autenticado (leitura permitida pela política própria). */
-async function papeis(supabase: { from: (t: "user_roles") => never }, userId: string) {
-  const cliente = supabase as unknown as {
-    from: (t: string) => {
-      select: (c: string) => { eq: (c: string, v: string) => Promise<{ data: { role: string }[] | null }> };
-    };
-  };
-  const { data } = await cliente.from("user_roles").select("role").eq("user_id", userId);
-  return (data ?? []).map((r) => r.role);
+async function ehGestao(
+  supabase: { from: (t: "user_roles") => any },
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  return ((data ?? []) as { role: string }[]).some((r) => PERFIS_GESTAO_REPASSE.includes(r.role));
 }
+
 
 /** Saldos, movimentações, contas de repasse e histórico de saques do motorista. */
 export const consultarCarteiraMotorista = createServerFn({ method: "GET" })
