@@ -200,16 +200,8 @@ function Passageiro() {
     }
   };
 
-  const conferirValor = async () => {
-    if (!selecionada) return;
-    const r = await previaDaReserva({ data: entradaReserva() });
-    if ("error" in r) return;
-    if (r.faltando > 0 && r.pacoteSugerido) {
-      toast.info(
-        `Total da reserva ${brl(r.total)} · saldo ${brl(r.saldo)}. Faltam ${brl(r.faltando)}.`,
-      );
-    }
-  };
+
+
 
 
 
