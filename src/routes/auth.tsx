@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
+import { CampoSenha } from "@/components/CampoSenha";
 import {
   criarContaPorTelefone,
   enviarCodigoCadastro,
