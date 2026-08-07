@@ -108,15 +108,26 @@ function Embarque() {
     [rotas.data, rotaId],
   );
 
-  const estimativa = useMutation({
-    mutationFn: async () => {
-      if (!rotaId) throw new Error("Escolha a saída desejada.");
-      const r = await estimarPreco({ data: { rotaId, endereco } });
+  // O cálculo do desvio é prioritário: roda automaticamente (debounce) assim que
+  // a rota é escolhida e o endereço está detalhado, antes de liberar a proposta.
+  const [enderecoDebounce, setEnderecoDebounce] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setEnderecoDebounce(endereco.trim()), 700);
+    return () => clearTimeout(t);
+  }, [endereco]);
+
+  const estimativa = useQuery({
+    queryKey: ["estimativa-desvio", rotaId, enderecoDebounce],
+    enabled: !!rotaId && enderecoDebounce.length >= 6,
+    retry: false,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const r = await estimarPreco({ data: { rotaId, endereco: enderecoDebounce } });
       if ("error" in r) throw new Error(r.error);
       return r;
     },
-    onError: (e: Error) => toast.error(e.message),
   });
+
 
 
   const propor = useMutation({
