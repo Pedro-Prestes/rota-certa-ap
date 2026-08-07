@@ -326,8 +326,8 @@ function Passageiro() {
                     {viagem.origem} → {viagem.destino}
                   </p>
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-primary-foreground/70">
-                    <Clock className="size-3" /> {data} · saída {viagem.partida} · chegada{" "}
-                    {viagem.chegada}
+                    <Clock className="size-3" /> {data} · saída {hora(viagem.saida_ida)} · chegada{" "}
+                    {hora(viagem.chegada_ida)}
                   </p>
                   <dl className="mt-4 space-y-1.5 text-sm">
                     <div className="flex justify-between">
