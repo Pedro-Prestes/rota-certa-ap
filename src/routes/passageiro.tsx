@@ -136,18 +136,28 @@ function Passageiro() {
     dataViagem: data,
     assentos,
     assentosBagagem: avaliacao.assentosEquivalentes,
+    ...(enderecoValido ? { enderecoEmbarque: enderecoDebounced } : {}),
     environment: "live" as const,
   });
 
   const previa = useQuery({
-    queryKey: ["previa-reserva", selecionada, data, assentos, avaliacao.assentosEquivalentes],
+    queryKey: [
+      "previa-reserva",
+      selecionada,
+      data,
+      assentos,
+      avaliacao.assentosEquivalentes,
+      enderecoValido ? enderecoDebounced : "",
+    ],
     enabled: Boolean(selecionada),
     queryFn: async () => {
       const r = await previaDaReserva({ data: entradaReserva() });
-      if ("error" in r) return null;
+      if ("error" in r) throw new Error(r.error);
       return r;
     },
   });
+
+
 
 
   const pagarComCreditos = async (avisarFalta = true) => {
