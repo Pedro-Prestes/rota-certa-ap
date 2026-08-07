@@ -6,6 +6,7 @@ interface EntradaReservaCliente {
   dataViagem: string;
   assentos: number;
   assentosBagagem?: number;
+  enderecoEmbarque?: string;
   environment?: "sandbox" | "live";
 }
 
@@ -17,8 +18,15 @@ const validar = (data: EntradaReservaCliente) => {
   }
   const bagagem = Math.trunc(data.assentosBagagem ?? 0);
   if (bagagem < 0 || bagagem > 8) throw new Error("Bagagem excedente inválida.");
-  return { ...data, assentosBagagem: bagagem };
+  const endereco = data.enderecoEmbarque?.trim() ?? "";
+  if (endereco.length > 240) throw new Error("Endereço de embarque muito longo.");
+  return {
+    ...data,
+    assentosBagagem: bagagem,
+    ...(endereco ? { enderecoEmbarque: endereco } : {}),
+  };
 };
+
 
 /** Valor da reserva, saldo de créditos e quanto falta para garantir o assento. */
 export const previaDaReserva = createServerFn({ method: "POST" })
