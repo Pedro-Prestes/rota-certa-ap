@@ -155,8 +155,8 @@ function Passageiro() {
                   </span>
                   <select className={campo} value={origem} onChange={(e) => setOrigem(e.target.value)}>
                     <option value="">Qualquer origem</option>
-                    {localidadesAP.map((l) => (
-                      <option key={l.nome}>{l.nome}</option>
+                    {localidades.map((n) => (
+                      <option key={n}>{n}</option>
                     ))}
                   </select>
                 </label>
@@ -170,10 +170,11 @@ function Passageiro() {
                     onChange={(e) => setDestino(e.target.value)}
                   >
                     <option value="">Qualquer destino</option>
-                    {localidadesAP.map((l) => (
-                      <option key={l.nome}>{l.nome}</option>
+                    {localidades.map((n) => (
+                      <option key={n}>{n}</option>
                     ))}
                   </select>
+
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
