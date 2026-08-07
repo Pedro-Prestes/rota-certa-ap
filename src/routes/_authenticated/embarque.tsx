@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Clock, Handshake, Loader2, MapPin, Navigation } from "lucide-react";
+import { Calculator, Clock, Handshake, Loader2, MapPin, Navigation } from "lucide-react";
 import { AcompanhamentoAoVivo } from "@/components/AcompanhamentoAoVivo";
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
