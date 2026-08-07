@@ -49,8 +49,8 @@ export const gerarPixMercadoPago = createServerFn({ method: "POST" })
         userId: context.userId,
         priceId: data.priceId,
         email,
-        nome: perfil?.nome_completo ?? undefined,
-        cpf: data.cpf,
+        ...(perfil?.nome_completo ? { nome: perfil.nome_completo } : {}),
+        ...(data.cpf ? { cpf: data.cpf } : {}),
         environment: data.environment ?? "live",
         notificationUrl: process.env["MERCADOPAGO_NOTIFICATION_URL"] ?? URL_WEBHOOK_PADRAO,
       });
