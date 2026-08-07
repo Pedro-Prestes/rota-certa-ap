@@ -114,7 +114,7 @@ export function CheckoutPix({
       <div className="my-8 w-full max-w-lg rounded-2xl border border-border bg-background p-6 shadow-xl">
         <div className="flex items-start gap-3">
           <div>
-            <h2 className="font-display text-xl font-bold">Pagar com Pix</h2>
+            <h2 className="font-display text-xl font-bold">{titulo}</h2>
             <p className="text-sm text-muted-foreground">
               {previa?.descricao ?? "Calculando o valor da cobrança…"}
             </p>
