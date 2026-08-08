@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { TopNav } from "@/components/TopNav";
+import { SeletorCidade } from "@/components/SeletorCidade";
 import { CampoSenha } from "@/components/CampoSenha";
 import {
   criarContaPorTelefone,
@@ -88,6 +89,7 @@ function AuthPage() {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [municipio, setMunicipio] = useState("");
+  const [uf, setUf] = useState("AP");
   const [ocupado, setOcupado] = useState(false);
   const [aguardandoEmail, setAguardandoEmail] = useState(false);
   const [codigoEnviado, setCodigoEnviado] = useState(false);
@@ -134,6 +136,7 @@ function AuthPage() {
               nome_completo: nome,
               telefone,
               municipio,
+              uf,
               perfil: PERFIL_BASE[perfil],
             },
           },
@@ -241,6 +244,7 @@ function AuthPage() {
           codigo,
           nome,
           municipio,
+          uf,
           perfil: PERFIL_BASE[perfil],
           ...(email.trim() ? { email: email.trim() } : {}),
         },
@@ -488,11 +492,14 @@ function AuthPage() {
                     minLength={3}
                     required
                   />
-                  <input
-                    className={campo}
-                    placeholder="Município / localidade"
-                    value={municipio}
-                    onChange={(e) => setMunicipio(e.target.value)}
+                  <SeletorCidade
+                    titulo="Estado e município"
+                    uf={uf}
+                    cidade={municipio}
+                    onChange={(v) => {
+                      setUf(v.uf);
+                      setMunicipio(v.cidade);
+                    }}
                   />
                   <input
                     className={campo}
@@ -559,11 +566,14 @@ function AuthPage() {
                     value={telefone}
                     onChange={(e) => setTelefone(e.target.value)}
                   />
-                  <input
-                    className={campo}
-                    placeholder="Município / localidade"
-                    value={municipio}
-                    onChange={(e) => setMunicipio(e.target.value)}
+                  <SeletorCidade
+                    titulo="Estado e município"
+                    uf={uf}
+                    cidade={municipio}
+                    onChange={(v) => {
+                      setUf(v.uf);
+                      setMunicipio(v.cidade);
+                    }}
                   />
                 </>
               )}
