@@ -102,8 +102,8 @@ function Home() {
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-primary-foreground/75 sm:text-lg">
               O RotaCerta conecta motoristas de transporte alternativo e moradores de sedes,
-              distritos e vilarejos. Rota cadastrada, horário definido, assento reservado e pago
-              antes de embarcar.
+              distritos e vilarejos — dentro do estado ou cruzando fronteiras entre UFs. Rota
+              cadastrada, horário definido, assento reservado e pago antes de embarcar.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
