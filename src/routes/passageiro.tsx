@@ -302,9 +302,11 @@ function Passageiro() {
                   <input
                     type="date"
                     className={campo}
+                    min={hoje}
                     value={data}
-                    onChange={(e) => setData(e.target.value)}
+                    onChange={(e) => setData(e.target.value < hoje ? hoje : e.target.value)}
                   />
+
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
