@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "RotaCerta — transporte intermunicipal com hora marcada",
+  "name": "RotaCerta — transporte intermunicipal e interestadual com hora marcada",
   "short_name": "RotaCerta",
-  "description": "Reserva antecipada de assentos e bagagem em rotas intermunicipais com horário garantido.",
+  "description": "Reserva antecipada de assentos e bagagem em rotas intermunicipais e interestaduais com horário garantido.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
