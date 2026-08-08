@@ -11,8 +11,10 @@ import {
   MapPin,
   Plus,
   Route as RouteIcon,
+  Trash2,
   Wrench,
 } from "lucide-react";
+
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
 import { useServerFn } from "@tanstack/react-start";
@@ -22,6 +24,8 @@ import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, localidadesAP } from "@/lib/dados";
 import { brl, calcularTarifa } from "@/lib/logistica";
+import { excluirRota } from "@/lib/excluir-rota";
+
 import {
   COR_STATUS_OPERACIONAL,
   MOTIVOS_INDISPONIBILIDADE,
@@ -349,6 +353,18 @@ function AbaRotas() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluir = useMutation({
+    mutationFn: (rotaId: string) => excluirRota(rotaId),
+    onSuccess: () => {
+      toast.success("Rota excluída.");
+      void qc.invalidateQueries({ queryKey: ["rotas"] });
+      void qc.invalidateQueries({ queryKey: ["rota-veiculos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
@@ -574,6 +590,7 @@ function AbaRotas() {
                           {brl(Number(r.preco_assento))}/assento
                         </p>
                       </div>
+                      <div className="flex items-center gap-2">
                       <span
                         className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
                           r.status === "ativa"
@@ -583,7 +600,32 @@ function AbaRotas() {
                       >
                         {r.status === "ativa" ? "Ativa" : "Suspensa"}
                       </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Excluir a rota ${r.origem} → ${r.destino}? Esta ação não pode ser desfeita.`,
+                              )
+                            ) {
+                              excluir.mutate(r.id);
+                            }
+                          }}
+                          disabled={excluir.isPending}
+                          title="Excluir rota"
+                          aria-label={`Excluir rota ${r.origem} para ${r.destino}`}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1.5 text-[11px] font-semibold text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                        >
+                          {excluir.isPending && excluir.variables === r.id ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-3" />
+                          )}
+                          Excluir
+                        </button>
+                      </div>
                     </div>
+
 
                     <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                       Veículos vinculados

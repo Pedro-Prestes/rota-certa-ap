@@ -9,9 +9,12 @@ import {
   Lock,
   Plus,
   ShieldCheck,
+  Trash2,
   Truck,
   Users,
 } from "lucide-react";
+import { excluirRota } from "@/lib/excluir-rota";
+
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -337,6 +340,18 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
     },
   });
 
+  const excluir = useMutation({
+    mutationFn: (rotaId: string) => excluirRota(rotaId),
+    onSuccess: () => {
+      toast.success("Rota excluída.");
+      void qc.invalidateQueries({ queryKey: ["frotista-rotas"] });
+      void qc.invalidateQueries({ queryKey: ["rotas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const total = (veiculos.data ?? []).length;
   const liberado = frotistaLiberado(total);
   const faltam = veiculosFaltantes(total);
@@ -649,9 +664,35 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
                     {Number(r.preco_assento).toFixed(2)}
                   </span>
                 </span>
-                <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                  {r.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                    {r.status}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          `Excluir a rota corporativa ${r.origem} → ${r.destino}? Esta ação não pode ser desfeita.`,
+                        )
+                      ) {
+                        excluir.mutate(r.id);
+                      }
+                    }}
+                    disabled={excluir.isPending}
+                    title="Excluir rota"
+                    aria-label={`Excluir rota ${r.origem} para ${r.destino}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1.5 text-[11px] font-semibold text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                  >
+                    {excluir.isPending && excluir.variables === r.id ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <Trash2 className="size-3" />
+                    )}
+                    Excluir
+                  </button>
+                </div>
+
               </li>
             ))}
           </ul>
