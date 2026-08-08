@@ -16,6 +16,7 @@ import {
 import { excluirRota } from "@/lib/excluir-rota";
 
 import { TopNav } from "@/components/TopNav";
+import { SeletorCidade } from "@/components/SeletorCidade";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { GuardaPerfil } from "@/components/GuardaPerfil";
@@ -66,6 +67,7 @@ interface FrotistaRow {
   email_contato: string | null;
   telefone: string | null;
   municipio: string | null;
+  uf: string | null;
   status: string;
 }
 
@@ -155,6 +157,7 @@ function CadastroFrotista() {
     email: "",
     telefone: "",
     municipio: "",
+    uf: "AP",
   });
 
   const cnpjOk = cnpjValido(form.cnpj);
@@ -174,6 +177,7 @@ function CadastroFrotista() {
         email_contato: form.email.trim() || null,
         telefone: form.telefone.trim() || null,
         municipio: form.municipio.trim() || null,
+        uf: form.uf,
       });
       if (error) throw error;
     },
@@ -257,14 +261,14 @@ function CadastroFrotista() {
               onChange={(e) => setForm({ ...form, telefone: e.target.value })}
             />
           </label>
-          <label>
-            <span className={rotulo}>Município sede</span>
-            <input
-              className={campo}
-              value={form.municipio}
-              onChange={(e) => setForm({ ...form, municipio: e.target.value })}
+          <div className="sm:col-span-2">
+            <SeletorCidade
+              titulo="Estado e município sede"
+              uf={form.uf}
+              cidade={form.municipio}
+              onChange={(v) => setForm((f) => ({ ...f, uf: v.uf, municipio: v.cidade }))}
             />
-          </label>
+          </div>
         </div>
         <button
           onClick={() => criar.mutate()}
@@ -428,7 +432,7 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
             <h2 className="text-xl font-bold">{empresa.nome_fantasia || empresa.razao_social}</h2>
             <p className="text-xs text-muted-foreground">
               CNPJ {formatarCnpj(empresa.cnpj)} · responsável {empresa.responsavel_nome}
-              {empresa.municipio ? ` · ${empresa.municipio}` : ""}
+              {empresa.municipio ? ` · ${empresa.municipio}/${empresa.uf ?? "AP"}` : ""}
             </p>
           </div>
           <span
