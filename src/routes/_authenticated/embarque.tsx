@@ -80,7 +80,7 @@ function Embarque() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rotas")
-        .select("id, origem, destino, saida_ida, preco_assento")
+        .select("id, origem, destino, uf_origem, uf_destino, saida_ida, preco_assento")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as RotaOferta[];
