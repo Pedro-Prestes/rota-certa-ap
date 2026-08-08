@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "./dados";
 import {
+  FATOR_VIARIO,
   distanciaKm,
   matrizGeometrica,
   planejarBusca,
@@ -236,4 +237,68 @@ export async function replanejarEmbarque(
   }
 
   return { ...plano, rotaId, dataViagem, pontosAcordados: lista.length };
+}
+
+export interface MedidaTrecho {
+  distanciaKm: number;
+  duracaoMin: number;
+  provedor: "google_routes" | "geometrico";
+  origem: string;
+  destino: string;
+}
+
+/**
+ * Mede automaticamente o trecho A → B da rota do motorista pela malha viária
+ * real (Google Routes). Sem o gateway, cai na estimativa geodésica corrigida
+ * pelo fator de sinuosidade.
+ */
+export async function medirTrecho(origem: string, destino: string): Promise<MedidaTrecho> {
+  const a = await coordenadaLocalidade(origem);
+  const b = await coordenadaLocalidade(destino);
+  const headers = credenciais();
+
+  if (headers) {
+    const local = (c: Coordenada) => ({
+      location: { latLng: { latitude: c.latitude, longitude: c.longitude } },
+    });
+    const res = await fetch(`${GATEWAY}/routes/directions/v2:computeRoutes`, {
+      method: "POST",
+      headers: {
+        ...headers,
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask": "routes.distanceMeters,routes.duration",
+      },
+      body: JSON.stringify({
+        origin: local(a),
+        destination: local(b),
+        travelMode: "DRIVE",
+        routingPreference: "TRAFFIC_AWARE",
+      }),
+    });
+    if (res.ok) {
+      const json = (await res.json()) as RespostaRotas;
+      const rota = json.routes?.[0];
+      if (rota?.distanceMeters) {
+        return {
+          distanciaKm: Math.round(((rota.distanceMeters ?? 0) / 1000) * 10) / 10,
+          duracaoMin: Math.round(segundos(rota.duration) / 60),
+          provedor: "google_routes",
+          origem,
+          destino,
+        };
+      }
+    } else {
+      const corpo = await res.text();
+      console.error(`[routes] medirTrecho falhou ${res.status}: ${corpo}`);
+    }
+  }
+
+  const km = distanciaKm(a, b) * FATOR_VIARIO;
+  return {
+    distanciaKm: Math.round(km * 10) / 10,
+    duracaoMin: Math.round((km / 52) * 60),
+    provedor: "geometrico",
+    origem,
+    destino,
+  };
 }

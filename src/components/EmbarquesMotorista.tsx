@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { localizarEndereco, planejarEmbarque } from "@/utils/embarque.functions";
 import { COR_STATUS_PONTO, STATUS_PONTO, horaLocal, type StatusPonto } from "@/lib/embarque";
 import { brl } from "@/lib/logistica";
+import { NavegacaoEmbarque } from "@/components/NavegacaoEmbarque";
 
 const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring";
@@ -29,6 +30,8 @@ interface PontoRow {
   ordem: number | null;
   eta_ponto: string | null;
   saida_motorista: string | null;
+  latitude: number;
+  longitude: number;
 }
 
 interface PlanoRow {
@@ -62,7 +65,7 @@ export function EmbarquesMotorista({ rotas }: { rotas: RotaMotorista[] }) {
       const { data, error } = await supabase
         .from("pontos_embarque")
         .select(
-          "id, passageiro_nome, telefone, endereco, referencia, assentos, status, ordem, eta_ponto, saida_motorista",
+          "id, passageiro_nome, telefone, endereco, referencia, assentos, status, ordem, eta_ponto, saida_motorista, latitude, longitude",
         )
         .eq("rota_id", rotaId)
         .eq("data_viagem", dataViagem)
@@ -206,6 +209,23 @@ export function EmbarquesMotorista({ rotas }: { rotas: RotaMotorista[] }) {
             base → pontos acordados → saída da cidade, com 3 min de embarque por ponto e 10 min de folga.
           </p>
         </div>
+      )}
+
+      {plano.data && aceitos.length > 0 && (
+        <NavegacaoEmbarque
+          paradas={aceitos.map((p) => ({
+            id: p.id,
+            passageiro_nome: p.passageiro_nome,
+            telefone: p.telefone,
+            endereco: p.endereco,
+            referencia: p.referencia,
+            assentos: p.assentos,
+            latitude: Number(p.latitude),
+            longitude: Number(p.longitude),
+            ordem: p.ordem,
+            eta_ponto: p.eta_ponto,
+          }))}
+        />
       )}
 
       <div className="space-y-3">
