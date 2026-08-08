@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Brain,
   CalendarClock,
+  Globe2,
   Luggage,
   MapPinned,
   ShieldAlert,
@@ -13,6 +14,7 @@ import {
 import heroImg from "@/assets/hero-rota.jpg";
 import { TopNav } from "@/components/TopNav";
 import { anoMinimoPermitido } from "@/lib/logistica";
+import { UFS } from "@/lib/ufs";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -63,9 +65,9 @@ const pilares = [
   },
   {
     icon: MapPinned,
-    titulo: "Sede, distrito e vilarejo",
+    titulo: "Sede, distrito, vilarejo e outro estado",
     texto:
-      "O cadastro de rotas cobre pontos que os aplicativos urbanos ignoram — ramais, vilas e comunidades de difícil acesso.",
+      "UF + município do IBGE em todo o país, inclusive rotas interestaduais e pontos que os aplicativos urbanos ignoram — ramais, vilas e comunidades de difícil acesso.",
   },
   {
     icon: Brain,
@@ -85,7 +87,7 @@ function Home() {
         <section className="relative isolate overflow-hidden">
           <img
             src={heroImg}
-            alt="Van e caminhonete em ramal de terra no interior do Amapá com passageiros e bagagens"
+            alt="Van e caminhonete em estrada de terra no interior do Brasil com passageiros e bagagens"
             width={1600}
             height={1008}
             className="absolute inset-0 size-full object-cover"
@@ -120,8 +122,8 @@ function Home() {
 
             <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
               {[
-                ["16", "municípios do AP"],
-                ["2", "perfis: motorista e usuário"],
+                ["27", "estados + Distrito Federal"],
+                ["5.570", "municípios disponíveis"],
                 ["100%", "reserva paga antes"],
                 [`${anoMinimoPermitido()}+`, "ano mínimo do veículo"],
               ].map(([n, l]) => (
@@ -133,6 +135,61 @@ function Home() {
             </dl>
           </div>
         </section>
+
+        {/* Cobertura nacional */}
+        <section className="mx-auto max-w-6xl px-5 py-20">
+          <div className="grid gap-10 md:grid-cols-[1fr_1.1fr] md:items-start">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
+                <Globe2 className="size-3.5" /> Cobertura nacional
+              </span>
+              <h2 className="mt-5 text-3xl font-bold sm:text-4xl">
+                Do ramal do interior à rota entre estados
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                A rota é cadastrada com estado (UF) e município da base oficial do IBGE. Quando o
+                Ponto A e o Ponto B ficam em estados diferentes, a viagem é publicada como{" "}
+                <strong className="text-foreground">interestadual</strong> — com o mesmo horário
+                marcado, o mesmo assento pago antes e o mesmo acordo de ponto de embarque.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm">
+                {[
+                  "Município oficial do IBGE em todas as 27 unidades federativas.",
+                  "Rotas interestaduais com Ponto A e Ponto B em UFs distintas.",
+                  "Distância A → B medida automaticamente pela malha viária real.",
+                  "Cidades homônimas resolvidas pela UF informada no cadastro.",
+                ].map((t) => (
+                  <li key={t} className="flex gap-3">
+                    <BadgeCheck className="mt-0.5 size-4 shrink-0 text-accent" />
+                    <span className="text-muted-foreground">{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-card p-7 shadow-[var(--shadow-card)]">
+              {(["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"] as const).map((regiao) => (
+                <div key={regiao} className="mb-5 last:mb-0">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    {regiao}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {UFS.filter((u) => u.regiao === regiao).map((u) => (
+                      <span
+                        key={u.sigla}
+                        title={u.nome}
+                        className="rounded-lg border border-border bg-secondary/60 px-2 py-1 text-[11px] font-semibold"
+                      >
+                        {u.sigla}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
 
         {/* Dois usos */}
         <section className="mx-auto max-w-6xl px-5 py-20">
