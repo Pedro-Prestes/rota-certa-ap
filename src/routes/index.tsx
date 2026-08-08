@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Brain,
   CalendarClock,
+  Globe2,
   Luggage,
   MapPinned,
   ShieldAlert,
@@ -13,6 +14,7 @@ import {
 import heroImg from "@/assets/hero-rota.jpg";
 import { TopNav } from "@/components/TopNav";
 import { anoMinimoPermitido } from "@/lib/logistica";
+import { UFS } from "@/lib/ufs";
 
 export const Route = createFileRoute("/")({
   head: () => ({
