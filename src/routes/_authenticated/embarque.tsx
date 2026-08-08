@@ -134,7 +134,10 @@ function Embarque() {
     mutationFn: async () => {
       if (!user) throw new Error("Faça login para combinar o ponto.");
       if (!rotaId) throw new Error("Escolha a saída desejada.");
-      const local = await geocodificar({ data: { endereco } });
+      const local = await geocodificar({
+        data: { endereco, ...(rotaEscolhida?.uf_origem ? { uf: rotaEscolhida.uf_origem } : {}) },
+      });
+
       if ("error" in local) throw new Error(local.error);
 
       const { data: perfil } = await supabase
