@@ -35,11 +35,11 @@ type RotaPublica = {
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
     meta: [
-      { title: "Reservar assento e bagagem | RotaCerta Amapá" },
+      { title: "Reservar assento e bagagem | RotaCerta Brasil" },
       {
         name: "description",
         content:
-          "Busque rotas entre sedes, distritos e vilarejos do Amapá, calcule o volume da sua bagagem e garanta o assento com pagamento antecipado.",
+          "Busque rotas municipais e interestaduais em todo o Brasil, calcule o volume da sua bagagem e garanta o assento com pagamento antecipado.",
       },
       { property: "og:title", content: "Reservar assento e bagagem | RotaCerta" },
       {

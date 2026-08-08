@@ -17,17 +17,17 @@ import { anoMinimoPermitido } from "@/lib/logistica";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RotaCerta — transporte intermunicipal agendado no Amapá" },
+      { title: "RotaCerta — transporte intermunicipal agendado no Brasil" },
       {
         name: "description",
         content:
-          "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas entre sedes, distritos e vilarejos do Amapá. Para motoristas e passageiros.",
+          "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros.",
       },
-      { property: "og:title", content: "RotaCerta — transporte intermunicipal agendado no Amapá" },
+      { property: "og:title", content: "RotaCerta — transporte intermunicipal agendado no Brasil" },
       {
         property: "og:description",
         content:
-          "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas entre sedes, distritos e vilarejos do Amapá. Para motoristas e passageiros.",
+          "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -93,7 +93,7 @@ function Home() {
           <div className="absolute inset-0 bg-[linear-gradient(100deg,oklch(0.16_0.012_60/0.94),oklch(0.16_0.012_60/0.62))]" />
           <div className="relative mx-auto max-w-6xl px-5 py-24 sm:py-32">
             <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
-              Começando pelo Amapá · expansão progressiva
+              Cobertura nacional · todos os estados brasileiros
             </span>
             <h1 className="mt-6 max-w-2xl text-4xl font-bold leading-[1.05] text-primary-foreground sm:text-6xl">
               Transporte intermunicipal com hora marcada.
@@ -247,7 +247,7 @@ Pa = C / (N · ρ) · (1 + m)`}</pre>
       </main>
 
       <footer className="mx-auto max-w-6xl px-5 py-10 text-xs text-muted-foreground">
-        RotaCerta · protótipo de plataforma de transporte agendado para comunidades do Amapá.
+        RotaCerta · plataforma de transporte agendado para comunidades de todo o Brasil.
       </footer>
     </div>
   );

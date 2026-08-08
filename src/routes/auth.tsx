@@ -33,7 +33,7 @@ export const Route = createFileRoute("/auth")({
       { property: "og:title", content: "Entrar ou criar conta — RotaCerta" },
       {
         property: "og:description",
-        content: "Login e cadastro de passageiros e motoristas do transporte agendado no Amapá.",
+        content: "Login e cadastro de passageiros e motoristas do transporte agendado em todo o Brasil.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

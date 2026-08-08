@@ -38,7 +38,7 @@ import {
 export const Route = createFileRoute("/motorista")({
   head: () => ({
     meta: [
-      { title: "Painel do motorista | RotaCerta Amapá" },
+      { title: "Painel do motorista | RotaCerta Brasil" },
       {
         name: "description",
         content:

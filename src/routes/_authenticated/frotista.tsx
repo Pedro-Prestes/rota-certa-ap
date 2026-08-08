@@ -36,7 +36,7 @@ import {
 export const Route = createFileRoute("/_authenticated/frotista")({
   head: () => ({
     meta: [
-      { title: "Sou frotista | RotaCerta Amapá" },
+      { title: "Sou frotista | RotaCerta Brasil" },
       {
         name: "description",
         content:
