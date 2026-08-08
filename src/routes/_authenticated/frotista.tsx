@@ -9,9 +9,12 @@ import {
   Lock,
   Plus,
   ShieldCheck,
+  Trash2,
   Truck,
   Users,
 } from "lucide-react";
+import { excluirRota } from "@/lib/excluir-rota";
+
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
