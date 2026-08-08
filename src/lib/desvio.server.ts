@@ -115,16 +115,17 @@ export async function estimarPrecoPonto(
   const { geocodificar, coordenadaLocalidade } = await import("./embarque.server");
   const { data: rota, error } = await supabase
     .from("rotas")
-    .select("origem, destino, preco_assento")
+    .select("origem, destino, uf_origem, uf_destino, preco_assento")
     .eq("id", rotaId)
     .single();
   if (error || !rota) throw new Error("Rota não encontrada.");
 
   const [origem, destino, apanhe] = await Promise.all([
-    coordenadaLocalidade(rota.origem),
-    coordenadaLocalidade(rota.destino),
-    geocodificar(endereco),
+    coordenadaLocalidade(rota.origem, rota.uf_origem),
+    coordenadaLocalidade(rota.destino, rota.uf_destino),
+    geocodificar(endereco, rota.uf_origem),
   ]);
+
 
   const preco = await calcularPrecoAssentoComDesvio({
     origemMotorista: origem,

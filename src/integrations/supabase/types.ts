@@ -519,10 +519,12 @@ export type Database = {
           created_at: string
           destination_border_neighborhood: string | null
           destination_city: string
+          destination_uf: string
           driver_id: string
           id: string
           origin_border_neighborhood: string | null
           origin_city: string
+          origin_uf: string
           status: string
           total_seats: number
           updated_at: string
@@ -533,10 +535,12 @@ export type Database = {
           created_at?: string
           destination_border_neighborhood?: string | null
           destination_city: string
+          destination_uf?: string
           driver_id: string
           id?: string
           origin_border_neighborhood?: string | null
           origin_city: string
+          origin_uf?: string
           status?: string
           total_seats: number
           updated_at?: string
@@ -547,10 +551,12 @@ export type Database = {
           created_at?: string
           destination_border_neighborhood?: string | null
           destination_city?: string
+          destination_uf?: string
           driver_id?: string
           id?: string
           origin_border_neighborhood?: string | null
           origin_city?: string
+          origin_uf?: string
           status?: string
           total_seats?: number
           updated_at?: string
@@ -709,6 +715,7 @@ export type Database = {
           responsavel_nome: string
           status: string
           telefone: string | null
+          uf: string | null
           updated_at: string
           user_id: string
         }
@@ -723,6 +730,7 @@ export type Database = {
           responsavel_nome: string
           status?: string
           telefone?: string | null
+          uf?: string | null
           updated_at?: string
           user_id: string
         }
@@ -737,6 +745,7 @@ export type Database = {
           responsavel_nome?: string
           status?: string
           telefone?: string | null
+          uf?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1228,6 +1237,7 @@ export type Database = {
           municipio: string | null
           nome_completo: string
           telefone: string | null
+          uf: string | null
           updated_at: string
         }
         Insert: {
@@ -1236,6 +1246,7 @@ export type Database = {
           municipio?: string | null
           nome_completo?: string
           telefone?: string | null
+          uf?: string | null
           updated_at?: string
         }
         Update: {
@@ -1244,6 +1255,7 @@ export type Database = {
           municipio?: string | null
           nome_completo?: string
           telefone?: string | null
+          uf?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1302,6 +1314,8 @@ export type Database = {
           saida_retorno: string | null
           status: string
           travessias: number
+          uf_destino: string
+          uf_origem: string
           updated_at: string
           user_id: string
         }
@@ -1322,6 +1336,8 @@ export type Database = {
           saida_retorno?: string | null
           status?: string
           travessias?: number
+          uf_destino?: string
+          uf_origem?: string
           updated_at?: string
           user_id: string
         }
@@ -1342,6 +1358,8 @@ export type Database = {
           saida_retorno?: string | null
           status?: string
           travessias?: number
+          uf_destino?: string
+          uf_origem?: string
           updated_at?: string
           user_id?: string
         }
@@ -2167,6 +2185,7 @@ export type Database = {
         Args: { _env?: string; _user_id: string }
         Returns: boolean
       }
+      uf_valida: { Args: { _uf: string }; Returns: boolean }
     }
     Enums: {
       alvo_verificacao: "passageiro" | "motorista" | "veiculo"

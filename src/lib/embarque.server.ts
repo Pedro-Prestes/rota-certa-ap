@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "./dados";
+import { normalizarUf } from "./ufs";
+
 import {
   FATOR_VIARIO,
   distanciaKm,
@@ -32,13 +34,20 @@ async function erroGateway(res: Response): Promise<never> {
   throw new Error(`Serviço de georreferenciamento indisponível (${res.status}).`);
 }
 
-/** Geocodificação de endereço livre (ponto de embarque combinado). */
+/**
+ * Geocodificação de endereço livre (ponto de embarque combinado).
+ * A UF é usada para desambiguar cidades homônimas em todo o Brasil.
+ */
 export async function geocodificar(
   endereco: string,
+  uf?: string | null,
 ): Promise<{ latitude: number; longitude: number; enderecoFormatado: string }> {
   const headers = credenciais();
   if (!headers) throw new Error("Georreferenciamento não configurado.");
-  const consulta = encodeURIComponent(`${endereco}, Amapá, Brasil`);
+  const estado = normalizarUf(uf);
+  const consulta = encodeURIComponent(
+    estado ? `${endereco}, ${estado}, Brasil` : `${endereco}, Brasil`,
+  );
   const res = await fetch(`${GATEWAY}/maps/api/geocode/json?address=${consulta}&region=br`, {
     headers,
   });
@@ -63,15 +72,20 @@ export async function geocodificar(
 
 const cacheLocalidade = new Map<string, Coordenada>();
 
-export async function coordenadaLocalidade(nome: string): Promise<Coordenada> {
-  const chave = nome.toLowerCase();
+export async function coordenadaLocalidade(nome: string, uf?: string | null): Promise<Coordenada> {
+  const estado = normalizarUf(uf);
+  const chave = `${nome.toLowerCase()}|${estado ?? ""}`;
   const cache = cacheLocalidade.get(chave);
   if (cache) return cache;
-  const { latitude, longitude } = await geocodificar(nome.replace(/\s*\(sede\)/i, ""));
+  const { latitude, longitude } = await geocodificar(
+    nome.replace(/\s*\(sede\)/i, ""),
+    estado,
+  );
   const coord = { latitude, longitude };
   cacheLocalidade.set(chave, coord);
   return coord;
 }
+
 
 /**
  * Ponto de saída da cidade: projeção a 6 km da sede de origem no rumo do
@@ -169,7 +183,7 @@ export async function replanejarEmbarque(
 ): Promise<ResultadoPlano> {
   const { data: rota, error: erroRota } = await supabase
     .from("rotas")
-    .select("id, origem, destino, saida_ida")
+    .select("id, origem, destino, uf_origem, uf_destino, saida_ida")
     .eq("id", rotaId)
     .single();
   if (erroRota || !rota) throw new Error("Rota não encontrada.");
@@ -182,8 +196,9 @@ export async function replanejarEmbarque(
     .eq("status", "aceito");
   if (erroPontos) throw erroPontos;
 
-  const origem = await coordenadaLocalidade(rota.origem);
-  const destino = await coordenadaLocalidade(rota.destino);
+  const origem = await coordenadaLocalidade(rota.origem, rota.uf_origem);
+  const destino = await coordenadaLocalidade(rota.destino, rota.uf_destino);
+
   const saidaCidade = pontoSaidaCidade(origem, destino);
 
   const lista: PontoBusca[] = (pontos ?? []).map((p) => ({
@@ -252,9 +267,15 @@ export interface MedidaTrecho {
  * real (Google Routes). Sem o gateway, cai na estimativa geodésica corrigida
  * pelo fator de sinuosidade.
  */
-export async function medirTrecho(origem: string, destino: string): Promise<MedidaTrecho> {
-  const a = await coordenadaLocalidade(origem);
-  const b = await coordenadaLocalidade(destino);
+export async function medirTrecho(
+  origem: string,
+  destino: string,
+  ufOrigem?: string | null,
+  ufDestino?: string | null,
+): Promise<MedidaTrecho> {
+  const a = await coordenadaLocalidade(origem, ufOrigem);
+  const b = await coordenadaLocalidade(destino, ufDestino);
+
   const headers = credenciais();
 
   if (headers) {
