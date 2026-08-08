@@ -600,7 +600,32 @@ function AbaRotas() {
                       >
                         {r.status === "ativa" ? "Ativa" : "Suspensa"}
                       </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Excluir a rota ${r.origem} → ${r.destino}? Esta ação não pode ser desfeita.`,
+                              )
+                            ) {
+                              excluir.mutate(r.id);
+                            }
+                          }}
+                          disabled={excluir.isPending}
+                          title="Excluir rota"
+                          aria-label={`Excluir rota ${r.origem} para ${r.destino}`}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1.5 text-[11px] font-semibold text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                        >
+                          {excluir.isPending && excluir.variables === r.id ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-3" />
+                          )}
+                          Excluir
+                        </button>
+                      </div>
                     </div>
+
 
                     <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                       Veículos vinculados
