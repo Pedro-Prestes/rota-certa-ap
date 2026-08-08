@@ -114,18 +114,34 @@ function Passageiro() {
     return [...nomes].sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [todas]);
 
+  /**
+   * A rota cadastrada é recorrente (permanece ativa até o motorista alterar ou
+   * excluir). Na prateleira só aparecem embarques ainda por acontecer: no dia
+   * de hoje, saídas cujo horário já passou (com 15 min de antecedência mínima)
+   * ficam ocultas e voltam a ser ofertadas nas datas seguintes.
+   */
+  const minutosAgora = agora.getHours() * 60 + agora.getMinutes() + 15;
+  const ehHoje = data === hoje;
+
   const resultados = useMemo(
     () =>
-      todas.filter(
-        (r) =>
-          (!origem || `${r.origem}/${r.uf_origem ?? "AP"}` === origem) &&
-          (!destino || `${r.destino}/${r.uf_destino ?? "AP"}` === destino),
-      ),
-    [todas, origem, destino],
+      todas.filter((r) => {
+        if (origem && `${r.origem}/${r.uf_origem ?? "AP"}` !== origem) return false;
+        if (destino && `${r.destino}/${r.uf_destino ?? "AP"}` !== destino) return false;
+        if (data < hoje) return false;
+        if (!ehHoje) return true;
+        const [h, m] = (r.saida_ida ?? "00:00").split(":");
+        return Number(h) * 60 + Number(m) >= minutosAgora;
+      }),
+    [todas, origem, destino, data, hoje, ehHoje, minutosAgora],
   );
 
+  useEffect(() => {
+    if (selecionada && !resultados.some((r) => r.id === selecionada)) setSelecionada(null);
+  }, [resultados, selecionada]);
 
   const viagem = todas.find((r) => r.id === selecionada) ?? null;
+
   const veiculo = frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
