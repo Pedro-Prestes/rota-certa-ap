@@ -24,6 +24,8 @@ import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, localidadesAP } from "@/lib/dados";
 import { brl, calcularTarifa } from "@/lib/logistica";
+import { excluirRota } from "@/lib/excluir-rota";
+
 import {
   COR_STATUS_OPERACIONAL,
   MOTIVOS_INDISPONIBILIDADE,
