@@ -340,6 +340,18 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
     },
   });
 
+  const excluir = useMutation({
+    mutationFn: (rotaId: string) => excluirRota(rotaId),
+    onSuccess: () => {
+      toast.success("Rota excluída.");
+      void qc.invalidateQueries({ queryKey: ["frotista-rotas"] });
+      void qc.invalidateQueries({ queryKey: ["rotas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const total = (veiculos.data ?? []).length;
   const liberado = frotistaLiberado(total);
   const faltam = veiculosFaltantes(total);
