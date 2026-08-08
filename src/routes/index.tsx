@@ -79,7 +79,7 @@ const pilares = [
 
 function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="fundo-mesh min-h-screen">
       <TopNav />
 
       <main>
@@ -219,7 +219,7 @@ function Home() {
         </section>
 
         {/* Pilares */}
-        <section className="border-y border-border bg-secondary/50">
+        <section className="border-y border-border bg-secondary/40 backdrop-blur-sm">
           <div className="mx-auto max-w-6xl px-5 py-20">
             <h2 className="text-3xl font-bold sm:text-4xl">Como o RotaCerta funciona</h2>
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -277,7 +277,7 @@ Pa = C / (N · ρ) · (1 + m)`}</pre>
         </section>
 
         {/* CTA */}
-        <section className="border-t border-border bg-secondary/50">
+        <section className="border-t border-border bg-secondary/40 backdrop-blur-sm">
           <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-5 py-16 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold">Escolha por onde entrar</h2>

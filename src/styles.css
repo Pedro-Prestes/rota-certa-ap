@@ -109,6 +109,12 @@
   --gradient-accent: linear-gradient(100deg, oklch(0.86 0.16 88), oklch(0.78 0.18 62));
   --shadow-card: 0 1px 2px oklch(0.16 0.012 60 / 0.06), 0 12px 32px -16px oklch(0.16 0.012 60 / 0.28);
   --shadow-lift: 0 24px 60px -28px oklch(0.16 0.012 60 / 0.45);
+
+  /* Fundo de página: malha de luz âmbar sobre areia clara */
+  --mesh-1: oklch(0.86 0.16 88 / 0.28);
+  --mesh-2: oklch(0.78 0.18 62 / 0.2);
+  --mesh-3: oklch(0.6 0.14 155 / 0.14);
+  --mesh-base: oklch(0.985 0.008 96);
 }
 
 
@@ -170,4 +176,32 @@
     background-image: var(--gradient-night);
     color: var(--primary-foreground);
   }
+}
+
+/* Fundo de página persuasivo: malha de luz + textura fina */
+@utility fundo-mesh {
+  position: relative;
+  background-color: var(--mesh-base);
+  background-image:
+    radial-gradient(ellipse 70% 55% at 8% -5%, var(--mesh-1), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 95% 8%, var(--mesh-2), transparent 62%),
+    radial-gradient(ellipse 75% 45% at 50% 105%, var(--mesh-3), transparent 65%);
+  background-attachment: fixed, fixed, fixed;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: radial-gradient(oklch(0.16 0.012 60 / 0.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
+.dark .fundo-mesh {
+  --mesh-base: oklch(0.15 0.03 264);
+  --mesh-1: oklch(0.5 0.14 88 / 0.22);
+  --mesh-2: oklch(0.45 0.16 62 / 0.18);
+  --mesh-3: oklch(0.45 0.1 200 / 0.16);
 }
