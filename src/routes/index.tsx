@@ -65,9 +65,9 @@ const pilares = [
   },
   {
     icon: MapPinned,
-    titulo: "Sede, distrito e vilarejo",
+    titulo: "Sede, distrito, vilarejo e outro estado",
     texto:
-      "O cadastro de rotas cobre pontos que os aplicativos urbanos ignoram — ramais, vilas e comunidades de difícil acesso.",
+      "UF + município do IBGE em todo o país, inclusive rotas interestaduais e pontos que os aplicativos urbanos ignoram — ramais, vilas e comunidades de difícil acesso.",
   },
   {
     icon: Brain,
