@@ -109,7 +109,7 @@ function SouFrotista() {
             </h1>
             <p className="mt-4 max-w-xl text-muted-foreground">
               A área do frotista reúne frota, motoristas, rotas e financeiro da sua transportadora
-              em um só painel. Transporte intermunicipal com hora marcada, embarque acordado com o
+              em um só painel. Transporte intermunicipal e interestadual com hora marcada, embarque acordado com o
               passageiro e prestação de contas auditável.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">

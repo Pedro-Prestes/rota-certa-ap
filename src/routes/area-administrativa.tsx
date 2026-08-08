@@ -91,7 +91,7 @@ function AreaAdministrativa() {
             Área administrativa do RotaCerta
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Governança da operação intermunicipal: contabilidade demonstrada, estornos controlados,
+            Governança da operação intermunicipal e interestadual: contabilidade demonstrada, estornos controlados,
             auditoria em blockchain e atendimento de ocorrências. Cada colaborador enxerga apenas o
             que o seu perfil permite.
           </p>

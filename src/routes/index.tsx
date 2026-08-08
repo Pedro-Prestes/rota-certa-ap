@@ -19,13 +19,13 @@ import { UFS } from "@/lib/ufs";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RotaCerta — transporte intermunicipal agendado no Brasil" },
+      { title: "RotaCerta — transporte intermunicipal e interestadual" },
       {
         name: "description",
         content:
           "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros.",
       },
-      { property: "og:title", content: "RotaCerta — transporte intermunicipal agendado no Brasil" },
+      { property: "og:title", content: "RotaCerta — transporte intermunicipal e interestadual" },
       {
         property: "og:description",
         content:
@@ -98,12 +98,12 @@ function Home() {
               Cobertura nacional · todos os estados brasileiros
             </span>
             <h1 className="mt-6 max-w-2xl text-4xl font-bold leading-[1.05] text-primary-foreground sm:text-6xl">
-              Transporte intermunicipal com hora marcada.
+              Transporte intermunicipal e interestadual com hora marcada.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-primary-foreground/75 sm:text-lg">
               O RotaCerta conecta motoristas de transporte alternativo e moradores de sedes,
-              distritos e vilarejos. Rota cadastrada, horário definido, assento reservado e pago
-              antes de embarcar.
+              distritos e vilarejos — dentro do estado ou cruzando fronteiras entre UFs. Rota
+              cadastrada, horário definido, assento reservado e pago antes de embarcar.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link

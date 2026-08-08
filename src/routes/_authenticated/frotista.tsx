@@ -127,7 +127,7 @@ function Frotista() {
         </span>
         <h1 className="mt-3 text-3xl font-bold">Sou frotista</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Transporte intermunicipal com hora marcada operado por empresa: cadastro validado por
+          Transporte intermunicipal e interestadual com hora marcada operado por empresa: cadastro validado por
           CNPJ, quota mínima de {MIN_VEICULOS_FROTISTA} veículos, motoristas associados e visão
           consolidada das rotas corporativas.
         </p>
