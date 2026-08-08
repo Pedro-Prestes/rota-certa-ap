@@ -101,20 +101,26 @@ function Passageiro() {
 
   const todas = rotas.data ?? [];
 
+  /** Localidades ofertadas em qualquer estado, no formato "Cidade/UF". */
   const localidades = useMemo(() => {
-    const nomes = new Set<string>(localidadesAP.map((l) => l.nome));
+    const nomes = new Set<string>();
     for (const r of todas) {
-      nomes.add(r.origem);
-      nomes.add(r.destino);
+      nomes.add(`${r.origem}/${r.uf_origem ?? "AP"}`);
+      nomes.add(`${r.destino}/${r.uf_destino ?? "AP"}`);
     }
     return [...nomes].sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [todas]);
 
   const resultados = useMemo(
     () =>
-      todas.filter((r) => (!origem || r.origem === origem) && (!destino || r.destino === destino)),
+      todas.filter(
+        (r) =>
+          (!origem || `${r.origem}/${r.uf_origem ?? "AP"}` === origem) &&
+          (!destino || `${r.destino}/${r.uf_destino ?? "AP"}` === destino),
+      ),
     [todas, origem, destino],
   );
+
 
   const viagem = todas.find((r) => r.id === selecionada) ?? null;
   const veiculo = frota[2]!;
