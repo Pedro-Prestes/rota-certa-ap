@@ -23,6 +23,7 @@ interface Props {
 export function SeletorCidade({ titulo, uf, cidade, onChange, permitirLivre = true }: Props) {
   const buscar = useServerFn(listarMunicipios);
   const [filtro, setFiltro] = useState("");
+  const [aberto, setAberto] = useState(false);
 
   const municipios = useQuery({
     queryKey: ["municipios", uf],
