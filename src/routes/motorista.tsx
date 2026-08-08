@@ -11,8 +11,10 @@ import {
   MapPin,
   Plus,
   Route as RouteIcon,
+  Trash2,
   Wrench,
 } from "lucide-react";
+
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
 import { useServerFn } from "@tanstack/react-start";
