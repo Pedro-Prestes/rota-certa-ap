@@ -125,6 +125,7 @@ const cadastroSchema = z.object({
   codigo: z.string().regex(/^\d{6}$/, "Código inválido"),
   nome: z.string().trim().min(3).max(120),
   municipio: z.string().trim().max(120).optional().default(""),
+  uf: z.string().trim().length(2).optional(),
   perfil: z.enum(["passageiro", "motorista", "frotista"]),
   email: z.string().trim().email().max(255).optional(),
 });
@@ -164,6 +165,7 @@ export const criarContaPorTelefone = createServerFn({ method: "POST" })
       telefone,
       nome: data.nome,
       municipio: data.municipio ?? "",
+      uf: data.uf ?? null,
       perfil: data.perfil,
       ...(data.email ? { email: data.email } : {}),
     });
