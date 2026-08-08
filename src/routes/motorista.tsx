@@ -601,7 +601,8 @@ function AbaRotas() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="font-medium">
-                          {r.origem} → {r.destino}
+                          {r.origem}/{r.uf_origem ?? "AP"} → {r.destino}/{r.uf_destino ?? "AP"}
+
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {r.saida_ida?.slice(0, 5) ?? "--:--"} –{" "}
