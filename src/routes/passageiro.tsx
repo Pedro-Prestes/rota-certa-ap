@@ -374,7 +374,10 @@ function Passageiro() {
               })}
               {!rotas.isLoading && resultados.length === 0 && (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                  Nenhuma saída cadastrada para esse trecho ainda.
+                  {ehHoje
+                    ? "Os embarques de hoje já saíram. Escolha uma data futura — as rotas seguem ofertadas todos os dias."
+                    : "Nenhuma saída cadastrada para esse trecho ainda."}
+
                 </p>
               )}
             </div>
