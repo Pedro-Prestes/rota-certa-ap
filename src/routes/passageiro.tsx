@@ -58,12 +58,24 @@ const campo =
 
 const hora = (v: string | null) => (v ? v.slice(0, 5) : "--:--");
 
+function diaLocal(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function Passageiro() {
   const [origem, setOrigem] = useState("Macapá (sede)");
   const [destino, setDestino] = useState("");
-  const [data, setData] = useState(() => new Date().toISOString().slice(0, 10));
+  /** Relógio que avança a cada minuto para retirar embarques já vencidos. */
+  const [agora, setAgora] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setAgora(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const hoje = diaLocal(agora);
+  const [data, setData] = useState(() => diaLocal(new Date()));
   const [assentos, setAssentos] = useState(1);
   const [selecionada, setSelecionada] = useState<string | null>(null);
+
   const [pagando, setPagando] = useState(false);
   const [pixPrice, setPixPrice] = useState<string | null>(null);
   const [pixCorrida, setPixCorrida] = useState(false);
@@ -114,18 +126,34 @@ function Passageiro() {
     return [...nomes].sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [todas]);
 
+  /**
+   * A rota cadastrada é recorrente (permanece ativa até o motorista alterar ou
+   * excluir). Na prateleira só aparecem embarques ainda por acontecer: no dia
+   * de hoje, saídas cujo horário já passou (com 15 min de antecedência mínima)
+   * ficam ocultas e voltam a ser ofertadas nas datas seguintes.
+   */
+  const minutosAgora = agora.getHours() * 60 + agora.getMinutes() + 15;
+  const ehHoje = data === hoje;
+
   const resultados = useMemo(
     () =>
-      todas.filter(
-        (r) =>
-          (!origem || `${r.origem}/${r.uf_origem ?? "AP"}` === origem) &&
-          (!destino || `${r.destino}/${r.uf_destino ?? "AP"}` === destino),
-      ),
-    [todas, origem, destino],
+      todas.filter((r) => {
+        if (origem && `${r.origem}/${r.uf_origem ?? "AP"}` !== origem) return false;
+        if (destino && `${r.destino}/${r.uf_destino ?? "AP"}` !== destino) return false;
+        if (data < hoje) return false;
+        if (!ehHoje) return true;
+        const [h, m] = (r.saida_ida ?? "00:00").split(":");
+        return Number(h) * 60 + Number(m) >= minutosAgora;
+      }),
+    [todas, origem, destino, data, hoje, ehHoje, minutosAgora],
   );
 
+  useEffect(() => {
+    if (selecionada && !resultados.some((r) => r.id === selecionada)) setSelecionada(null);
+  }, [resultados, selecionada]);
 
   const viagem = todas.find((r) => r.id === selecionada) ?? null;
+
   const veiculo = frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
@@ -274,9 +302,11 @@ function Passageiro() {
                   <input
                     type="date"
                     className={campo}
+                    min={hoje}
                     value={data}
-                    onChange={(e) => setData(e.target.value)}
+                    onChange={(e) => setData(e.target.value < hoje ? hoje : e.target.value)}
                   />
+
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
@@ -344,7 +374,10 @@ function Passageiro() {
               })}
               {!rotas.isLoading && resultados.length === 0 && (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                  Nenhuma saída cadastrada para esse trecho ainda.
+                  {ehHoje
+                    ? "Os embarques de hoje já saíram. Escolha uma data futura — as rotas seguem ofertadas todos os dias."
+                    : "Nenhuma saída cadastrada para esse trecho ainda."}
+
                 </p>
               )}
             </div>
