@@ -663,7 +663,7 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
               >
                 <span>
                   <span className="font-medium">
-                    {r.origem} → {r.destino}
+                    {r.origem}/{r.uf_origem ?? "AP"} → {r.destino}/{r.uf_destino ?? "AP"}
                   </span>
                   <span className="block text-xs text-muted-foreground">
                     {r.saida_ida?.slice(0, 5) ?? "--:--"} · {r.assentos} assentos · R${" "}
