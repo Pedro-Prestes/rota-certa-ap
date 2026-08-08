@@ -23,6 +23,7 @@ interface Props {
 export function SeletorCidade({ titulo, uf, cidade, onChange, permitirLivre = true }: Props) {
   const buscar = useServerFn(listarMunicipios);
   const [filtro, setFiltro] = useState("");
+  const [aberto, setAberto] = useState(false);
 
   const municipios = useQuery({
     queryKey: ["municipios", uf],
@@ -55,7 +56,10 @@ export function SeletorCidade({ titulo, uf, cidade, onChange, permitirLivre = tr
         <select
           className={campo}
           value={uf}
-          onChange={(e) => onChange({ uf: e.target.value, cidade: "" })}
+          onChange={(e) => {
+            setFiltro("");
+            onChange({ uf: e.target.value, cidade: "" });
+          }}
           aria-label={`Estado — ${titulo}`}
         >
           {UFS.map((u) => (
@@ -66,35 +70,58 @@ export function SeletorCidade({ titulo, uf, cidade, onChange, permitirLivre = tr
         </select>
       </label>
 
-      <label>
+      <div>
         <span className={rotulo}>{titulo}</span>
         <div className="relative">
           <input
             className={campo}
-            list={`municipios-${titulo.replace(/\s+/g, "-")}-${uf}`}
-            value={cidade}
-            placeholder={municipios.isFetching ? "Carregando municípios…" : "Digite a cidade"}
+            value={aberto ? filtro : cidade}
+            placeholder={municipios.isFetching ? "Carregando municípios…" : "Digite ou escolha a cidade"}
+            onFocus={() => {
+              setFiltro("");
+              setAberto(true);
+            }}
+            onBlur={() => window.setTimeout(() => setAberto(false), 150)}
             onChange={(e) => {
               setFiltro(e.target.value);
-              onChange({ uf, cidade: e.target.value });
+              setAberto(true);
+              if (permitirLivre) onChange({ uf, cidade: e.target.value });
             }}
             aria-label={titulo}
+            autoComplete="off"
           />
           {municipios.isFetching && (
             <Loader2 className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
           )}
+
+          {aberto && lista.length > 0 && (
+            <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-border bg-popover py-1 shadow-lg">
+              {lista.slice(0, 300).map((m) => (
+                <li key={m}>
+                  <button
+                    type="button"
+                    className="w-full px-3.5 py-2 text-left text-sm hover:bg-accent/20"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      onChange({ uf, cidade: m });
+                      setFiltro("");
+                      setAberto(false);
+                    }}
+                  >
+                    {m}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <datalist id={`municipios-${titulo.replace(/\s+/g, "-")}-${uf}`}>
-          {lista.slice(0, 200).map((m) => (
-            <option key={m} value={m} />
-          ))}
-        </datalist>
         <span className="mt-1 block text-[11px] text-muted-foreground">
           {municipios.error
             ? (municipios.error as Error).message
             : `${(municipios.data ?? []).length} municípios em ${uf}`}
         </span>
-      </label>
+      </div>
     </div>
   );
 }
+
