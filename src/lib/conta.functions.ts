@@ -26,6 +26,7 @@ export const provisionarConta = createServerFn({ method: "POST" })
         nome_completo: texto("nome_completo") ?? texto("full_name") ?? texto("name") ?? "",
         telefone: texto("telefone"),
         municipio: texto("municipio"),
+        uf: texto("uf"),
       },
       { onConflict: "id", ignoreDuplicates: true },
     );
