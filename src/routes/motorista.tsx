@@ -237,6 +237,8 @@ function AbaEmbarques() {
     id: r.id,
     origem: r.origem,
     destino: r.destino,
+    uf_origem: r.uf_origem,
+    uf_destino: r.uf_destino,
     saida_ida: r.saida_ida ?? null,
   }));
 
