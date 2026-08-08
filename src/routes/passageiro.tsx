@@ -58,12 +58,24 @@ const campo =
 
 const hora = (v: string | null) => (v ? v.slice(0, 5) : "--:--");
 
+function diaLocal(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function Passageiro() {
   const [origem, setOrigem] = useState("Macapá (sede)");
   const [destino, setDestino] = useState("");
-  const [data, setData] = useState(() => new Date().toISOString().slice(0, 10));
+  /** Relógio que avança a cada minuto para retirar embarques já vencidos. */
+  const [agora, setAgora] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setAgora(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const hoje = diaLocal(agora);
+  const [data, setData] = useState(() => diaLocal(new Date()));
   const [assentos, setAssentos] = useState(1);
   const [selecionada, setSelecionada] = useState<string | null>(null);
+
   const [pagando, setPagando] = useState(false);
   const [pixPrice, setPixPrice] = useState<string | null>(null);
   const [pixCorrida, setPixCorrida] = useState(false);
