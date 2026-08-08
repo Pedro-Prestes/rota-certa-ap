@@ -94,6 +94,9 @@ interface RotaRow {
   id: string;
   origem: string;
   destino: string;
+  uf_origem: string | null;
+  uf_destino: string | null;
+
   saida_ida: string | null;
   assentos: number;
   preco_assento: number;
