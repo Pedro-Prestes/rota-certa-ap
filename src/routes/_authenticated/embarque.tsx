@@ -44,6 +44,9 @@ interface RotaOferta {
   id: string;
   origem: string;
   destino: string;
+  uf_origem: string | null;
+  uf_destino: string | null;
+
   saida_ida: string | null;
   preco_assento: number;
 }
@@ -80,7 +83,7 @@ function Embarque() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rotas")
-        .select("id, origem, destino, saida_ida, preco_assento")
+        .select("id, origem, destino, uf_origem, uf_destino, saida_ida, preco_assento")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as RotaOferta[];
@@ -134,7 +137,10 @@ function Embarque() {
     mutationFn: async () => {
       if (!user) throw new Error("Faça login para combinar o ponto.");
       if (!rotaId) throw new Error("Escolha a saída desejada.");
-      const local = await geocodificar({ data: { endereco } });
+      const local = await geocodificar({
+        data: { endereco, ...(rotaEscolhida?.uf_origem ? { uf: rotaEscolhida.uf_origem } : {}) },
+      });
+
       if ("error" in local) throw new Error(local.error);
 
       const { data: perfil } = await supabase

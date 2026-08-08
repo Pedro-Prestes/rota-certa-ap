@@ -22,7 +22,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { medirTrechoRota } from "@/utils/rota.functions";
 import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
-import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, localidadesAP } from "@/lib/dados";
+import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "@/lib/dados";
+import { SeletorCidade } from "@/components/SeletorCidade";
+
 import { brl, calcularTarifa } from "@/lib/logistica";
 import { excluirRota } from "@/lib/excluir-rota";
 
@@ -36,7 +38,7 @@ import {
 export const Route = createFileRoute("/motorista")({
   head: () => ({
     meta: [
-      { title: "Painel do motorista | RotaCerta Amapá" },
+      { title: "Painel do motorista | RotaCerta Brasil" },
       {
         name: "description",
         content:
@@ -73,6 +75,9 @@ interface RotaRow {
   id: string;
   origem: string;
   destino: string;
+  uf_origem: string | null;
+  uf_destino: string | null;
+
   saida_ida: string | null;
   chegada_ida: string | null;
   saida_retorno: string | null;
@@ -232,6 +237,8 @@ function AbaEmbarques() {
     id: r.id,
     origem: r.origem,
     destino: r.destino,
+    uf_origem: r.uf_origem,
+    uf_destino: r.uf_destino,
     saida_ida: r.saida_ida ?? null,
   }));
 
@@ -249,8 +256,10 @@ function AbaRotas() {
   const qc = useQueryClient();
   const { user, veiculos, rotas, vinculos } = useDadosMotorista();
   const [form, setForm] = useState({
-    origem: "Macapá (sede)",
-    destino: "Mazagão Velho",
+    ufOrigem: "AP",
+    origem: "Macapá",
+    ufDestino: "AP",
+    destino: "Mazagão",
     saidaIda: "06:15",
     chegadaIda: "08:10",
     saidaRetorno: "16:00",
@@ -264,15 +273,26 @@ function AbaRotas() {
   const medir = useServerFn(medirTrechoRota);
 
   const medida = useQuery({
-    queryKey: ["medida-trecho", form.origem, form.destino],
-    enabled: !!form.origem && !!form.destino && form.origem !== form.destino,
+    queryKey: ["medida-trecho", form.ufOrigem, form.origem, form.ufDestino, form.destino],
+    enabled:
+      !!form.origem &&
+      !!form.destino &&
+      !(form.origem === form.destino && form.ufOrigem === form.ufDestino),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const r = await medir({ data: { origem: form.origem, destino: form.destino } });
+      const r = await medir({
+        data: {
+          origem: form.origem,
+          destino: form.destino,
+          ufOrigem: form.ufOrigem,
+          ufDestino: form.ufDestino,
+        },
+      });
       if ("error" in r) throw new Error(r.error);
       return r;
     },
   });
+
 
   useEffect(() => {
     if (medida.data) setForm((f) => ({ ...f, distancia: medida.data.distanciaKm }));
@@ -306,6 +326,9 @@ function AbaRotas() {
           user_id: user.id,
           origem: form.origem,
           destino: form.destino,
+          uf_origem: form.ufOrigem,
+          uf_destino: form.ufDestino,
+
           saida_ida: form.saidaIda,
           chegada_ida: form.chegadaIda,
           saida_retorno: form.saidaRetorno,
@@ -375,34 +398,33 @@ function AbaRotas() {
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <label>
-              <span className={rotulo}>Ponto de origem</span>
-              <select
-                className={campo}
-                value={form.origem}
-                onChange={(e) => setForm({ ...form, origem: e.target.value })}
-              >
-                {localidadesAP.map((l) => (
-                  <option key={l.nome} value={l.nome}>
-                    {l.nome} · {l.tipo}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span className={rotulo}>Ponto de destino</span>
-              <select
-                className={campo}
-                value={form.destino}
-                onChange={(e) => setForm({ ...form, destino: e.target.value })}
-              >
-                {localidadesAP.map((l) => (
-                  <option key={l.nome} value={l.nome}>
-                    {l.nome} · {l.tipo}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="sm:col-span-2">
+              <SeletorCidade
+                titulo="Ponto de origem"
+                uf={form.ufOrigem}
+                cidade={form.origem}
+                onChange={({ uf, cidade }) =>
+                  setForm((f) => ({ ...f, ufOrigem: uf, origem: cidade }))
+                }
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <SeletorCidade
+                titulo="Ponto de destino"
+                uf={form.ufDestino}
+                cidade={form.destino}
+                onChange={({ uf, cidade }) =>
+                  setForm((f) => ({ ...f, ufDestino: uf, destino: cidade }))
+                }
+              />
+              {form.ufOrigem !== form.ufDestino && form.origem && form.destino && (
+                <p className="mt-2 rounded-xl bg-primary/10 px-3 py-2 text-[11px] font-semibold text-primary">
+                  Rota interestadual: {form.origem}/{form.ufOrigem} → {form.destino}/
+                  {form.ufDestino}
+                </p>
+              )}
+            </div>
+
             <label>
               <span className={rotulo}>Ponto A</span>
               <input
@@ -581,7 +603,8 @@ function AbaRotas() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="font-medium">
-                          {r.origem} → {r.destino}
+                          {r.origem}/{r.uf_origem ?? "AP"} → {r.destino}/{r.uf_destino ?? "AP"}
+
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {r.saida_ida?.slice(0, 5) ?? "--:--"} –{" "}

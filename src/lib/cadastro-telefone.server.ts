@@ -75,6 +75,7 @@ export async function criarContaVerificada(params: {
   telefone: string;
   nome: string;
   municipio: string;
+  uf?: string | null;
   perfil: PerfilCadastro;
   email?: string;
 }) {
@@ -91,6 +92,7 @@ export async function criarContaVerificada(params: {
       nome_completo: params.nome,
       telefone: params.telefone,
       municipio: params.municipio,
+      uf: params.uf ?? null,
       perfil: params.perfil,
     },
   });

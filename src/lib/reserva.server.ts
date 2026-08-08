@@ -64,8 +64,9 @@ async function rotaEComposicao(dados: EntradaReserva) {
   const { data: rota, error } = await supabaseAdmin
     .from("rotas")
     .select(
-      "id, user_id, origem, destino, saida_ida, chegada_ida, distancia_km, assentos, preco_assento, status",
+      "id, user_id, origem, destino, uf_origem, uf_destino, saida_ida, chegada_ida, distancia_km, assentos, preco_assento, status",
     )
+
     .eq("id", dados.rotaId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -92,6 +93,9 @@ export async function previaReserva(dados: EntradaReserva) {
   return {
     origem: rota.origem,
     destino: rota.destino,
+    ufOrigem: rota.uf_origem,
+    ufDestino: rota.uf_destino,
+
     assentosValor,
     desvio,
     base: composicao.base,

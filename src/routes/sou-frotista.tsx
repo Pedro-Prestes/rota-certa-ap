@@ -21,7 +21,7 @@ export const Route = createFileRoute("/sou-frotista")({
       {
         name: "description",
         content:
-          "Empresas de transporte no Amapá: cadastre o CNPJ, associe motoristas, vincule veículos às rotas e opere com hora marcada no RotaCerta.",
+          "Empresas de transporte de todo o Brasil: cadastre o CNPJ, associe motoristas, vincule veículos às rotas e opere com hora marcada no RotaCerta.",
       },
       { property: "og:title", content: "Sou frotista | Frota corporativa no RotaCerta" },
       {

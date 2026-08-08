@@ -6,7 +6,7 @@ import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "luci
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
-import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
+import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
 import {
   gerarPixDaCorrida,
   pagarReservaComCreditos,
@@ -19,6 +19,9 @@ type RotaPublica = {
   id: string;
   origem: string;
   destino: string;
+  uf_origem: string | null;
+  uf_destino: string | null;
+
   saida_ida: string | null;
   chegada_ida: string | null;
   saida_retorno: string | null;
@@ -32,11 +35,11 @@ type RotaPublica = {
 export const Route = createFileRoute("/passageiro")({
   head: () => ({
     meta: [
-      { title: "Reservar assento e bagagem | RotaCerta Amapá" },
+      { title: "Reservar assento e bagagem | RotaCerta Brasil" },
       {
         name: "description",
         content:
-          "Busque rotas entre sedes, distritos e vilarejos do Amapá, calcule o volume da sua bagagem e garanta o assento com pagamento antecipado.",
+          "Busque rotas municipais e interestaduais em todo o Brasil, calcule o volume da sua bagagem e garanta o assento com pagamento antecipado.",
       },
       { property: "og:title", content: "Reservar assento e bagagem | RotaCerta" },
       {
@@ -90,7 +93,7 @@ function Passageiro() {
       const { data, error } = await supabase
         .from("rotas")
         .select(
-          "id, origem, destino, saida_ida, chegada_ida, saida_retorno, distancia_km, assentos, travessias, dificuldade_via, preco_assento",
+          "id, origem, destino, uf_origem, uf_destino, saida_ida, chegada_ida, saida_retorno, distancia_km, assentos, travessias, dificuldade_via, preco_assento",
         )
         .eq("status", "ativa")
         .order("saida_ida", { ascending: true });
@@ -101,20 +104,26 @@ function Passageiro() {
 
   const todas = rotas.data ?? [];
 
+  /** Localidades ofertadas em qualquer estado, no formato "Cidade/UF". */
   const localidades = useMemo(() => {
-    const nomes = new Set<string>(localidadesAP.map((l) => l.nome));
+    const nomes = new Set<string>();
     for (const r of todas) {
-      nomes.add(r.origem);
-      nomes.add(r.destino);
+      nomes.add(`${r.origem}/${r.uf_origem ?? "AP"}`);
+      nomes.add(`${r.destino}/${r.uf_destino ?? "AP"}`);
     }
     return [...nomes].sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [todas]);
 
   const resultados = useMemo(
     () =>
-      todas.filter((r) => (!origem || r.origem === origem) && (!destino || r.destino === destino)),
+      todas.filter(
+        (r) =>
+          (!origem || `${r.origem}/${r.uf_origem ?? "AP"}` === origem) &&
+          (!destino || `${r.destino}/${r.uf_destino ?? "AP"}` === destino),
+      ),
     [todas, origem, destino],
   );
+
 
   const viagem = todas.find((r) => r.id === selecionada) ?? null;
   const veiculo = frota[2]!;
@@ -310,7 +319,9 @@ function Passageiro() {
                           {hora(v.chegada_ida)}
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {v.origem} → {v.destino} · {Number(v.distancia_km)} km
+                          {v.origem}/{v.uf_origem ?? "AP"} → {v.destino}/{v.uf_destino ?? "AP"} ·{" "}
+                          {Number(v.distancia_km)} km
+
                         </p>
                         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">

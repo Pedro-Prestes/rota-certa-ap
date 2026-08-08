@@ -16,8 +16,11 @@ interface RotaMotorista {
   id: string;
   origem: string;
   destino: string;
+  uf_origem?: string | null;
+  uf_destino?: string | null;
   saida_ida: string | null;
 }
+
 
 interface PontoRow {
   id: string;
@@ -115,7 +118,12 @@ export function EmbarquesMotorista({ rotas }: { rotas: RotaMotorista[] }) {
   const enviarContra = useMutation({
     mutationFn: async () => {
       if (!contra) return;
-      const local = await geocodificar({ data: { endereco: contra.endereco } });
+      const local = await geocodificar({
+        data: {
+          endereco: contra.endereco,
+          ...(rotaAtual?.uf_origem ? { uf: rotaAtual.uf_origem } : {}),
+        },
+      });
       if ("error" in local) throw new Error(local.error);
       const { error } = await supabase
         .from("pontos_embarque")
