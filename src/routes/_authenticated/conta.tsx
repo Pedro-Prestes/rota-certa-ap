@@ -28,6 +28,7 @@ interface Perfil {
   nome_completo: string;
   telefone: string | null;
   municipio: string | null;
+  uf: string | null;
 }
 
 function Conta() {
@@ -41,7 +42,7 @@ function Conta() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("nome_completo, telefone, municipio")
+      .select("nome_completo, telefone, municipio, uf")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setPerfil(data));
@@ -101,7 +102,7 @@ function Conta() {
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wide text-muted-foreground">Município</dt>
-            <dd className="mt-1 font-medium">{perfil?.municipio || "—"}</dd>
+            <dd className="mt-1 font-medium">{perfil?.municipio ? `${perfil.municipio}/${perfil.uf ?? "AP"}` : "—"}</dd>
           </div>
         </dl>
 
