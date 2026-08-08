@@ -590,6 +590,7 @@ function AbaRotas() {
                           {brl(Number(r.preco_assento))}/assento
                         </p>
                       </div>
+                      <div className="flex items-center gap-2">
                       <span
                         className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
                           r.status === "ativa"
