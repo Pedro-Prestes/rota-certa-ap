@@ -87,7 +87,7 @@ function Home() {
         <section className="relative isolate overflow-hidden">
           <img
             src={heroImg}
-            alt="Van e caminhonete em ramal de terra no interior do Amapá com passageiros e bagagens"
+            alt="Van e caminhonete em estrada de terra no interior do Brasil com passageiros e bagagens"
             width={1600}
             height={1008}
             className="absolute inset-0 size-full object-cover"
