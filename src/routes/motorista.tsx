@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { medirTrechoRota } from "@/utils/rota.functions";
 import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, localidadesAP } from "@/lib/dados";
@@ -255,6 +257,22 @@ function AbaRotas() {
     dificuldade: 0.5,
   });
   const [selecionados, setSelecionados] = useState<string[]>([]);
+  const medir = useServerFn(medirTrechoRota);
+
+  const medida = useQuery({
+    queryKey: ["medida-trecho", form.origem, form.destino],
+    enabled: !!form.origem && !!form.destino && form.origem !== form.destino,
+    staleTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      const r = await medir({ data: { origem: form.origem, destino: form.destino } });
+      if ("error" in r) throw new Error(r.error);
+      return r;
+    },
+  });
+
+  useEffect(() => {
+    if (medida.data) setForm((f) => ({ ...f, distancia: medida.data.distanciaKm }));
+  }, [medida.data]);
 
   const tarifa = useMemo(
     () =>
@@ -406,13 +424,33 @@ function AbaRotas() {
               />
             </label>
             <label>
-              <span className={rotulo}>Distância (km)</span>
-              <input
-                type="number"
-                className={campo}
-                value={form.distancia}
-                onChange={(e) => setForm({ ...form, distancia: Number(e.target.value) })}
-              />
+              <span className={rotulo}>
+                Distância (km) — medida automaticamente
+              </span>
+              <div className="relative">
+                <input
+                  type="number"
+                  className={campo}
+                  value={form.distancia}
+                  onChange={(e) => setForm({ ...form, distancia: Number(e.target.value) })}
+                />
+                {medida.isFetching && (
+                  <Loader2 className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              <span className="mt-1 block text-[11px] text-muted-foreground">
+                {medida.isFetching
+                  ? "Calculando o trecho A → B pela malha viária…"
+                  : medida.data
+                    ? `${medida.data.distanciaKm} km · ${medida.data.duracaoMin} min (${
+                        medida.data.provedor === "google_routes"
+                          ? "Google Routes"
+                          : "estimativa geodésica"
+                      })`
+                    : medida.error
+                      ? (medida.error as Error).message
+                      : "Escolha origem e destino para medir automaticamente."}
+              </span>
             </label>
             <label>
               <span className={rotulo}>Assentos ofertados</span>
