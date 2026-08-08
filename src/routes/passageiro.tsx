@@ -6,7 +6,7 @@ import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "luci
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { supabase } from "@/integrations/supabase/client";
-import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota, localidadesAP } from "@/lib/dados";
+import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
 import {
   gerarPixDaCorrida,
   pagarReservaComCreditos,
@@ -93,7 +93,7 @@ function Passageiro() {
       const { data, error } = await supabase
         .from("rotas")
         .select(
-          "id, origem, destino, saida_ida, chegada_ida, saida_retorno, distancia_km, assentos, travessias, dificuldade_via, preco_assento",
+          "id, origem, destino, uf_origem, uf_destino, saida_ida, chegada_ida, saida_retorno, distancia_km, assentos, travessias, dificuldade_via, preco_assento",
         )
         .eq("status", "ativa")
         .order("saida_ida", { ascending: true });
