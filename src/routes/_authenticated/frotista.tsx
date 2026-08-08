@@ -335,7 +335,10 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rotas")
-        .select("id, origem, destino, saida_ida, assentos, preco_assento, status, frotista_id")
+        .select(
+          "id, origem, destino, uf_origem, uf_destino, saida_ida, assentos, preco_assento, status, frotista_id",
+        )
+
         .eq("frotista_id", empresa.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
