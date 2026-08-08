@@ -349,6 +349,18 @@ function AbaRotas() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluir = useMutation({
+    mutationFn: (rotaId: string) => excluirRota(rotaId),
+    onSuccess: () => {
+      toast.success("Rota excluída.");
+      void qc.invalidateQueries({ queryKey: ["rotas"] });
+      void qc.invalidateQueries({ queryKey: ["rota-veiculos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
