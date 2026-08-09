@@ -142,6 +142,16 @@ export function TopNav() {
                     Minha conta
                   </Link>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAberto(false);
+                    setTimeout(abrirTour, 120);
+                  }}
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl border border-border px-4 py-3 text-sm font-semibold"
+                >
+                  <Compass className="size-4" /> Como usar o RotaCerta
+                </button>
               </div>
             </SheetContent>
           </Sheet>
