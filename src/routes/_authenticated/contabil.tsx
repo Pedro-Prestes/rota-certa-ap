@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -7,7 +7,6 @@ import {
   Calculator,
   Loader2,
   Plus,
-  RotateCcw,
   ShieldCheck,
   Sliders,
   X,
@@ -16,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { useAuth } from "@/hooks/use-auth";
-import { brl, type Corrida, type Pagamento } from "@/lib/pagamentos";
+import { brl } from "@/lib/pagamentos";
 import {
   CATEGORIAS_CUSTO,
   CONFIG_PADRAO,
@@ -27,14 +26,14 @@ import {
   type ConfigTaxa,
 } from "@/lib/taxas";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { estornarPagamento } from "@/utils/contabil.functions";
+
 import { GuardaPerfil } from "@/components/GuardaPerfil";
 import { FiltroPeriodo } from "@/components/contabil/FiltroPeriodo";
 import { ExtratoTransacoes } from "@/components/contabil/ExtratoTransacoes";
 import { DemonstrativoCompetencia } from "@/components/contabil/DemonstrativoCompetencia";
 import { RepassesPeriodo } from "@/components/contabil/RepassesPeriodo";
 import { periodoDoAtalho, type AtalhoPeriodo, type PeriodoContabil } from "@/lib/contabil";
-import { carregarResumoContabil } from "@/utils/contabil.functions";
+import { carregarResumoContabil, estornarPagamento } from "@/utils/contabil.functions";
 
 export const Route = createFileRoute("/_authenticated/contabil")({
   head: () => ({
@@ -62,18 +61,6 @@ const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring";
 const rotulo = "mb-1.5 block text-xs font-semibold text-muted-foreground";
 
-interface Lancamento {
-  id: string;
-  tipo: string;
-  valor: number;
-  descricao: string;
-  competencia: string;
-  corrida_id: string | null;
-  pagamento_id: string | null;
-  detalhamento: Record<string, unknown> | null;
-  created_at: string;
-}
-
 interface Custo {
   id: string;
   fornecedor: string;
@@ -82,19 +69,6 @@ interface Custo {
   valor: number;
   competencia: string;
   recorrente: boolean;
-}
-
-interface Estorno {
-  id: string;
-  pagamento_id: string;
-  valor: number;
-  integral: boolean;
-  devolve_taxa: boolean;
-  motivo: string;
-  status: string;
-  provedor: string | null;
-  provedor_ref: string | null;
-  created_at: string;
 }
 
 const n = (v: unknown) => Number(v ?? 0) || 0;
