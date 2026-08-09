@@ -125,18 +125,10 @@ function Contabil() {
     },
   });
 
-  const lancamentos = useQuery({
-    queryKey: ["lancamentos"],
+  const resumo = useQuery({
+    queryKey: ["resumo-contabil", periodo.de, periodo.ate],
     enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("lancamentos_contabeis")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []) as unknown as Lancamento[];
-    },
+    queryFn: () => carregarResumoContabil({ data: { de: periodo.de, ate: periodo.ate } }),
   });
 
   const custos = useQuery({
@@ -149,43 +141,6 @@ function Contabil() {
         .order("competencia", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as Custo[];
-    },
-  });
-
-  const pagamentos = useQuery({
-    queryKey: ["contabil-pagamentos"],
-    enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pagamentos")
-        .select("*")
-        .order("pago_em", { ascending: false })
-        .limit(200);
-      if (error) throw error;
-      return (data ?? []) as unknown as Pagamento[];
-    },
-  });
-
-  const corridas = useQuery({
-    queryKey: ["contabil-corridas"],
-    enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("corridas").select("*");
-      if (error) throw error;
-      return (data ?? []) as unknown as Corrida[];
-    },
-  });
-
-  const estornos = useQuery({
-    queryKey: ["estornos"],
-    enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("estornos")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Estorno[];
     },
   });
 
@@ -219,37 +174,18 @@ function Contabil() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const totais = useMemo(() => {
-    const acc = {
-      receita: 0,
-      taxaPlataforma: 0,
-      taxaGateway: 0,
-      repasse: 0,
-      estorno: 0,
-      custos: 0,
-    };
-    for (const l of lancamentos.data ?? []) {
-      const v = n(l.valor);
-      if (l.tipo === "receita_bruta") acc.receita += v;
-      if (l.tipo === "taxa_plataforma") acc.taxaPlataforma += v;
-      if (l.tipo === "taxa_gateway") acc.taxaGateway += v;
-      if (l.tipo === "repasse_motorista") acc.repasse += v;
-      if (l.tipo === "estorno") acc.estorno += v;
-      if (l.tipo === "custo_terceiro") acc.custos += v;
-    }
-    const custosLancados = (custos.data ?? []).reduce((a, c) => a + n(c.valor), 0);
-    const custosTotais = Math.max(acc.custos, custosLancados);
-    const resultado = acc.taxaPlataforma - acc.taxaGateway - custosTotais - acc.estorno * 0;
-    return { ...acc, custosTotais, resultado };
-  }, [lancamentos.data, custos.data]);
+  const totais = resumo.data?.totais;
+  const transacoes = resumo.data?.transacoes ?? [];
 
-  const nomeCorrida = (id: string | null) => {
-    const c = (corridas.data ?? []).find((x) => x.id === id);
-    return c ? `${c.origem || "—"} → ${c.destino || "—"}` : "—";
+  const abrirEstorno = (pagamentoId: string) => {
+    const t = transacoes.find((x) => x.id === pagamentoId);
+    if (t) setEstornando({ id: t.id, valor: t.base });
   };
 
-  const estornosPor = (pagamentoId: string) =>
-    (estornos.data ?? []).filter((e) => e.pagamento_id === pagamentoId);
+  const recarregar = () => {
+    qc.invalidateQueries({ queryKey: ["resumo-contabil"] });
+    qc.invalidateQueries({ queryKey: ["custos"] });
+  };
 
   if (carregando || ehAdmin.isLoading) {
     return (
