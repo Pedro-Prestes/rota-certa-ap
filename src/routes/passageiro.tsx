@@ -325,7 +325,7 @@ function Passageiro() {
             </div>
 
             {/* Resultados */}
-            <h2 className="mt-8 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            <h2 data-tour="busca-rotas" className="mt-8 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
               {rotas.isLoading ? "Buscando saídas…" : `${resultados.length} saída(s) encontrada(s)`}
             </h2>
             <div className="mt-4 space-y-3">
