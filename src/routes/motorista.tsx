@@ -20,6 +20,8 @@ import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista"
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { medirTrechoRota } from "@/utils/rota.functions";
+import { consultarVagasPromo, resgatarPromoDaRota } from "@/utils/promocao.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "@/lib/dados";
