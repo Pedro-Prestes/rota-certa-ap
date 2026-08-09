@@ -7,6 +7,7 @@ import {
   Gift,
   Globe2,
   Luggage,
+  Mail,
   MapPinned,
   ShieldAlert,
   Truck,
