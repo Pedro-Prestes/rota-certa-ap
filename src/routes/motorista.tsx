@@ -416,7 +416,7 @@ function AbaRotas() {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
         <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-          <h2 className="text-lg font-bold">Cadastrar rota</h2>
+          <h2 data-tour="cadastro-rota" className="text-lg font-bold">Cadastrar rota</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Sede, distrito ou vilarejo — informe também o trecho de retorno.
           </p>
