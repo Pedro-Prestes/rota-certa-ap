@@ -194,7 +194,6 @@ const FROTISTA: Roteiro = {
       titulo: "Mínimo de 6 veículos",
       texto:
         "A ativação do perfil frotista acontece quando a frota chega a 6 veículos regulares cadastrados.",
-      alvo: '[data-tour="frota"]',
       rota: "/frotista",
     },
     {
@@ -202,7 +201,6 @@ const FROTISTA: Roteiro = {
       titulo: "Motoristas e rotas",
       texto:
         "Vincule motoristas aos veículos e às rotas, controle manutenção e indisponibilidade sem cancelar a rota recorrente.",
-      alvo: '[data-tour="motoristas"]',
       rota: "/frotista",
     },
     {
