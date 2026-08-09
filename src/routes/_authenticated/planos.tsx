@@ -115,6 +115,7 @@ interface AssinaturaCarteira {
   periodo_fim: string;
   proxima_cobranca: string;
   cancelar_no_fim: boolean;
+  promocional?: boolean;
 }
 
 function PlanosPage() {
