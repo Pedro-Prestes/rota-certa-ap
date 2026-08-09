@@ -2,15 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  BadgeDollarSign,
-  Calculator,
-  Loader2,
-  Plus,
-  ShieldCheck,
-  Sliders,
-  X,
-} from "lucide-react";
+import { BadgeDollarSign, Calculator, Loader2, Plus, ShieldCheck, Sliders, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
@@ -85,7 +77,10 @@ function Contabil() {
     queryKey: ["ehAdmin", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" });
+      const { data, error } = await supabase.rpc("has_role", {
+        _user_id: user!.id,
+        _role: "admin",
+      });
       if (error) throw error;
       return !!data;
     },
@@ -348,7 +343,6 @@ function Contabil() {
             </table>
           </div>
         </section>
-
       </main>
 
       {novoCusto && (
@@ -429,9 +423,7 @@ function ConfigTaxaForm({
             step="0.01"
             className={campo}
             value={f.repasse_motorista_percentual}
-            onChange={(e) =>
-              setF({ ...f, repasse_motorista_percentual: Number(e.target.value) })
-            }
+            onChange={(e) => setF({ ...f, repasse_motorista_percentual: Number(e.target.value) })}
           />
         </div>
       </div>
@@ -511,7 +503,11 @@ function FormularioCusto({ onFechar, onSalvo }: { onFechar: () => void; onSalvo:
         valor: Number(f.valor) || 0,
         descricao: `${f.fornecedor} — ${f.descricao || rotuloCategoria(f.categoria)}`,
         competencia: f.competencia,
-        detalhamento: { categoria: f.categoria, recorrente: f.recorrente, fornecedor: f.fornecedor },
+        detalhamento: {
+          categoria: f.categoria,
+          recorrente: f.recorrente,
+          fornecedor: f.fornecedor,
+        },
       });
       if (erroLanc) throw erroLanc;
     },

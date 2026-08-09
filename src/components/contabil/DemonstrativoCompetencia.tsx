@@ -42,7 +42,8 @@ export function DemonstrativoCompetencia({ linhas }: { linhas: LinhaCompetencia[
           <tbody>
             {linhas.map((l, i) => {
               const anterior = i > 0 ? linhas[i - 1]!.resultado : 0;
-              const variacao = anterior !== 0 ? ((l.resultado - anterior) / Math.abs(anterior)) * 100 : null;
+              const variacao =
+                anterior !== 0 ? ((l.resultado - anterior) / Math.abs(anterior)) * 100 : null;
               return (
                 <tr key={l.competencia} className="border-t border-border/70">
                   <td className="py-3 font-medium">{rotuloCompetencia(l.competencia)}</td>

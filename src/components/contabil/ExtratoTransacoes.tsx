@@ -266,7 +266,9 @@ function DetalheTransacao({
           <Linha rotulo="Total cobrado do cliente" valor={brl(t.total)} forte />
           <Linha rotulo="Tarifa do gateway" valor={`- ${brl(t.taxaGateway)}`} />
           <Linha rotulo="Repasse ao motorista" valor={brl(t.repasseMotorista)} />
-          {t.estornado > 0 && <Linha rotulo="Estornado ao cliente" valor={`- ${brl(t.estornado)}`} />}
+          {t.estornado > 0 && (
+            <Linha rotulo="Estornado ao cliente" valor={`- ${brl(t.estornado)}`} />
+          )}
           <Linha rotulo="Resultado líquido da plataforma" valor={brl(t.liquidoPlataforma)} forte />
         </div>
 

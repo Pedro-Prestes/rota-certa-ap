@@ -1,6 +1,11 @@
 import { Banknote, QrCode } from "lucide-react";
 import { brl } from "@/lib/pagamentos";
-import { ROTULO_FINALIDADE, dataHora, type CobrancaPixContabil, type RepasseContabil } from "@/lib/contabil";
+import {
+  ROTULO_FINALIDADE,
+  dataHora,
+  type CobrancaPixContabil,
+  type RepasseContabil,
+} from "@/lib/contabil";
 import { ROTULO_STATUS_REPASSE, type StatusRepasse } from "@/lib/carteira-motorista";
 
 const chip = "rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold";

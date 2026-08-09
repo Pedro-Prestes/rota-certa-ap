@@ -27,7 +27,6 @@ import type {
   ResumoContabil,
 } from "./contabil";
 
-
 async function carregarConfig(): Promise<ConfigTaxa> {
   const { data } = await supabaseAdmin
     .from("plataforma_config")
@@ -204,7 +203,10 @@ export async function resumoContabil(periodo: PeriodoContabil): Promise<ResumoCo
   const totalRepasse = arred(validas.reduce((a, t) => a + t.repasseMotorista, 0));
   const totalEstornado = arred(transacoes.reduce((a, t) => a + t.estornado, 0));
 
-  const formas = new Map<string, { quantidade: number; total: number; taxaAdministrativa: number }>();
+  const formas = new Map<
+    string,
+    { quantidade: number; total: number; taxaAdministrativa: number }
+  >();
   for (const t of validas) {
     const atual = formas.get(t.forma) ?? { quantidade: 0, total: 0, taxaAdministrativa: 0 };
     atual.quantidade += 1;
@@ -217,7 +219,10 @@ export async function resumoContabil(periodo: PeriodoContabil): Promise<ResumoCo
   const taxaPorMotorista = new Map<string, number>();
   for (const g of ganhos) {
     if (g.type === "RIDE_EARNING") {
-      brutoPorMotorista.set(g.driver_id, arred(n(brutoPorMotorista.get(g.driver_id)) + n(g.amount)));
+      brutoPorMotorista.set(
+        g.driver_id,
+        arred(n(brutoPorMotorista.get(g.driver_id)) + n(g.amount)),
+      );
     }
     if (g.type === "PLATFORM_FEE") {
       taxaPorMotorista.set(
