@@ -46,3 +46,24 @@ export const estornarPagamento = createServerFn({ method: "POST" })
       return { error: getStripeErrorMessage(e) };
     }
   });
+
+const DATA = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Consolidação contábil detalhada do período (exclusiva do administrador master). */
+export const carregarResumoContabil = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { de: string; ate: string }) => {
+    if (!DATA.test(data.de) || !DATA.test(data.ate)) throw new Error("Período inválido.");
+    if (data.de > data.ate) throw new Error("A data inicial deve ser anterior à final.");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { data: admin, error } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (error || !admin) throw new Error("Área restrita ao administrador master.");
+
+    const { resumoContabil } = await import("@/lib/contabil.server");
+    return resumoContabil({ de: data.de, ate: data.ate });
+  });
