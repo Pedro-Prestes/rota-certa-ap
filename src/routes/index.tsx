@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Brain,
   CalendarClock,
+  Gift,
   Globe2,
   Luggage,
   MapPinned,
