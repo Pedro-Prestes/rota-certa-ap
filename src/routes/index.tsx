@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import heroImg from "@/assets/hero-rota.jpg";
 import { TopNav } from "@/components/TopNav";
+import { WhatsAppLink } from "@/components/WhatsAppContato";
 import { anoMinimoPermitido } from "@/lib/logistica";
 import { UFS } from "@/lib/ufs";
 import { useQuery } from "@tanstack/react-query";

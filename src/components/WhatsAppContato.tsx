@@ -31,14 +31,17 @@ export function WhatsAppFloatButton() {
   );
 }
 
+import type { AnchorHTMLAttributes } from "react";
+
 /** Link de WhatsApp para menus e listas de apoio. */
-export function WhatsAppLink({ className = "" }: { className?: string }) {
+export function WhatsAppLink({ className = "", ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
   return (
     <a
       href={linkWhatsApp()}
       target="_blank"
       rel="noopener noreferrer"
       className={`inline-flex items-center gap-2 ${className}`}
+      {...props}
     >
       <MessageCircle className="size-4 shrink-0" />
       <span className="truncate">WhatsApp: +55 96 98409-5871</span>
