@@ -136,6 +136,10 @@ function Home() {
           </div>
         </section>
 
+        <PromoLancamento />
+
+
+
         {/* Cobertura nacional */}
         <section className="mx-auto max-w-6xl px-5 py-20">
           <div className="grid gap-10 md:grid-cols-[1fr_1.1fr] md:items-start">
