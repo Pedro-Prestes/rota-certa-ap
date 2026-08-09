@@ -106,6 +106,16 @@ function Conta() {
           </div>
         </dl>
 
+        <button
+          type="button"
+          onClick={abrirTour}
+          className="mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold"
+        >
+          <Compass className="size-4 text-accent" /> Como usar o RotaCerta (tour guiado)
+        </button>
+
+
+
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <Link
             to="/passageiro"
