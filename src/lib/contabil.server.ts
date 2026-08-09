@@ -15,147 +15,18 @@ const n = (v: unknown) => Number(v ?? 0) || 0;
 const arred = (v: number) => Math.round(v * 100) / 100;
 const competenciaDe = (iso: string) => (iso ?? "").slice(0, 7);
 
-export interface PeriodoContabil {
-  de: string; // YYYY-MM-DD
-  ate: string; // YYYY-MM-DD
-}
+import type {
+  PeriodoContabil,
+  EstornoResumo,
+  LancamentoResumo,
+  TransacaoContabil,
+  RepasseContabil,
+  CobrancaPixContabil,
+  LinhaCompetencia,
+  CustoContabil,
+  ResumoContabil,
+} from "./contabil";
 
-export interface EstornoResumo {
-  id: string;
-  valor: number;
-  integral: boolean;
-  devolve_taxa: boolean;
-  motivo: string;
-  status: string;
-  provedor: string | null;
-  provedor_ref: string | null;
-  created_at: string;
-}
-
-export interface LancamentoResumo {
-  id: string;
-  tipo: string;
-  valor: number;
-  descricao: string;
-  competencia: string;
-  created_at: string;
-  corrida_id: string | null;
-  pagamento_id: string | null;
-  detalhamento: Record<string, unknown> | null;
-}
-
-export interface TransacaoContabil {
-  id: string;
-  pago_em: string;
-  competencia: string;
-  forma: string;
-  status: string;
-  parcelas: number;
-  bandeira: string | null;
-  autorizacao: string | null;
-  chave_pix: string | null;
-  observacoes: string | null;
-  clienteId: string;
-  clienteNome: string;
-  clienteContato: string | null;
-  clienteCurto: string;
-  corridaId: string | null;
-  rota: string;
-  dataCorrida: string | null;
-  motorista: string;
-  veiculo: string | null;
-  assentos: number;
-  base: number;
-  taxaPercentual: number;
-  taxaVariavel: number;
-  taxaFixa: number;
-  taxaAdministrativa: number;
-  total: number;
-  taxaGateway: number;
-  repasseMotorista: number;
-  estornado: number;
-  liquidoPlataforma: number;
-  estornos: EstornoResumo[];
-  lancamentos: LancamentoResumo[];
-}
-
-export interface RepasseContabil {
-  id: string;
-  motoristaId: string;
-  motoristaNome: string;
-  bruto: number;
-  taxaRetida: number;
-  valor: number;
-  taxa: number;
-  liquido: number;
-  metodo: string;
-  modo: string;
-  status: string;
-  provedor: string | null;
-  referencia: string | null;
-  solicitado_em: string;
-  processado_em: string | null;
-}
-
-export interface CobrancaPixContabil {
-  id: string;
-  criado_em: string;
-  clienteNome: string;
-  finalidade: string;
-  descricao: string;
-  valorBase: number;
-  taxaAdmin: number;
-  valorTotal: number;
-  creditos: number;
-  status: string;
-  provedor: string;
-  referencia: string | null;
-  environment: string;
-}
-
-export interface LinhaCompetencia {
-  competencia: string;
-  receita: number;
-  taxaPlataforma: number;
-  taxaGateway: number;
-  repasse: number;
-  estorno: number;
-  custos: number;
-  resultado: number;
-}
-
-export interface CustoContabil {
-  id: string;
-  fornecedor: string;
-  categoria: string;
-  descricao: string;
-  valor: number;
-  competencia: string;
-  recorrente: boolean;
-}
-
-export interface ResumoContabil {
-  periodo: PeriodoContabil;
-  config: ConfigTaxa;
-  totais: {
-    transacoes: number;
-    base: number;
-    taxaAdministrativa: number;
-    total: number;
-    taxaGateway: number;
-    repasse: number;
-    estornado: number;
-    custos: number;
-    resultado: number;
-    ticketMedio: number;
-  };
-  porForma: { forma: string; quantidade: number; total: number; taxaAdministrativa: number }[];
-  transacoes: TransacaoContabil[];
-  repasses: RepasseContabil[];
-  cobrancasPix: CobrancaPixContabil[];
-  custos: CustoContabil[];
-  competencias: LinhaCompetencia[];
-}
 
 async function carregarConfig(): Promise<ConfigTaxa> {
   const { data } = await supabaseAdmin
