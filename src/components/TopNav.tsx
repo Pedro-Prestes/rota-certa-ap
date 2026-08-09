@@ -68,6 +68,7 @@ export function TopNav() {
             (user ? (
               <Link
                 to="/conta"
+                data-tour="conta"
                 aria-label="Minha conta"
                 className="ml-1 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold"
               >
@@ -78,12 +79,14 @@ export function TopNav() {
               <>
                 <Link
                   to="/cadastro"
+                  data-tour="criar-conta"
                   className="hidden rounded-full border border-border bg-card px-4 py-1.5 text-sm font-semibold sm:inline-block"
                 >
                   Criar conta
                 </Link>
                 <Link
                   to="/auth"
+                  data-tour="entrar"
                   className="ml-1 rounded-full bg-accent px-3 py-1.5 text-sm font-semibold text-accent-foreground sm:px-4"
                 >
                   Entrar
@@ -95,6 +98,7 @@ export function TopNav() {
             <SheetTrigger asChild>
               <button
                 type="button"
+                data-tour="menu"
                 aria-label="Abrir menu de áreas"
                 className="ml-1 inline-flex size-9 items-center justify-center rounded-full border border-border bg-card text-foreground"
               >
