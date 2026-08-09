@@ -271,6 +271,16 @@ function AbaRotas() {
   });
   const [selecionados, setSelecionados] = useState<string[]>([]);
   const medir = useServerFn(medirTrechoRota);
+  const resgatarPromo = useServerFn(resgatarPromoDaRota);
+
+  const vagasPromo = useQuery({
+    queryKey: ["promo-vagas"],
+    staleTime: 1000 * 60 * 5,
+    queryFn: () => consultarVagasPromo(),
+  });
+  const vagaNaUf = vagasPromo.data?.ativa
+    ? (vagasPromo.data.ufs.find((u) => u.uf === form.ufOrigem)?.restantes ?? 0)
+    : 0;
 
   const medida = useQuery({
     queryKey: ["medida-trecho", form.ufOrigem, form.origem, form.ufDestino, form.destino],
