@@ -500,7 +500,7 @@ function PlanosPage() {
 
         <section className="mt-10">
           <h2 className="font-display text-xl font-bold">Extrato da carteira</h2>
-          <div className="mt-4 overflow-hidden rounded-2xl border border-border">
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-border">
             <table className="w-full text-sm">
               <thead className="bg-secondary/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
