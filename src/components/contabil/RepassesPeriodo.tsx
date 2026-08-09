@@ -53,7 +53,7 @@ export function RepassesPeriodo({
                   <td className="py-3 text-right font-bold">{brl(r.liquido)}</td>
                   <td className="py-3">
                     <span className={chip}>
-                      {r.mode === "INSTANT" ? "Instantâneo" : "Semanal"} · {r.metodo}
+                      {r.modo === "INSTANT" ? "Instantâneo" : "Semanal"} · {r.metodo}
                     </span>
                   </td>
                   <td className="py-3 text-muted-foreground">
