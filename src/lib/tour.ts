@@ -145,7 +145,6 @@ const MOTORISTA: Roteiro = {
       titulo: "Aceite as propostas de embarque",
       texto:
         "Cada pedido mostra o desvio, o tempo extra e o valor. Ao aceitar, o ponto de apanhe entra na sua rota de busca.",
-      alvo: '[data-tour="propostas"]',
       rota: "/motorista",
     },
     {
