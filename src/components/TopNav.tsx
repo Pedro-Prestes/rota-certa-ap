@@ -5,6 +5,7 @@ import { useAcesso } from "@/hooks/use-auth";
 import { abrirTour } from "@/lib/tour";
 import { AREAS, SUBAREAS, areasVisiveis, temAcesso } from "@/lib/acessos";
 import { BotaoVoltar } from "@/components/BotaoVoltar";
+import { WhatsAppLink } from "@/components/WhatsAppContato";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 /** Áreas em destaque no topo em telas grandes; o menu completo fica no botão. */
@@ -174,6 +175,10 @@ export function TopNav() {
                     <Mail className="size-4" />
                     <span className="truncate">suporte@rotacertabrasil.com.br</span>
                   </a>
+                  <WhatsAppLink
+                    onClick={() => setAberto(false)}
+                    className="mt-2 text-sm font-medium text-foreground hover:text-[#25D366]"
+                  />
                 </div>
               </div>
             </SheetContent>

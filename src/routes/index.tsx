@@ -385,6 +385,7 @@ Pa = C / (N · ρ) · (1 + m)`}</pre>
               <Mail className="size-3.5" />
               suporte@rotacertabrasil.com.br
             </a>
+            <WhatsAppLink className="text-muted-foreground hover:text-[#25D366]" />
           </div>
         </div>
       </footer>

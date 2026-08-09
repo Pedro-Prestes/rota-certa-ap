@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { TourGuiado } from "@/components/TourGuiado";
+import { WhatsAppFloatButton } from "@/components/WhatsAppContato";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -153,6 +154,7 @@ function RootComponent() {
       <Outlet />
       <TourGuiado />
       <Toaster position="top-center" richColors />
+      <WhatsAppFloatButton />
     </QueryClientProvider>
   );
 }
