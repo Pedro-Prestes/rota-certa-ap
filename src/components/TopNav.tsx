@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bus, CircleUserRound, Compass, Menu } from "lucide-react";
+import { Bus, CircleUserRound, Compass, Mail, Menu } from "lucide-react";
 import { useAcesso } from "@/hooks/use-auth";
 import { abrirTour } from "@/lib/tour";
 import { AREAS, SUBAREAS, areasVisiveis, temAcesso } from "@/lib/acessos";
@@ -153,6 +153,28 @@ export function TopNav() {
                 >
                   <Compass className="size-4" /> Como usar o RotaCerta
                 </button>
+
+                <div className="mt-6 rounded-2xl border border-border bg-secondary/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    Apoio aos usuários
+                  </p>
+                  <a
+                    href="mailto:rotacertabrasil@rotacertabrasil.com.br"
+                    onClick={() => setAberto(false)}
+                    className="mt-3 flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent"
+                  >
+                    <Mail className="size-4" />
+                    <span className="truncate">rotacertabrasil@rotacertabrasil.com.br</span>
+                  </a>
+                  <a
+                    href="mailto:suporte@rotacertabrasil.com.br"
+                    onClick={() => setAberto(false)}
+                    className="mt-2 flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent"
+                  >
+                    <Mail className="size-4" />
+                    <span className="truncate">suporte@rotacertabrasil.com.br</span>
+                  </a>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
