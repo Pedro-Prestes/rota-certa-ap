@@ -421,6 +421,16 @@ function AbaRotas() {
             Sede, distrito ou vilarejo — informe também o trecho de retorno.
           </p>
 
+          {vagasPromo.data?.ativa && vagaNaUf > 0 && (
+            <p className="mt-4 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs font-semibold text-primary">
+              Lançamento RotaCerta: restam {vagaNaUf} de {vagasPromo.data.vagasPorUf} vagas gratuitas
+              em {form.ufOrigem}. Publique sua primeira rota e ganhe {vagasPromo.data.dias} dias do
+              Motorista Pro sem custo, sem cobrança automática no fim.
+            </p>
+          )}
+
+
+
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <SeletorCidade
