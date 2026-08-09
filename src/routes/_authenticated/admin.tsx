@@ -459,7 +459,100 @@ function Admin() {
             ))}
           </ul>
         </section>
+
+        <PainelPromocao />
       </main>
     </div>
+  );
+}
+
+/** Lançamento promocional: vagas por estado e premiados. */
+function PainelPromocao() {
+  const qc = useQueryClient();
+  const painel = useQuery({
+    queryKey: ["promo-painel"],
+    queryFn: () => consultarPainelPromo(),
+  });
+  const alternar = useMutation({
+    mutationFn: (ativa: boolean) => alternarCampanhaPromo({ data: { ativa } }),
+    onSuccess: () => {
+      toast.success("Campanha atualizada.");
+      void qc.invalidateQueries({ queryKey: ["promo-painel"] });
+      void qc.invalidateQueries({ queryKey: ["promo-vagas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (painel.isLoading) {
+    return (
+      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+      </section>
+    );
+  }
+  if (!painel.data) return null;
+  const usadas = painel.data.ufs.reduce((s, u) => s + u.usadas, 0);
+
+  return (
+    <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+            <Gift className="size-4" /> Lançamento promocional
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {painel.data.vagasPorUf} vagas por estado · {painel.data.dias} dias de Motorista Pro
+            gratuitos · {usadas} concedidas
+          </p>
+        </div>
+        <button
+          onClick={() => alternar.mutate(!painel.data.ativa)}
+          disabled={alternar.isPending}
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary disabled:opacity-50"
+        >
+          {painel.data.ativa ? "Encerrar campanha" : "Reativar campanha"}
+        </button>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {painel.data.ufs.map((u) => (
+          <span
+            key={u.uf}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              u.restantes > 0 ? "bg-secondary text-foreground" : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {u.uf} · {u.usadas}/{painel.data!.vagasPorUf}
+          </span>
+        ))}
+      </div>
+
+      {painel.data.premiados.length > 0 && (
+        <div className="mt-5 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="py-2">Estado</th>
+                <th className="py-2">Vaga</th>
+                <th className="py-2">Concedida</th>
+                <th className="py-2">Válida até</th>
+                <th className="py-2">Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {painel.data.premiados.map((p) => (
+                <tr key={p.id} className="border-t border-border">
+                  <td className="py-2 font-semibold">{p.uf}</td>
+                  <td className="py-2">{p.posicao}º</td>
+                  <td className="py-2">{new Date(p.concedida_em).toLocaleDateString("pt-BR")}</td>
+                  <td className="py-2">{new Date(p.expira_em).toLocaleDateString("pt-BR")}</td>
+                  <td className="py-2">{p.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
