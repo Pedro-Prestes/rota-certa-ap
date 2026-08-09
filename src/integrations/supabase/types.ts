@@ -41,6 +41,7 @@ export type Database = {
           periodo_fim: string
           periodo_inicio: string
           price_id: string
+          promocional: boolean
           proxima_cobranca: string
           status: string
           tentativas: number
@@ -56,6 +57,7 @@ export type Database = {
           periodo_fim: string
           periodo_inicio?: string
           price_id: string
+          promocional?: boolean
           proxima_cobranca: string
           status?: string
           tentativas?: number
@@ -71,6 +73,7 @@ export type Database = {
           periodo_fim?: string
           periodo_inicio?: string
           price_id?: string
+          promocional?: boolean
           proxima_cobranca?: string
           status?: string
           tentativas?: number
@@ -1260,6 +1263,105 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_config: {
+        Row: {
+          ativa: boolean
+          chave: string
+          created_at: string
+          dias: number
+          id: string
+          price_id: string
+          updated_at: string
+          vagas_por_uf: number
+          vigencia_fim: string | null
+          vigencia_inicio: string
+        }
+        Insert: {
+          ativa?: boolean
+          chave: string
+          created_at?: string
+          dias?: number
+          id?: string
+          price_id?: string
+          updated_at?: string
+          vagas_por_uf?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Update: {
+          ativa?: boolean
+          chave?: string
+          created_at?: string
+          dias?: number
+          id?: string
+          price_id?: string
+          updated_at?: string
+          vagas_por_uf?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Relationships: []
+      }
+      promo_lancamento: {
+        Row: {
+          assinatura_id: string | null
+          concedida_em: string
+          created_at: string
+          environment: string
+          expira_em: string
+          id: string
+          posicao: number
+          rota_id: string | null
+          status: string
+          uf: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assinatura_id?: string | null
+          concedida_em?: string
+          created_at?: string
+          environment?: string
+          expira_em: string
+          id?: string
+          posicao: number
+          rota_id?: string | null
+          status?: string
+          uf: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assinatura_id?: string | null
+          concedida_em?: string
+          created_at?: string
+          environment?: string
+          expira_em?: string
+          id?: string
+          posicao?: number
+          rota_id?: string | null
+          status?: string
+          uf?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_lancamento_assinatura_id_fkey"
+            columns: ["assinatura_id"]
+            isOneToOne: false
+            referencedRelation: "assinaturas_carteira"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_lancamento_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rota_veiculos: {
         Row: {
           created_at: string
@@ -2168,6 +2270,14 @@ export type Database = {
       pode_ver_viagem: {
         Args: { _user_id: string; _viagem_id: string }
         Returns: boolean
+      }
+      promo_vagas_restantes: {
+        Args: never
+        Returns: {
+          restantes: number
+          uf: string
+          usadas: number
+        }[]
       }
       saida_protegida: {
         Args: { _data_viagem: string; _motorista_id: string; _rota_id: string }

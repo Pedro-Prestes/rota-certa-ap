@@ -34,11 +34,13 @@ async function executar(request: Request) {
 
   try {
     const { renovarCoberturas } = await import("@/lib/seguro.server");
-    const [resultado, coberturas] = await Promise.all([
+    const { processarCortesias } = await import("@/lib/promocao.server");
+    const [resultado, coberturas, cortesias] = await Promise.all([
       renovarAssinaturasCarteira(rawEnv),
       renovarCoberturas(rawEnv),
+      processarCortesias(rawEnv),
     ]);
-    return Response.json({ ok: true, ambiente: rawEnv, ...resultado, coberturas });
+    return Response.json({ ok: true, ambiente: rawEnv, ...resultado, coberturas, cortesias });
   } catch (e) {
     console.error("Erro na renovação de assinaturas por créditos:", e);
     return new Response("Erro na rotina", { status: 500 });

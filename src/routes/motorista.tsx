@@ -20,6 +20,8 @@ import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista"
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { medirTrechoRota } from "@/utils/rota.functions";
+import { consultarVagasPromo, resgatarPromoDaRota } from "@/utils/promocao.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "@/lib/dados";
@@ -271,6 +273,16 @@ function AbaRotas() {
   });
   const [selecionados, setSelecionados] = useState<string[]>([]);
   const medir = useServerFn(medirTrechoRota);
+  const resgatarPromo = useServerFn(resgatarPromoDaRota);
+
+  const vagasPromo = useQuery({
+    queryKey: ["promo-vagas"],
+    staleTime: 1000 * 60 * 5,
+    queryFn: () => consultarVagasPromo(),
+  });
+  const vagaNaUf = vagasPromo.data?.ativa
+    ? (vagasPromo.data.ufs.find((u) => u.uf === form.ufOrigem)?.restantes ?? 0)
+    : 0;
 
   const medida = useQuery({
     queryKey: ["medida-trecho", form.ufOrigem, form.origem, form.ufDestino, form.destino],
@@ -346,12 +358,24 @@ function AbaRotas() {
         .from("rota_veiculos")
         .insert(selecionados.map((veiculo_id) => ({ rota_id: data.id, veiculo_id })));
       if (erroVinculo) throw erroVinculo;
+      // Cortesia de lançamento: 10 primeiros motoristas de cada estado.
+      const promo = await resgatarPromo({
+        data: { rotaId: data.id, uf: form.ufOrigem, environment: getStripeEnvironment() },
+      });
+      return promo;
     },
-    onSuccess: () => {
+    onSuccess: (promo) => {
       toast.success("Rota publicada com os veículos vinculados.");
+      if (promo?.concedida) {
+        toast.success(
+          `Cortesia de lançamento: você é o ${promo.posicao}º motorista de ${promo.uf} e ganhou 1 mês do ${promo.plano} sem custo, até ${new Date(promo.expiraEm).toLocaleDateString("pt-BR")}.`,
+          { duration: 9000 },
+        );
+      }
       setSelecionados([]);
       void qc.invalidateQueries({ queryKey: ["rotas"] });
       void qc.invalidateQueries({ queryKey: ["rota-veiculos"] });
+      void qc.invalidateQueries({ queryKey: ["promo-vagas"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -396,6 +420,16 @@ function AbaRotas() {
           <p className="mt-1 text-xs text-muted-foreground">
             Sede, distrito ou vilarejo — informe também o trecho de retorno.
           </p>
+
+          {vagasPromo.data?.ativa && vagaNaUf > 0 && (
+            <p className="mt-4 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs font-semibold text-primary">
+              Lançamento RotaCerta: restam {vagaNaUf} de {vagasPromo.data.vagasPorUf} vagas gratuitas
+              em {form.ufOrigem}. Publique sua primeira rota e ganhe {vagasPromo.data.dias} dias do
+              Motorista Pro sem custo, sem cobrança automática no fim.
+            </p>
+          )}
+
+
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
