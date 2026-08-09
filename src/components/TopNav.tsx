@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bus, CircleUserRound, Menu } from "lucide-react";
+import { Bus, CircleUserRound, Compass, Menu } from "lucide-react";
 import { useAcesso } from "@/hooks/use-auth";
+import { abrirTour } from "@/lib/tour";
 import { AREAS, SUBAREAS, areasVisiveis, temAcesso } from "@/lib/acessos";
 import { BotaoVoltar } from "@/components/BotaoVoltar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -68,6 +69,7 @@ export function TopNav() {
             (user ? (
               <Link
                 to="/conta"
+                data-tour="conta"
                 aria-label="Minha conta"
                 className="ml-1 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold"
               >
@@ -78,12 +80,14 @@ export function TopNav() {
               <>
                 <Link
                   to="/cadastro"
+                  data-tour="criar-conta"
                   className="hidden rounded-full border border-border bg-card px-4 py-1.5 text-sm font-semibold sm:inline-block"
                 >
                   Criar conta
                 </Link>
                 <Link
                   to="/auth"
+                  data-tour="entrar"
                   className="ml-1 rounded-full bg-accent px-3 py-1.5 text-sm font-semibold text-accent-foreground sm:px-4"
                 >
                   Entrar
@@ -95,6 +99,7 @@ export function TopNav() {
             <SheetTrigger asChild>
               <button
                 type="button"
+                data-tour="menu"
                 aria-label="Abrir menu de áreas"
                 className="ml-1 inline-flex size-9 items-center justify-center rounded-full border border-border bg-card text-foreground"
               >
@@ -138,6 +143,16 @@ export function TopNav() {
                     Minha conta
                   </Link>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAberto(false);
+                    setTimeout(abrirTour, 120);
+                  }}
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl border border-border px-4 py-3 text-sm font-semibold"
+                >
+                  <Compass className="size-4" /> Como usar o RotaCerta
+                </button>
               </div>
             </SheetContent>
           </Sheet>

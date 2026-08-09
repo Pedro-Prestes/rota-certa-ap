@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { CircleUserRound, LogOut, Bus, Luggage } from "lucide-react";
+import { CircleUserRound, Compass, LogOut, Bus, Luggage } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
+import { abrirTour } from "@/lib/tour";
 import { useAuth, usePerfis } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/conta")({
@@ -105,6 +106,16 @@ function Conta() {
             <dd className="mt-1 font-medium">{perfil?.municipio ? `${perfil.municipio}/${perfil.uf ?? "AP"}` : "—"}</dd>
           </div>
         </dl>
+
+        <button
+          type="button"
+          onClick={abrirTour}
+          className="mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold"
+        >
+          <Compass className="size-4 text-accent" /> Como usar o RotaCerta (tour guiado)
+        </button>
+
+
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <Link
