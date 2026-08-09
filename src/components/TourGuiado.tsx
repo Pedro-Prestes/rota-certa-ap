@@ -29,20 +29,16 @@ export function TourGuiado() {
   const passos = roteiro.passos;
   const passo: PassoTour | undefined = passos[indice];
 
-  const encerrar = useCallback(
-    (concluido: boolean) => {
-      setAberto(false);
-      setIndice(0);
-      if (concluido || true) {
-        try {
-          window.localStorage.setItem(chaveTour(roteiro.chave), "1");
-        } catch {
-          /* armazenamento indisponível: apenas não memoriza */
-        }
-      }
-    },
-    [roteiro.chave],
-  );
+  // Concluir ou pular marca o tour como visto — não reaparece sozinho.
+  const encerrar = useCallback(() => {
+    setAberto(false);
+    setIndice(0);
+    try {
+      window.localStorage.setItem(chaveTour(roteiro.chave), "1");
+    } catch {
+      /* armazenamento indisponível: apenas não memoriza */
+    }
+  }, [roteiro.chave]);
 
   // Primeira exibição automática (uma vez por perfil).
   useEffect(() => {
