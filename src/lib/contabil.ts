@@ -29,7 +29,7 @@ export interface LancamentoResumo {
   created_at: string;
   corrida_id: string | null;
   pagamento_id: string | null;
-  detalhamento: Record<string, unknown> | null;
+  detalhamento: Record<string, string | number | boolean | null> | null;
 }
 
 export interface TransacaoContabil {
