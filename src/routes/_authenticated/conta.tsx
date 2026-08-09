@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { CircleUserRound, LogOut, Bus, Luggage } from "lucide-react";
+import { CircleUserRound, Compass, LogOut, Bus, Luggage } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
+import { abrirTour } from "@/lib/tour";
 import { useAuth, usePerfis } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/conta")({
