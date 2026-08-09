@@ -364,8 +364,29 @@ Pa = C / (N · ρ) · (1 + m)`}</pre>
         </section>
       </main>
 
-      <footer className="mx-auto max-w-6xl px-5 py-10 text-xs text-muted-foreground">
-        RotaCerta · plataforma de transporte agendado para comunidades de todo o Brasil.
+      <footer className="mx-auto max-w-6xl px-5 py-10">
+        <div className="flex flex-col gap-6 border-t border-border pt-10 sm:flex-row sm:items-start sm:justify-between">
+          <p className="max-w-md text-xs text-muted-foreground">
+            RotaCerta · plataforma de transporte agendado para comunidades de todo o Brasil.
+          </p>
+          <div className="flex flex-col gap-3 text-xs">
+            <p className="font-semibold text-foreground">Apoio aos usuários</p>
+            <a
+              href="mailto:rotacertabrasil@rotacertabrasil.com.br"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-accent"
+            >
+              <Mail className="size-3.5" />
+              rotacertabrasil@rotacertabrasil.com.br
+            </a>
+            <a
+              href="mailto:suporte@rotacertabrasil.com.br"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-accent"
+            >
+              <Mail className="size-3.5" />
+              suporte@rotacertabrasil.com.br
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );
