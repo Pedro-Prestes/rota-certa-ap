@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bus, CircleUserRound, Compass, Menu } from "lucide-react";
+import { Bus, CircleUserRound, Compass, Mail, Menu } from "lucide-react";
 import { useAcesso } from "@/hooks/use-auth";
 import { abrirTour } from "@/lib/tour";
 import { AREAS, SUBAREAS, areasVisiveis, temAcesso } from "@/lib/acessos";
