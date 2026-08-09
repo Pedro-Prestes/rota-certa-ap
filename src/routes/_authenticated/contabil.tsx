@@ -1,22 +1,13 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  BadgeDollarSign,
-  Calculator,
-  Loader2,
-  Plus,
-  RotateCcw,
-  ShieldCheck,
-  Sliders,
-  X,
-} from "lucide-react";
+import { BadgeDollarSign, Calculator, Loader2, Plus, ShieldCheck, Sliders, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { useAuth } from "@/hooks/use-auth";
-import { brl, type Corrida, type Pagamento } from "@/lib/pagamentos";
+import { brl } from "@/lib/pagamentos";
 import {
   CATEGORIAS_CUSTO,
   CONFIG_PADRAO,
@@ -27,8 +18,14 @@ import {
   type ConfigTaxa,
 } from "@/lib/taxas";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { estornarPagamento } from "@/utils/contabil.functions";
+
 import { GuardaPerfil } from "@/components/GuardaPerfil";
+import { FiltroPeriodo } from "@/components/contabil/FiltroPeriodo";
+import { ExtratoTransacoes } from "@/components/contabil/ExtratoTransacoes";
+import { DemonstrativoCompetencia } from "@/components/contabil/DemonstrativoCompetencia";
+import { RepassesPeriodo } from "@/components/contabil/RepassesPeriodo";
+import { periodoDoAtalho, type AtalhoPeriodo, type PeriodoContabil } from "@/lib/contabil";
+import { carregarResumoContabil, estornarPagamento } from "@/utils/contabil.functions";
 
 export const Route = createFileRoute("/_authenticated/contabil")({
   head: () => ({
@@ -56,18 +53,6 @@ const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring";
 const rotulo = "mb-1.5 block text-xs font-semibold text-muted-foreground";
 
-interface Lancamento {
-  id: string;
-  tipo: string;
-  valor: number;
-  descricao: string;
-  competencia: string;
-  corrida_id: string | null;
-  pagamento_id: string | null;
-  detalhamento: Record<string, unknown> | null;
-  created_at: string;
-}
-
 interface Custo {
   id: string;
   fornecedor: string;
@@ -78,32 +63,24 @@ interface Custo {
   recorrente: boolean;
 }
 
-interface Estorno {
-  id: string;
-  pagamento_id: string;
-  valor: number;
-  integral: boolean;
-  devolve_taxa: boolean;
-  motivo: string;
-  status: string;
-  provedor: string | null;
-  provedor_ref: string | null;
-  created_at: string;
-}
-
 const n = (v: unknown) => Number(v ?? 0) || 0;
 
 function Contabil() {
   const { user, carregando } = useAuth();
   const qc = useQueryClient();
-  const [estornando, setEstornando] = useState<Pagamento | null>(null);
+  const [estornando, setEstornando] = useState<{ id: string; valor: number } | null>(null);
   const [novoCusto, setNovoCusto] = useState(false);
+  const [atalho, setAtalho] = useState<AtalhoPeriodo>("mes");
+  const [periodo, setPeriodo] = useState<PeriodoContabil>(() => periodoDoAtalho("mes"));
 
   const ehAdmin = useQuery({
     queryKey: ["ehAdmin", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" });
+      const { data, error } = await supabase.rpc("has_role", {
+        _user_id: user!.id,
+        _role: "admin",
+      });
       if (error) throw error;
       return !!data;
     },
@@ -125,18 +102,10 @@ function Contabil() {
     },
   });
 
-  const lancamentos = useQuery({
-    queryKey: ["lancamentos"],
+  const resumo = useQuery({
+    queryKey: ["resumo-contabil", periodo.de, periodo.ate],
     enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("lancamentos_contabeis")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []) as unknown as Lancamento[];
-    },
+    queryFn: () => carregarResumoContabil({ data: { de: periodo.de, ate: periodo.ate } }),
   });
 
   const custos = useQuery({
@@ -149,43 +118,6 @@ function Contabil() {
         .order("competencia", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as Custo[];
-    },
-  });
-
-  const pagamentos = useQuery({
-    queryKey: ["contabil-pagamentos"],
-    enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pagamentos")
-        .select("*")
-        .order("pago_em", { ascending: false })
-        .limit(200);
-      if (error) throw error;
-      return (data ?? []) as unknown as Pagamento[];
-    },
-  });
-
-  const corridas = useQuery({
-    queryKey: ["contabil-corridas"],
-    enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("corridas").select("*");
-      if (error) throw error;
-      return (data ?? []) as unknown as Corrida[];
-    },
-  });
-
-  const estornos = useQuery({
-    queryKey: ["estornos"],
-    enabled: autorizado,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("estornos")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Estorno[];
     },
   });
 
@@ -219,37 +151,18 @@ function Contabil() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const totais = useMemo(() => {
-    const acc = {
-      receita: 0,
-      taxaPlataforma: 0,
-      taxaGateway: 0,
-      repasse: 0,
-      estorno: 0,
-      custos: 0,
-    };
-    for (const l of lancamentos.data ?? []) {
-      const v = n(l.valor);
-      if (l.tipo === "receita_bruta") acc.receita += v;
-      if (l.tipo === "taxa_plataforma") acc.taxaPlataforma += v;
-      if (l.tipo === "taxa_gateway") acc.taxaGateway += v;
-      if (l.tipo === "repasse_motorista") acc.repasse += v;
-      if (l.tipo === "estorno") acc.estorno += v;
-      if (l.tipo === "custo_terceiro") acc.custos += v;
-    }
-    const custosLancados = (custos.data ?? []).reduce((a, c) => a + n(c.valor), 0);
-    const custosTotais = Math.max(acc.custos, custosLancados);
-    const resultado = acc.taxaPlataforma - acc.taxaGateway - custosTotais - acc.estorno * 0;
-    return { ...acc, custosTotais, resultado };
-  }, [lancamentos.data, custos.data]);
+  const totais = resumo.data?.totais;
+  const transacoes = resumo.data?.transacoes ?? [];
 
-  const nomeCorrida = (id: string | null) => {
-    const c = (corridas.data ?? []).find((x) => x.id === id);
-    return c ? `${c.origem || "—"} → ${c.destino || "—"}` : "—";
+  const abrirEstorno = (pagamentoId: string) => {
+    const t = transacoes.find((x) => x.id === pagamentoId);
+    if (t) setEstornando({ id: t.id, valor: t.base });
   };
 
-  const estornosPor = (pagamentoId: string) =>
-    (estornos.data ?? []).filter((e) => e.pagamento_id === pagamentoId);
+  const recarregar = () => {
+    qc.invalidateQueries({ queryKey: ["resumo-contabil"] });
+    qc.invalidateQueries({ queryKey: ["custos"] });
+  };
 
   if (carregando || ehAdmin.isLoading) {
     return (
@@ -294,39 +207,79 @@ function Contabil() {
           </div>
         </div>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            ["Receita bruta recebida", totais.receita],
-            ["Taxa administrativa arrecadada", totais.taxaPlataforma],
-            ["Tarifas do gateway", totais.taxaGateway],
-            ["Repasses aos motoristas", totais.repasse],
-            ["Estornos devolvidos", totais.estorno],
-            ["Custos de terceiros", totais.custosTotais],
-          ].map(([r, v]) => (
-            <div key={r as string} className="rounded-2xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold text-muted-foreground">{r}</p>
-              <p className="mt-1 font-display text-xl font-bold">{brl(v as number)}</p>
-            </div>
-          ))}
-        </section>
+        <FiltroPeriodo
+          atalho={atalho}
+          periodo={periodo}
+          onAtalho={(a) => {
+            setAtalho(a);
+            if (a !== "custom") setPeriodo(periodoDoAtalho(a));
+          }}
+          onPeriodo={setPeriodo}
+        />
 
-        <section className="mt-3 rounded-2xl border border-border bg-card p-5">
-          <p className="text-xs font-semibold text-muted-foreground">
-            Resultado da plataforma (taxa administrativa − tarifas do gateway − custos de terceiros)
+        {resumo.isLoading && (
+          <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" /> Consolidando o período…
           </p>
-          <p
-            className={`mt-1 font-display text-3xl font-bold ${
-              totais.resultado >= 0 ? "text-success" : "text-destructive"
-            }`}
-          >
-            {brl(totais.resultado)}
+        )}
+        {resumo.error && (
+          <p className="mt-6 text-sm text-destructive">
+            {(resumo.error as Error).message || "Não foi possível carregar o período."}
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            A taxa administrativa é o que garante a contratação automatizada dos serviços de
-            terceiros necessários à manutenção da plataforma. Cada centavo aparece detalhado nos
-            lançamentos abaixo.
-          </p>
-        </section>
+        )}
+
+        {totais && (
+          <>
+            <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                ["Transações pagas", String(totais.transacoes)],
+                ["Total cobrado dos clientes", brl(totais.total)],
+                ["Serviço de transporte (base)", brl(totais.base)],
+                ["Ticket médio", brl(totais.ticketMedio)],
+                ["Taxa administrativa arrecadada", brl(totais.taxaAdministrativa)],
+                ["Tarifas do gateway", brl(totais.taxaGateway)],
+                ["Repasses aos motoristas", brl(totais.repasse)],
+                ["Estornos devolvidos", brl(totais.estornado)],
+              ].map(([r, v]) => (
+                <div key={r} className="rounded-2xl border border-border bg-card p-4">
+                  <p className="text-xs font-semibold text-muted-foreground">{r}</p>
+                  <p className="mt-1 font-display text-xl font-bold">{v}</p>
+                </div>
+              ))}
+            </section>
+
+            <section className="mt-3 rounded-2xl border border-border bg-card p-5">
+              <p className="text-xs font-semibold text-muted-foreground">
+                Resultado da plataforma no período (taxa administrativa − tarifas do gateway −
+                custos de terceiros de {brl(totais.custos)})
+              </p>
+              <p
+                className={`mt-1 font-display text-3xl font-bold ${
+                  totais.resultado >= 0 ? "text-success" : "text-destructive"
+                }`}
+              >
+                {brl(totais.resultado)}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(resumo.data?.porForma ?? []).map((f) => (
+                  <span
+                    key={f.forma}
+                    className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold"
+                  >
+                    {f.forma}: {f.quantidade} · {brl(f.total)} (taxa {brl(f.taxaAdministrativa)})
+                  </span>
+                ))}
+              </div>
+            </section>
+
+            <ExtratoTransacoes transacoes={transacoes} onEstornar={abrirEstorno} />
+            <RepassesPeriodo
+              repasses={resumo.data?.repasses ?? []}
+              cobrancas={resumo.data?.cobrancasPix ?? []}
+            />
+            <DemonstrativoCompetencia linhas={resumo.data?.competencias ?? []} />
+          </>
+        )}
 
         <ConfigTaxaForm
           cfg={cfg}
@@ -390,112 +343,6 @@ function Contabil() {
             </table>
           </div>
         </section>
-
-        <section className="mt-6 rounded-2xl border border-border bg-card p-5">
-          <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-            <RotateCcw className="size-4" /> Estornos
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Devolva à origem do pagamento o valor integral ou uma parte dele. Pagamentos online
-            voltam pelo mesmo meio (Pix ou cartão); pagamentos em espécie ficam registrados como
-            devolução manual.
-          </p>
-          <div className="mt-4 space-y-2">
-            {(pagamentos.data ?? []).map((p) => {
-              const feitos = estornosPor(p.id);
-              const devolvido = feitos
-                .filter((e) => e.status === "concluido")
-                .reduce((a, e) => a + n(e.valor), 0);
-              return (
-                <div
-                  key={p.id}
-                  className="flex flex-wrap items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm"
-                >
-                  <span className="font-semibold">{nomeCorrida(p.corrida_id)}</span>
-                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">{p.forma}</span>
-                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">{p.status}</span>
-                  <span className="text-muted-foreground">
-                    {new Date(p.pago_em).toLocaleDateString("pt-BR")}
-                  </span>
-                  {devolvido > 0 && (
-                    <span className="text-destructive">devolvido {brl(devolvido)}</span>
-                  )}
-                  <span className="ml-auto font-bold">{brl(n(p.valor))}</span>
-                  <button
-                    onClick={() => setEstornando(p)}
-                    disabled={p.status === "estornado"}
-                    className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
-                  >
-                    Estornar
-                  </button>
-                </div>
-              );
-            })}
-            {(pagamentos.data ?? []).length === 0 && (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                Nenhum pagamento registrado ainda.
-              </p>
-            )}
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-2xl border border-border bg-card p-5">
-          <h2 className="font-display text-lg font-bold">Lançamentos contábeis</h2>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="py-2">Data</th>
-                  <th className="py-2">Tipo</th>
-                  <th className="py-2">Descrição</th>
-                  <th className="py-2">Corrida</th>
-                  <th className="py-2 text-right">Valor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(lancamentos.data ?? []).map((l) => (
-                  <tr key={l.id} className="border-t border-border/70 align-top">
-                    <td className="py-3 text-muted-foreground">
-                      {new Date(l.created_at).toLocaleDateString("pt-BR")}
-                    </td>
-                    <td className="py-3">
-                      <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">
-                        {rotuloTipo(l.tipo)}
-                      </span>
-                    </td>
-                    <td className="py-3">
-                      {l.descricao}
-                      {l.detalhamento && (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {Object.entries(l.detalhamento)
-                            .filter(([, v]) => v !== null && v !== undefined && v !== "")
-                            .map(([k, v]) => `${k.replace(/_/g, " ")}: ${String(v)}`)
-                            .join(" · ")}
-                        </p>
-                      )}
-                    </td>
-                    <td className="py-3 text-muted-foreground">{nomeCorrida(l.corrida_id)}</td>
-                    <td
-                      className={`py-3 text-right font-semibold ${
-                        sinalTipo(l.tipo) < 0 ? "text-destructive" : ""
-                      }`}
-                    >
-                      {sinalTipo(l.tipo) < 0 ? "- " : ""}
-                      {brl(n(l.valor))}
-                    </td>
-                  </tr>
-                ))}
-                {(lancamentos.data ?? []).length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
-                      Nenhum lançamento contábil ainda.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
       </main>
 
       {novoCusto && (
@@ -503,7 +350,7 @@ function Contabil() {
           onFechar={() => setNovoCusto(false)}
           onSalvo={() => {
             setNovoCusto(false);
-            qc.invalidateQueries({ queryKey: ["custos"] });
+            recarregar();
           }}
         />
       )}
@@ -515,9 +362,7 @@ function Contabil() {
           onFechar={() => setEstornando(null)}
           onSalvo={() => {
             setEstornando(null);
-            qc.invalidateQueries({ queryKey: ["estornos"] });
-            qc.invalidateQueries({ queryKey: ["lancamentos"] });
-            qc.invalidateQueries({ queryKey: ["contabil-pagamentos"] });
+            recarregar();
           }}
         />
       )}
@@ -578,9 +423,7 @@ function ConfigTaxaForm({
             step="0.01"
             className={campo}
             value={f.repasse_motorista_percentual}
-            onChange={(e) =>
-              setF({ ...f, repasse_motorista_percentual: Number(e.target.value) })
-            }
+            onChange={(e) => setF({ ...f, repasse_motorista_percentual: Number(e.target.value) })}
           />
         </div>
       </div>
@@ -660,7 +503,11 @@ function FormularioCusto({ onFechar, onSalvo }: { onFechar: () => void; onSalvo:
         valor: Number(f.valor) || 0,
         descricao: `${f.fornecedor} — ${f.descricao || rotuloCategoria(f.categoria)}`,
         competencia: f.competencia,
-        detalhamento: { categoria: f.categoria, recorrente: f.recorrente, fornecedor: f.fornecedor },
+        detalhamento: {
+          categoria: f.categoria,
+          recorrente: f.recorrente,
+          fornecedor: f.fornecedor,
+        },
       });
       if (erroLanc) throw erroLanc;
     },
@@ -754,7 +601,7 @@ function FormularioEstorno({
   onFechar,
   onSalvo,
 }: {
-  pagamento: Pagamento;
+  pagamento: { id: string; valor: number };
   cfg: ConfigTaxa;
   onFechar: () => void;
   onSalvo: () => void;
