@@ -84,9 +84,9 @@ function DialogoSuporte({ children }: { children: ReactNode }) {
   const nomePadrao = useMemo(() => {
     const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
     return (
-      (typeof meta.nome === "string" && meta.nome) ||
-      (typeof meta.full_name === "string" && meta.full_name) ||
-      (typeof meta.name === "string" && meta.name) ||
+      (typeof meta["nome"] === "string" && meta["nome"]) ||
+      (typeof meta["full_name"] === "string" && meta["full_name"]) ||
+      (typeof meta["name"] === "string" && meta["name"]) ||
       user?.email?.split("@")[0] ||
       ""
     );
