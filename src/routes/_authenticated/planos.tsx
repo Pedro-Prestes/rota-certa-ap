@@ -309,11 +309,19 @@ function PlanosPage() {
 
           {!assinatura && porCreditos && (
             <div className="mt-5 space-y-3">
-              <p className="rounded-xl bg-secondary px-4 py-3 text-xs text-muted-foreground">
-                Assinatura paga com créditos: {brl(Number(porCreditos.valor_mensal))} são debitados do saldo
-                a cada mês. Mantenha a carteira abastecida por Pix para não perder o benefício — após 3
-                tentativas sem saldo o plano é encerrado.
-              </p>
+              {porCreditos.promocional ? (
+                <p className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs font-semibold text-primary">
+                  Cortesia de lançamento — válido até{" "}
+                  {new Date(porCreditos.periodo_fim).toLocaleDateString("pt-BR")}. Nenhum valor será
+                  cobrado no fim do período: para continuar com a taxa reduzida, assine o plano abaixo.
+                </p>
+              ) : (
+                <p className="rounded-xl bg-secondary px-4 py-3 text-xs text-muted-foreground">
+                  Assinatura paga com créditos: {brl(Number(porCreditos.valor_mensal))} são debitados do saldo
+                  a cada mês. Mantenha a carteira abastecida por Pix para não perder o benefício — após 3
+                  tentativas sem saldo o plano é encerrado.
+                </p>
+              )}
               <div className="flex flex-wrap gap-2">
                 {!porCreditos.cancelar_no_fim && (
                   <button
