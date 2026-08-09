@@ -2,10 +2,11 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Crown, Loader2, Search, ShieldCheck, ShieldPlus, Users } from "lucide-react";
+import { Crown, Gift, Loader2, Search, ShieldCheck, ShieldPlus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
+import { alternarCampanhaPromo, consultarPainelPromo } from "@/utils/promocao.functions";
 import { brl, resumoCorrida, type Corrida, type Pagamento } from "@/lib/pagamentos";
 
 export const Route = createFileRoute("/_authenticated/admin")({
