@@ -358,12 +358,24 @@ function AbaRotas() {
         .from("rota_veiculos")
         .insert(selecionados.map((veiculo_id) => ({ rota_id: data.id, veiculo_id })));
       if (erroVinculo) throw erroVinculo;
+      // Cortesia de lançamento: 10 primeiros motoristas de cada estado.
+      const promo = await resgatarPromo({
+        data: { rotaId: data.id, uf: form.ufOrigem, environment: getStripeEnvironment() },
+      });
+      return promo;
     },
-    onSuccess: () => {
+    onSuccess: (promo) => {
       toast.success("Rota publicada com os veículos vinculados.");
+      if (promo?.concedida) {
+        toast.success(
+          `Cortesia de lançamento: você é o ${promo.posicao}º motorista de ${promo.uf} e ganhou 1 mês do ${promo.plano} sem custo, até ${new Date(promo.expiraEm).toLocaleDateString("pt-BR")}.`,
+          { duration: 9000 },
+        );
+      }
       setSelecionados([]);
       void qc.invalidateQueries({ queryKey: ["rotas"] });
       void qc.invalidateQueries({ queryKey: ["rota-veiculos"] });
+      void qc.invalidateQueries({ queryKey: ["promo-vagas"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
