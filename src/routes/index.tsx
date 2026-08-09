@@ -15,6 +15,61 @@ import heroImg from "@/assets/hero-rota.jpg";
 import { TopNav } from "@/components/TopNav";
 import { anoMinimoPermitido } from "@/lib/logistica";
 import { UFS } from "@/lib/ufs";
+import { useQuery } from "@tanstack/react-query";
+import { consultarVagasPromo } from "@/utils/promocao.functions";
+
+/** Faixa do lançamento promocional: mês grátis para os 10 primeiros por estado. */
+function PromoLancamento() {
+  const vagas = useQuery({
+    queryKey: ["promo-vagas"],
+    staleTime: 1000 * 60 * 5,
+    queryFn: () => consultarVagasPromo(),
+  });
+  if (!vagas.data?.ativa) return null;
+  const abertas = vagas.data.ufs.filter((u) => u.restantes > 0);
+  const total = abertas.reduce((s, u) => s + u.restantes, 0);
+  if (total === 0) return null;
+
+  return (
+    <section className="mx-auto max-w-6xl px-5 pt-16">
+      <div className="rounded-3xl border border-primary/25 bg-primary/10 p-6 backdrop-blur-sm sm:p-8">
+        <span className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+          <Gift className="size-3.5" /> Lançamento nacional
+        </span>
+        <h2 className="mt-4 font-display text-2xl font-bold sm:text-3xl">
+          {vagas.data.vagasPorUf} primeiros motoristas de cada estado: {vagas.data.dias} dias de
+          Motorista Pro sem custo
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+          Publique sua primeira rota e a mensalidade do plano é por nossa conta — taxa administrativa
+          reduzida em todas as corridas, sem cobrança automática no fim do período. Restam{" "}
+          <strong className="text-foreground">{total}</strong> vagas em {abertas.length} estados.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {abertas.slice(0, 14).map((u) => (
+            <span
+              key={u.uf}
+              className="rounded-full border border-primary/30 bg-background/70 px-3 py-1 text-xs font-semibold"
+            >
+              {u.uf} · {u.restantes}
+            </span>
+          ))}
+          {abertas.length > 14 && (
+            <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+              +{abertas.length - 14} estados
+            </span>
+          )}
+        </div>
+        <Link
+          to="/motorista"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
+          Garantir minha vaga <ArrowRight className="size-4" />
+        </Link>
+      </div>
+    </section>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
