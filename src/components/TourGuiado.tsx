@@ -109,7 +109,7 @@ export function TourGuiado() {
     if (!aberto) return;
     balaoRef.current?.focus();
     const tecla = (e: KeyboardEvent) => {
-      if (e.key === "Escape") encerrar(false);
+      if (e.key === "Escape") encerrar();
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
@@ -152,7 +152,7 @@ export function TourGuiado() {
           }}
         />
       ) : (
-        <div className="absolute inset-0 bg-foreground/60" onClick={() => encerrar(false)} />
+        <div className="absolute inset-0 bg-foreground/60" onClick={() => encerrar()} />
       )}
 
       <div
@@ -167,7 +167,7 @@ export function TourGuiado() {
           </span>
           <button
             type="button"
-            onClick={() => encerrar(false)}
+            onClick={() => encerrar()}
             aria-label="Fechar tour"
             className="rounded-full p-1 text-muted-foreground hover:bg-secondary"
           >
@@ -181,7 +181,7 @@ export function TourGuiado() {
         <div className="mt-4 flex items-center justify-between gap-2">
           <button
             type="button"
-            onClick={() => encerrar(false)}
+            onClick={() => encerrar()}
             className="rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary"
           >
             Pular tour
@@ -198,7 +198,7 @@ export function TourGuiado() {
             )}
             <button
               type="button"
-              onClick={() => (ultimo ? encerrar(true) : setIndice((i) => i + 1))}
+              onClick={() => (ultimo ? encerrar() : setIndice((i) => i + 1))}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
             >
               {ultimo ? "Concluir" : "Próximo"} <ArrowRight className="size-3.5" />
