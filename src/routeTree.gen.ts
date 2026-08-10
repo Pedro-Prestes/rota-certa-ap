@@ -34,6 +34,7 @@ import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authenticated/solicitar-admin'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPaymentsMercadopagoPixRouteImport } from './routes/api/payments/mercadopago/pix'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -169,6 +170,11 @@ const AuthenticatedViagemRoute = AuthenticatedViagemRouteImport.update({
   path: '/viagem',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPaymentsMercadopagoPixRoute =
   ApiPaymentsMercadopagoPixRouteImport.update({
     id: '/api/payments/mercadopago/pix',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
+  '/api/chat': typeof ApiChatRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
+  '/api/chat': typeof ApiChatRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/_authenticated/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
+  '/api/chat': typeof ApiChatRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/solicitar-admin'
     | '/verificacao'
     | '/viagem'
+    | '/api/chat'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/solicitar-admin'
     | '/verificacao'
     | '/viagem'
+    | '/api/chat'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/_authenticated/solicitar-admin'
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
+    | '/api/chat'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
@@ -414,6 +426,7 @@ export interface RootRouteChildren {
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SouFrotistaRoute: typeof SouFrotistaRoute
+  ApiChatRoute: typeof ApiChatRoute
   ApiPaymentsMercadopagoPixRoute: typeof ApiPaymentsMercadopagoPixRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -599,6 +612,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedViagemRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/payments/mercadopago/pix': {
       id: '/api/payments/mercadopago/pix'
       path: '/api/payments/mercadopago/pix'
@@ -694,6 +714,7 @@ const rootRouteChildren: RootRouteChildren = {
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SouFrotistaRoute: SouFrotistaRoute,
+  ApiChatRoute: ApiChatRoute,
   ApiPaymentsMercadopagoPixRoute: ApiPaymentsMercadopagoPixRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
