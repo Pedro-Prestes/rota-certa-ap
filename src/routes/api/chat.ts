@@ -52,8 +52,16 @@ export const Route = createFileRoute("/api/chat")({
             sendReasoning: true,
             onError: (erro) => {
               console.error("[rotabot] falha no stream", erro);
-              return erro instanceof Error ? erro.message : "Falha ao responder.";
+              const texto = erro instanceof Error ? erro.message : String(erro ?? "");
+              if (/payment required|402/i.test(texto)) {
+                return "Os créditos de IA da plataforma acabaram. Avise o administrador para recarregar — enquanto isso, fale com o suporte no WhatsApp.";
+              }
+              if (/rate limit|429/i.test(texto)) {
+                return "Muitas conversas ao mesmo tempo. Tente novamente em alguns instantes.";
+              }
+              return "Não consegui responder agora. Tente novamente em instantes.";
             },
+
           }),
           runIdFetch,
         );
