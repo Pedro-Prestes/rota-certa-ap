@@ -14,7 +14,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { TourGuiado } from "@/components/TourGuiado";
 import { WhatsAppFloatButton } from "@/components/WhatsAppContato";
+import { RotaBotPrime } from "@/components/RotaBotPrime";
 import { supabase } from "@/integrations/supabase/client";
+
 
 function NotFoundComponent() {
   return (
