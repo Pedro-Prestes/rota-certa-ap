@@ -157,6 +157,8 @@ function RootComponent() {
       <TourGuiado />
       <Toaster position="top-center" richColors />
       <WhatsAppFloatButton />
+      <RotaBotPrime />
+
     </QueryClientProvider>
   );
 }
