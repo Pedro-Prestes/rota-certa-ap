@@ -167,10 +167,10 @@ export function RotaBotPrime() {
 
             {error && (
               <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                Não consegui responder agora. Tente novamente em instantes ou fale com o suporte no
-                WhatsApp.
+                {error.message || "Não consegui responder agora. Tente novamente em instantes."}
               </p>
             )}
+
 
             <div ref={fim} />
           </div>
