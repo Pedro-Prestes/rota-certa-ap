@@ -50,9 +50,14 @@ export const Route = createFileRoute("/api/chat")({
           resultado.toUIMessageStreamResponse({
             originalMessages: messages as UIMessage[],
             sendReasoning: true,
+            onError: (erro) => {
+              console.error("[rotabot] falha no stream", erro);
+              return erro instanceof Error ? erro.message : "Falha ao responder.";
+            },
           }),
           runIdFetch,
         );
+
       },
     },
   },
