@@ -323,14 +323,17 @@ function Home() {
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {UFS.filter((u) => u.regiao === regiao).map((u) => (
-                      <span
+                      <Link
                         key={u.sigla}
-                        title={u.nome}
-                        className="rounded-lg border border-border bg-secondary/60 px-2 py-1 text-[11px] font-semibold"
+                        to="/motorista/$uf"
+                        params={{ uf: u.sigla.toLowerCase() }}
+                        title={`Seja motorista no ${u.nome}`}
+                        className="rounded-lg border border-border bg-secondary/60 px-2 py-1 text-[11px] font-semibold transition-colors hover:border-primary hover:text-primary"
                       >
                         {u.sigla}
-                      </span>
+                      </Link>
                     ))}
+
                   </div>
                 </div>
               ))}
