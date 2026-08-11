@@ -176,7 +176,7 @@ function EstadoNaoEncontrado() {
 }
 
 function RecrutamentoUf() {
-  const { uf } = Route.useLoaderData();
+  const { uf } = Route.useLoaderData() as { uf: UnidadeFederativa };
 
   const vagas = useQuery({
     queryKey: ["promo-vagas"],
