@@ -87,17 +87,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
 
       { title: "RotaCerta — transporte intermunicipal e interestadual" },
-      { name: "description", content: "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros." },
-      { name: "author", content: "Lovable" },
+      { name: "description", content: "Van e carro intermunicipal e interestadual com hora marcada: reserve assento e bagagem com antecedência em rotas de todo o Brasil." },
+      { property: "og:site_name", content: "RotaCerta Brasil" },
+      { property: "og:locale", content: "pt_BR" },
       { property: "og:title", content: "RotaCerta — transporte intermunicipal e interestadual" },
-      { property: "og:description", content: "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros." },
+      { property: "og:description", content: "Van e carro intermunicipal e interestadual com hora marcada: reserve assento e bagagem com antecedência em rotas de todo o Brasil." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "RotaCerta — transporte intermunicipal e interestadual" },
-      { name: "twitter:description", content: "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/315c0636-e331-4c22-b1d2-28ab4bc58817/id-preview-17623862--052e79d8-31a3-4c7b-8fc2-0dc9aec42ed5.lovable.app-1785599193664.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/315c0636-e331-4c22-b1d2-28ab4bc58817/id-preview-17623862--052e79d8-31a3-4c7b-8fc2-0dc9aec42ed5.lovable.app-1785599193664.png" },
+      { name: "twitter:description", content: "Van e carro intermunicipal e interestadual com hora marcada: reserve assento e bagagem com antecedência em rotas de todo o Brasil." },
+
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

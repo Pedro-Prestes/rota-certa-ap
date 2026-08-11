@@ -47,8 +47,13 @@ export const Route = createFileRoute("/passageiro")({
         content: "Agenda de rotas, cálculo de bagagem por IA e reserva de lotação paga antes.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://rotacertabrasil.com.br/passageiro" },
+      { property: "og:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://rotacertabrasil.com.br/passageiro" }],
+
   }),
   component: Passageiro,
 });

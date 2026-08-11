@@ -31,8 +31,13 @@ export const Route = createFileRoute("/area-administrativa")({
           "Perfis de gestão, painel contábil, estornos, auditoria em blockchain e atendimento de ocorrências.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://rotacertabrasil.com.br/area-administrativa" },
+      { property: "og:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://rotacertabrasil.com.br/area-administrativa" }],
+
   }),
   component: AreaAdministrativa,
 });

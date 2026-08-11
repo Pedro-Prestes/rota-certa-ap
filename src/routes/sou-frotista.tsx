@@ -30,8 +30,13 @@ export const Route = createFileRoute("/sou-frotista")({
           "Cadastro por CNPJ, frota mínima de 6 veículos, motoristas associados e rotas intermunicipais consolidadas.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://rotacertabrasil.com.br/sou-frotista" },
+      { property: "og:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://rotacertabrasil.com.br/sou-frotista" }],
+
   }),
   component: SouFrotista,
 });

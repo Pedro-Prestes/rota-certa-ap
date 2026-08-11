@@ -53,8 +53,13 @@ export const Route = createFileRoute("/motorista")({
           "Rotas com horários, vínculo de veículos, controle de manutenção e aviso de indisponibilidade aos passageiros.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://rotacertabrasil.com.br/motorista" },
+      { property: "og:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://rotacertabrasil.com.br/motorista" }],
+
   }),
   component: Motorista,
 });

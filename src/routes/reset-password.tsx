@@ -18,6 +18,7 @@ export const Route = createFileRoute("/reset-password")({
       { property: "og:description", content: "Redefinição de senha da conta RotaCerta." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ResetPassword,
