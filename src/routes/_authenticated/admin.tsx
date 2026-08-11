@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
 import { alternarCampanhaPromo, consultarPainelPromo } from "@/utils/promocao.functions";
+import { ControleGeral } from "@/components/admin/ControleGeral";
 import { brl, resumoCorrida, type Corrida, type Pagamento } from "@/lib/pagamentos";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -460,6 +461,8 @@ function Admin() {
             ))}
           </ul>
         </section>
+
+        <ControleGeral />
 
         <PainelPromocao />
       </main>
