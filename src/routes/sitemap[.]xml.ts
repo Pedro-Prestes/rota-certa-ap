@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { UFS } from "@/lib/ufs";
 
 const BASE_URL = "https://rotacertabrasil.com.br";
 
@@ -16,7 +17,14 @@ const entries: SitemapEntry[] = [
   { path: "/sou-frotista", changefreq: "weekly", priority: "0.8" },
   { path: "/cadastro", changefreq: "monthly", priority: "0.6" },
   { path: "/area-administrativa", changefreq: "monthly", priority: "0.4" },
+  // Recrutamento de motoristas nas 27 unidades federativas.
+  ...UFS.map((u) => ({
+    path: `/motorista/${u.sigla.toLowerCase()}`,
+    changefreq: "weekly" as const,
+    priority: "0.8",
+  })),
 ];
+
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
