@@ -40,9 +40,10 @@ export function TourGuiado() {
     }
   }, [roteiro.chave]);
 
-  // Primeira exibição automática (uma vez por perfil).
+  // Primeira exibição automática (uma vez por perfil) — apenas na home, para
+  // nunca tirar o visitante da página que ele abriu.
   useEffect(() => {
-    if (carregando) return;
+    if (carregando || path !== "/") return;
     let visto = "1";
     try {
       visto = window.localStorage.getItem(chaveTour(roteiro.chave)) ?? "";
@@ -53,7 +54,7 @@ export function TourGuiado() {
       setIndice(0);
       setAberto(true);
     }
-  }, [carregando, roteiro.chave]);
+  }, [carregando, roteiro.chave, path]);
 
   // Reabertura manual.
   useEffect(() => {
@@ -65,11 +66,12 @@ export function TourGuiado() {
     return () => window.removeEventListener(EVENTO_ABRIR_TOUR, abrir);
   }, []);
 
-  // Navega até a rota do passo atual.
+  // Navega até a rota do passo atual (somente ao avançar os passos).
   useEffect(() => {
-    if (!aberto || !passo?.rota || passo.rota === path) return;
+    if (!aberto || indice === 0 || !passo?.rota || passo.rota === path) return;
     navigate({ to: passo.rota });
-  }, [aberto, passo?.rota, path, navigate]);
+  }, [aberto, indice, passo?.rota, path, navigate]);
+
 
   // Mede o elemento destacado.
   useLayoutEffect(() => {
