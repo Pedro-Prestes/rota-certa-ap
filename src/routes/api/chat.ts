@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createClient } from "@supabase/supabase-js";
 import { convertToModelMessages, streamText, stepCountIs, type UIMessage } from "ai";
 
 import {
@@ -11,19 +12,45 @@ import { PROMPT_ROTABOT, ferramentasRotaBot } from "@/lib/rotabot.server";
 
 type CorpoChat = { messages?: unknown };
 
+/** Só usuários autenticados consomem o gateway de IA (evita abuso de créditos). */
+async function usuarioAutenticado(request: Request): Promise<string | null> {
+  const cabecalho = request.headers.get("Authorization") ?? "";
+  const token = cabecalho.startsWith("Bearer ") ? cabecalho.slice(7).trim() : "";
+  if (!token) return null;
+
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+  if (!url || !key) return null;
+
+  const supabase = createClient(url, key, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) return null;
+  return data.user.id;
+}
+
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        if (!(await usuarioAutenticado(request))) {
+          return new Response("Entre na sua conta para conversar com o RotaBot.", { status: 401 });
+        }
+
         const { messages } = (await request.json()) as CorpoChat;
         if (!Array.isArray(messages)) {
           return new Response("Mensagens obrigatórias", { status: 400 });
+        }
+        if (messages.length > 40) {
+          return new Response("Conversa muito longa. Comece um novo atendimento.", { status: 413 });
         }
 
         const chave = process.env["LOVABLE_API_KEY"];
         if (!chave) {
           return new Response("Serviço de IA não configurado", { status: 500 });
         }
+
 
         const runIdInicial = getLovableAiGatewayRunId(request);
         const runIdFetch = createLovableAiGatewayRunIdFetch(runIdInicial);
