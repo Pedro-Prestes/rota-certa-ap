@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import { Bot, Loader2, Send, Sparkles, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
