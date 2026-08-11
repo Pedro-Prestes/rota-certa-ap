@@ -22,6 +22,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { UFS } from "@/lib/ufs";
+import heroImg from "@/assets/hero-rota.jpg";
 
 const BASE_URL = "https://rotacertabrasil.com.br";
 const WHATSAPP = "5596984095871";
@@ -119,7 +120,9 @@ function Cooperativas() {
     <div className="min-h-screen bg-background">
       <TopNav />
       <main>
-        <section className="surface-night overflow-hidden">
+        <section className="relative isolate overflow-hidden bg-primary text-primary-foreground">
+          <img src={heroImg} alt="Veículo de transporte em uma rodovia brasileira" width={1600} height={1008} className="absolute inset-0 -z-20 size-full object-cover" />
+          <div className="absolute inset-0 -z-10 bg-primary/85" />
           <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:py-24">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
