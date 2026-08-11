@@ -1064,6 +1064,119 @@ export type Database = {
         }
         Relationships: []
       }
+      parcerias_interacoes: {
+        Row: {
+          autor_id: string
+          created_at: string
+          id: string
+          lead_id: string
+          resumo: string
+          tipo: string
+        }
+        Insert: {
+          autor_id?: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          resumo: string
+          tipo: string
+        }
+        Update: {
+          autor_id?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          resumo?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parcerias_interacoes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "parcerias_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parcerias_leads: {
+        Row: {
+          associados: number
+          cargo: string
+          cnpj: string | null
+          consentimento_contato: boolean
+          created_at: string
+          dificuldade: string
+          email: string
+          entidade: string
+          etapa: string
+          id: string
+          interesse_piloto: boolean
+          motivo_perda: string | null
+          municipio: string
+          observacoes: string | null
+          origem: string
+          proxima_acao_em: string | null
+          responsavel: string
+          rotas_atuais: number
+          segmento: string
+          telefone: string
+          uf: string
+          updated_at: string
+          veiculos: number
+        }
+        Insert: {
+          associados: number
+          cargo: string
+          cnpj?: string | null
+          consentimento_contato: boolean
+          created_at?: string
+          dificuldade: string
+          email: string
+          entidade: string
+          etapa?: string
+          id?: string
+          interesse_piloto?: boolean
+          motivo_perda?: string | null
+          municipio: string
+          observacoes?: string | null
+          origem?: string
+          proxima_acao_em?: string | null
+          responsavel: string
+          rotas_atuais?: number
+          segmento?: string
+          telefone: string
+          uf: string
+          updated_at?: string
+          veiculos: number
+        }
+        Update: {
+          associados?: number
+          cargo?: string
+          cnpj?: string | null
+          consentimento_contato?: boolean
+          created_at?: string
+          dificuldade?: string
+          email?: string
+          entidade?: string
+          etapa?: string
+          id?: string
+          interesse_piloto?: boolean
+          motivo_perda?: string | null
+          municipio?: string
+          observacoes?: string | null
+          origem?: string
+          proxima_acao_em?: string | null
+          responsavel?: string
+          rotas_atuais?: number
+          segmento?: string
+          telefone?: string
+          uf?: string
+          updated_at?: string
+          veiculos?: number
+        }
+        Relationships: []
+      }
       planos_embarque: {
         Row: {
           created_at: string
