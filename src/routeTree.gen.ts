@@ -36,6 +36,7 @@ import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authe
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as MotoristaUfRouteImport } from './routes/motorista_.$uf'
 import { Route as ApiPaymentsMercadopagoPixRouteImport } from './routes/api/payments/mercadopago/pix'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -181,6 +182,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MotoristaUfRoute = MotoristaUfRouteImport.update({
+  id: '/motorista_/$uf',
+  path: '/motorista/$uf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPaymentsMercadopagoPixRoute =
   ApiPaymentsMercadopagoPixRouteImport.update({
     id: '/api/payments/mercadopago/pix',
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
+  '/motorista/$uf': typeof MotoristaUfRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
+  '/motorista/$uf': typeof MotoristaUfRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
+  '/motorista_/$uf': typeof MotoristaUfRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
+    | '/motorista/$uf'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
+    | '/motorista/$uf'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
     | '/api/chat'
+    | '/motorista_/$uf'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
@@ -440,6 +452,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SouFrotistaRoute: typeof SouFrotistaRoute
   ApiChatRoute: typeof ApiChatRoute
+  MotoristaUfRoute: typeof MotoristaUfRoute
   ApiPaymentsMercadopagoPixRoute: typeof ApiPaymentsMercadopagoPixRoute
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -639,6 +652,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/motorista_/$uf': {
+      id: '/motorista_/$uf'
+      path: '/motorista/$uf'
+      fullPath: '/motorista/$uf'
+      preLoaderRoute: typeof MotoristaUfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/payments/mercadopago/pix': {
       id: '/api/payments/mercadopago/pix'
       path: '/api/payments/mercadopago/pix'
@@ -736,6 +756,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SouFrotistaRoute: SouFrotistaRoute,
   ApiChatRoute: ApiChatRoute,
+  MotoristaUfRoute: MotoristaUfRoute,
   ApiPaymentsMercadopagoPixRoute: ApiPaymentsMercadopagoPixRoute,
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -746,13 +767,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
