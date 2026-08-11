@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 import { TopNav } from "@/components/TopNav";
-import { BotaoVoltar } from "@/components/BotaoVoltar";
 import { supabase } from "@/integrations/supabase/client";
 import { consultarVagasPromo } from "@/utils/promocao.functions";
 import { UFS, normalizarUf, type UnidadeFederativa } from "@/lib/ufs";
