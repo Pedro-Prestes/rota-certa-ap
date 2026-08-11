@@ -43,9 +43,36 @@ function Bolha({ minha, children }: { minha: boolean; children: React.ReactNode 
 export function RotaBotPrime() {
   const [aberto, setAberto] = useState(false);
   const [texto, setTexto] = useState("");
+  const [logado, setLogado] = useState<boolean | null>(null);
   const fim = useRef<HTMLDivElement>(null);
 
-  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
+  useEffect(() => {
+    let ativo = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (ativo) setLogado(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setLogado(!!session);
+    });
+    return () => {
+      ativo = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        // O endpoint de IA exige sessão: anexa o token do usuário autenticado.
+        headers: async () => {
+          const { data } = await supabase.auth.getSession();
+          const token = data.session?.access_token;
+          return token ? { Authorization: `Bearer ${token}` } : {};
+        },
+      }),
+    [],
+  );
   const { messages, sendMessage, status, error } = useChat({ transport });
 
   const carregando = status === "submitted" || status === "streaming";
@@ -56,10 +83,11 @@ export function RotaBotPrime() {
 
   const enviar = (valor: string) => {
     const limpo = valor.trim();
-    if (!limpo || carregando) return;
+    if (!limpo || carregando || logado === false) return;
     setTexto("");
     void sendMessage({ text: limpo });
   };
+
 
   return (
     <>
