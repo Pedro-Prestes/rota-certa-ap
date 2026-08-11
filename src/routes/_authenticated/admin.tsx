@@ -8,6 +8,7 @@ import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
 import { alternarCampanhaPromo, consultarPainelPromo } from "@/utils/promocao.functions";
 import { ControleGeral } from "@/components/admin/ControleGeral";
+import { PainelParcerias } from "@/components/admin/PainelParcerias";
 import { brl, resumoCorrida, type Corrida, type Pagamento } from "@/lib/pagamentos";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -382,6 +383,8 @@ function Admin() {
         </section>
 
         {ehMaster.data === true && (
+          <>
+          <PainelParcerias />
           <section className="mt-6 rounded-2xl border border-border bg-card p-5">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold">
               <ShieldPlus className="size-4" /> Solicitações de acesso administrativo
@@ -439,6 +442,7 @@ function Admin() {
               )}
             </ul>
           </section>
+          </>
         )}
 
 
