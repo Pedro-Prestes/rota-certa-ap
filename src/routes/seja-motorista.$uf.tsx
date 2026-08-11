@@ -215,9 +215,8 @@ function RecrutamentoUf() {
     <div className="min-h-screen bg-background">
       <TopNav />
       <main className="mx-auto max-w-6xl px-5 py-8 sm:py-12">
-        <BotaoVoltar />
+        <section className="grid items-start gap-8 lg:grid-cols-[1.15fr_.85fr]">
 
-        <section className="mt-6 grid items-start gap-8 lg:grid-cols-[1.15fr_.85fr]">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
               <MapPinned className="size-3.5" /> {uf.nome} · Região {uf.regiao}
