@@ -126,6 +126,17 @@ export function TopNav() {
                     {l.label}
                   </Link>
                 ))}
+                <Link
+                  to="/cooperativas"
+                  onClick={() => setAberto(false)}
+                  className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                    path === "/cooperativas"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  Cooperativas e associações
+                </Link>
                 {!user && (
                   <Link
                     to="/cadastro"

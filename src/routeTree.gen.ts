@@ -15,6 +15,7 @@ import { Route as AreaAdministrativaRouteImport } from './routes/area-administra
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CheckoutRetornoRouteImport } from './routes/checkout-retorno'
+import { Route as CooperativasRouteImport } from './routes/cooperativas'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PassageiroRouteImport } from './routes/passageiro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -71,6 +72,11 @@ const CadastroRoute = CadastroRouteImport.update({
 const CheckoutRetornoRoute = CheckoutRetornoRouteImport.update({
   id: '/checkout-retorno',
   path: '/checkout-retorno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CooperativasRoute = CooperativasRouteImport.update({
+  id: '/cooperativas',
+  path: '/cooperativas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MotoristaRoute = MotoristaRouteImport.update({
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
+  '/cooperativas': typeof CooperativasRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -264,6 +271,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
+  '/cooperativas': typeof CooperativasRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
+  '/cooperativas': typeof CooperativasRoute
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/checkout-retorno'
+    | '/cooperativas'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/checkout-retorno'
+    | '/cooperativas'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
@@ -409,6 +420,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/checkout-retorno'
+    | '/cooperativas'
     | '/motorista'
     | '/passageiro'
     | '/reset-password'
@@ -446,6 +458,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CadastroRoute: typeof CadastroRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
+  CooperativasRoute: typeof CooperativasRoute
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -503,6 +516,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout-retorno'
       fullPath: '/checkout-retorno'
       preLoaderRoute: typeof CheckoutRetornoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cooperativas': {
+      id: '/cooperativas'
+      path: '/cooperativas'
+      fullPath: '/cooperativas'
+      preLoaderRoute: typeof CooperativasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/motorista': {
@@ -750,6 +770,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CadastroRoute: CadastroRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
+  CooperativasRoute: CooperativasRoute,
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,

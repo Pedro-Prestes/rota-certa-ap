@@ -15,6 +15,7 @@ const entries: SitemapEntry[] = [
   { path: "/passageiro", changefreq: "daily", priority: "0.9" },
   { path: "/motorista", changefreq: "weekly", priority: "0.9" },
   { path: "/sou-frotista", changefreq: "weekly", priority: "0.8" },
+  { path: "/cooperativas", changefreq: "weekly", priority: "0.9" },
   { path: "/cadastro", changefreq: "monthly", priority: "0.6" },
   { path: "/area-administrativa", changefreq: "monthly", priority: "0.4" },
   // Recrutamento de motoristas nas 27 unidades federativas.
