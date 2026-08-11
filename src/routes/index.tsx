@@ -90,9 +90,95 @@ export const Route = createFileRoute("/")({
           "Plataforma de IA para reserva antecipada de assentos e bagagem em rotas municipais e interestaduais em todo o Brasil. Para motoristas e passageiros.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://rotacertabrasil.com.br/" },
+      { property: "og:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
+    ],
+    links: [{ rel: "canonical", href: "https://rotacertabrasil.com.br/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://rotacertabrasil.com.br/#organizacao",
+              name: "RotaCerta Brasil",
+              url: "https://rotacertabrasil.com.br/",
+              logo: "https://rotacertabrasil.com.br/icon-512.png",
+              email: "rotacertabrasil@rotacertabrasil.com.br",
+              areaServed: "BR",
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  contactType: "atendimento ao cliente",
+                  email: "suporte@rotacertabrasil.com.br",
+                  telephone: "+55 96 98409-5871",
+                  availableLanguage: ["pt-BR"],
+                },
+              ],
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://rotacertabrasil.com.br/#site",
+              url: "https://rotacertabrasil.com.br/",
+              name: "RotaCerta Brasil",
+              inLanguage: "pt-BR",
+              publisher: { "@id": "https://rotacertabrasil.com.br/#organizacao" },
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Como funciona o transporte com hora marcada?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "O motorista publica a rota com horário de partida e de retorno. O passageiro reserva assento e bagagem com antecedência e o horário de partida programado é inviolável.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "O que é o embarque acordado?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "O passageiro informa o endereço de embarque e a plataforma calcula por georreferenciamento o desvio em quilômetros e minutos, mostrando o valor do assento antes do envio da proposta ao motorista.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Quais formas de pagamento são aceitas?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Pix, cartões de crédito e débito de todas as bandeiras e pagamento em espécie, com taxa administrativa demonstrada em cada transação.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "O que acontece se o veículo tiver uma pane?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Com a Proteção RotaCerta, um veículo substituto é enviado para dar continuidade à viagem dos passageiros e o veículo em pane é rebocado até a oficina indicada pelo condutor.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "O RotaCerta atende rotas interestaduais?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Sim. A plataforma tem cobertura nacional, com rotas intermunicipais e interestaduais em todos os estados brasileiros.",
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+      },
     ],
   }),
+
   component: Home,
 });
 
