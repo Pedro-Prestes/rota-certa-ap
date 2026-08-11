@@ -63,7 +63,7 @@ const BENEFICIOS = [
   { Icone: BarChart3, titulo: "Gestão em um painel", texto: "Acompanhe frota, motoristas, rotas, reservas e resultados sem planilhas dispersas." },
 ];
 
-const FAQ = [
+const FAQ: Array<[string, string]> = [
   ["O piloto realmente não tem mensalidade?", "Sim. Durante 90 dias, a entidade selecionada recebe implantação e acompanhamento sem mensalidade. Não há renovação automática."],
   ["Precisamos cadastrar toda a frota de uma vez?", "Não. A implantação começa com um grupo de 5 a 10 motoristas e cresce somente após o fluxo inicial funcionar."],
   ["O que acontece ao final dos 90 dias?", "A diretoria recebe um relatório dos resultados. A continuidade paga só é proposta depois dessa revisão e depende da aprovação da entidade."],
@@ -80,7 +80,10 @@ function Cooperativas() {
   async function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    if (!uf) return toast.error("Selecione o estado da entidade.");
+    if (!uf) {
+      toast.error("Selecione o estado da entidade.");
+      return;
+    }
     setEnviando(true);
     const cnpj = String(form.get("cnpj") ?? "").replace(/\D/g, "");
     const { error } = await supabase.from("parcerias_leads").insert({
@@ -102,7 +105,10 @@ function Cooperativas() {
       origem: "pagina_cooperativas",
     });
     setEnviando(false);
-    if (error) return toast.error("Não foi possível enviar agora. Confira os campos e tente novamente.");
+    if (error) {
+      toast.error("Não foi possível enviar agora. Confira os campos e tente novamente.");
+      return;
+    }
     setEnviado(true);
     toast.success("Diagnóstico solicitado com sucesso.");
   }
