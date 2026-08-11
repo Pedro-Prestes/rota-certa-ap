@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import { Bot, Loader2, Send, Sparkles, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -43,9 +45,36 @@ function Bolha({ minha, children }: { minha: boolean; children: React.ReactNode 
 export function RotaBotPrime() {
   const [aberto, setAberto] = useState(false);
   const [texto, setTexto] = useState("");
+  const [logado, setLogado] = useState<boolean | null>(null);
   const fim = useRef<HTMLDivElement>(null);
 
-  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
+  useEffect(() => {
+    let ativo = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (ativo) setLogado(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setLogado(!!session);
+    });
+    return () => {
+      ativo = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        // O endpoint de IA exige sessão: anexa o token do usuário autenticado.
+        headers: async () => {
+          const { data } = await supabase.auth.getSession();
+          const token = data.session?.access_token;
+          return token ? { Authorization: `Bearer ${token}` } : {};
+        },
+      }),
+    [],
+  );
   const { messages, sendMessage, status, error } = useChat({ transport });
 
   const carregando = status === "submitted" || status === "streaming";
@@ -56,10 +85,11 @@ export function RotaBotPrime() {
 
   const enviar = (valor: string) => {
     const limpo = valor.trim();
-    if (!limpo || carregando) return;
+    if (!limpo || carregando || logado === false) return;
     setTexto("");
     void sendMessage({ text: limpo });
   };
+
 
   return (
     <>
@@ -175,23 +205,35 @@ export function RotaBotPrime() {
             <div ref={fim} />
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              enviar(texto);
-            }}
-            className="flex items-center gap-2 border-t border-border px-3 py-3"
-          >
-            <Input
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              placeholder="Pergunte sobre rotas, preços ou planos…"
-              className="h-10"
-            />
-            <Button type="submit" size="icon" className="size-10 shrink-0" disabled={carregando || !texto.trim()}>
-              <Send className="size-4" />
-            </Button>
-          </form>
+          {logado === false ? (
+            <div className="space-y-2 border-t border-border px-3 py-3 text-center">
+              <p className="text-xs text-muted-foreground">
+                Entre na sua conta para conversar com o RotaBot Prime.
+              </p>
+              <Button asChild className="w-full">
+                <a href="/auth">Entrar ou criar conta</a>
+              </Button>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                enviar(texto);
+              }}
+              className="flex items-center gap-2 border-t border-border px-3 py-3"
+            >
+              <Input
+                value={texto}
+                onChange={(e) => setTexto(e.target.value)}
+                placeholder="Pergunte sobre rotas, preços ou planos…"
+                className="h-10"
+              />
+              <Button type="submit" size="icon" className="size-10 shrink-0" disabled={carregando || !texto.trim()}>
+                <Send className="size-4" />
+              </Button>
+            </form>
+          )}
+
         </div>
       )}
     </>

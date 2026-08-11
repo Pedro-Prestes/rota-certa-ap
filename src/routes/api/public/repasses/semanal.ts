@@ -19,12 +19,13 @@ export const Route = createFileRoute("/api/public/repasses/semanal")({
         const segredos = [
           process.env["CRON_RENOVACAO_SECRET"],
           process.env["ASSINATURA_CRON_SECRET"],
-          process.env["SUPABASE_ANON_KEY"],
         ].filter((s): s is string => !!s);
         if (segredos.length === 0) return new Response("Rotina não configurada", { status: 503 });
 
-        const enviado =
-          request.headers.get("x-cron-secret") ?? request.headers.get("apikey") ?? "";
+        // Apenas o segredo privado do agendador autoriza: a chave publicável do
+        // backend é pública e nunca pode liberar repasses.
+        const enviado = request.headers.get("x-cron-secret") ?? "";
+
         if (!segredos.some((s) => conferir(s, enviado))) {
           return new Response("Não autorizado", { status: 401 });
         }

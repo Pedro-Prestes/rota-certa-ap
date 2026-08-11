@@ -126,8 +126,19 @@ export async function concederPromoPrimeiraRota(dados: {
     const plano = planoDoPrice(cfg.price_id);
     if (!preco || !plano) return { concedida: false, motivo: "Plano promocional inválido." };
 
+    // A cortesia é da primeira rota publicada pelo próprio motorista.
+    const { data: rota } = await supabaseAdmin
+      .from("rotas")
+      .select("id, user_id")
+      .eq("id", dados.rotaId)
+      .maybeSingle();
+    if (!rota || rota.user_id !== dados.userId) {
+      return { concedida: false, motivo: "Rota não encontrada para esta conta." };
+    }
+
     const jaTem = await promoDoUsuario(dados.userId);
     if (jaTem) return { concedida: false, motivo: "Benefício já utilizado." };
+
 
     const [stripeSub, carteiraSub] = await Promise.all([
       assinaturaVigente(dados.userId, dados.environment),

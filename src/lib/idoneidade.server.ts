@@ -94,6 +94,15 @@ export async function verificarIdoneidade(entrada: EntradaVerificacao) {
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!veiculo) throw new Error("Veículo não encontrado.");
+    // Só o proprietário do veículo (ou a gestão) pode disparar a verificação.
+    if (veiculo.user_id !== entrada.userId) {
+      const { data: admin } = await supabaseAdmin.rpc("has_role", {
+        _user_id: entrada.userId,
+        _role: "admin",
+      });
+      if (!admin) throw new Error("Você não tem permissão para verificar este veículo.");
+    }
+
     local = avaliarVeiculo({
       placa: veiculo.placa,
       ano: veiculo.ano,
