@@ -18,6 +18,7 @@ export const Route = createFileRoute("/checkout-retorno")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   validateSearch: (search: Record<string, unknown>): { session_id?: string | undefined } => ({
