@@ -43,7 +43,7 @@ function ufDaRota(raw: string): UnidadeFederativa {
   return encontrada;
 }
 
-export const Route = createFileRoute("/motorista_/$uf")({
+export const Route = createFileRoute("/seja-motorista/$uf")({
   loader: ({ params }) => ({ uf: ufDaRota(params.uf) }),
   head: ({ loaderData }) => {
     const uf = (loaderData as { uf: UnidadeFederativa } | undefined)?.uf;
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/motorista_/$uf")({
       };
     }
 
-    const url = `${BASE_URL}/motorista/${uf.sigla.toLowerCase()}`;
+    const url = `${BASE_URL}/seja-motorista/${uf.sigla.toLowerCase()}`;
     const titulo = `Seja motorista no ${uf.nome} (${uf.sigla}) | RotaCerta Brasil`;
     const descricao = `Cadastre suas rotas intermunicipais e interestaduais no ${uf.nome} e receba passageiros com hora marcada. Carteira digital com repasses, rastreio ao vivo e 10 mensalidades gratuitas para os primeiros motoristas do estado.`;
     return {
@@ -161,8 +161,8 @@ function EstadoNaoEncontrado() {
         <h1 className="font-display text-3xl font-bold tracking-tight">Estado não encontrado</h1>
         <p className="mt-3 text-muted-foreground">
           Confira a sigla do estado — usamos as 27 unidades federativas do Brasil, como
-          <span className="font-semibold"> /motorista/ap</span> ou{" "}
-          <span className="font-semibold">/motorista/sp</span>.
+          <span className="font-semibold"> /seja-motorista/ap</span> ou{" "}
+          <span className="font-semibold">/seja-motorista/sp</span>.
         </p>
         <Link
           to="/motorista"
@@ -396,7 +396,7 @@ function RecrutamentoUf() {
             {outrosEstados.map((u) => (
               <Link
                 key={u.sigla}
-                to="/motorista/$uf"
+                to="/seja-motorista/$uf"
                 params={{ uf: u.sigla.toLowerCase() }}
                 className="rounded-full border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >

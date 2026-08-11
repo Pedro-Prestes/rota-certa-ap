@@ -19,7 +19,7 @@ const entries: SitemapEntry[] = [
   { path: "/area-administrativa", changefreq: "monthly", priority: "0.4" },
   // Recrutamento de motoristas nas 27 unidades federativas.
   ...UFS.map((u) => ({
-    path: `/motorista/${u.sigla.toLowerCase()}`,
+    path: `/seja-motorista/${u.sigla.toLowerCase()}`,
     changefreq: "weekly" as const,
     priority: "0.8",
   })),

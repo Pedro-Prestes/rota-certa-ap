@@ -325,7 +325,7 @@ function Home() {
                     {UFS.filter((u) => u.regiao === regiao).map((u) => (
                       <Link
                         key={u.sigla}
-                        to="/motorista/$uf"
+                        to="/seja-motorista/$uf"
                         params={{ uf: u.sigla.toLowerCase() }}
                         title={`Seja motorista no ${u.nome}`}
                         className="rounded-lg border border-border bg-secondary/60 px-2 py-1 text-[11px] font-semibold transition-colors hover:border-primary hover:text-primary"
