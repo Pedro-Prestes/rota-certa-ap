@@ -205,23 +205,35 @@ export function RotaBotPrime() {
             <div ref={fim} />
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              enviar(texto);
-            }}
-            className="flex items-center gap-2 border-t border-border px-3 py-3"
-          >
-            <Input
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              placeholder="Pergunte sobre rotas, preços ou planos…"
-              className="h-10"
-            />
-            <Button type="submit" size="icon" className="size-10 shrink-0" disabled={carregando || !texto.trim()}>
-              <Send className="size-4" />
-            </Button>
-          </form>
+          {logado === false ? (
+            <div className="space-y-2 border-t border-border px-3 py-3 text-center">
+              <p className="text-xs text-muted-foreground">
+                Entre na sua conta para conversar com o RotaBot Prime.
+              </p>
+              <Button asChild className="w-full">
+                <a href="/auth">Entrar ou criar conta</a>
+              </Button>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                enviar(texto);
+              }}
+              className="flex items-center gap-2 border-t border-border px-3 py-3"
+            >
+              <Input
+                value={texto}
+                onChange={(e) => setTexto(e.target.value)}
+                placeholder="Pergunte sobre rotas, preços ou planos…"
+                className="h-10"
+              />
+              <Button type="submit" size="icon" className="size-10 shrink-0" disabled={carregando || !texto.trim()}>
+                <Send className="size-4" />
+              </Button>
+            </form>
+          )}
+
         </div>
       )}
     </>
