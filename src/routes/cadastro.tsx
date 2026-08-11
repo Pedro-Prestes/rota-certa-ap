@@ -18,8 +18,13 @@ export const Route = createFileRoute("/cadastro")({
           "Cadastro de passageiro, motorista ou frotista por e-mail e senha ou por código enviado via SMS.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://rotacertabrasil.com.br/cadastro" },
+      { property: "og:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://rotacertabrasil.com.br/og-rotacerta.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://rotacertabrasil.com.br/cadastro" }],
+
   }),
   component: CadastroPage,
 });
