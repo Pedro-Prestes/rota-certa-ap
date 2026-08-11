@@ -114,8 +114,11 @@ export const PAGINA_ANTERIOR: Record<string, string> = {
 export function paginaAnterior(path: string): string | null {
   if (path === "/") return null;
   const limpo = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+  // Páginas de recrutamento por estado (/seja-motorista/ap) voltam para a área do motorista.
+  if (/^\/seja-motorista\/[a-zA-Z]{2}$/.test(limpo)) return "/motorista";
   return PAGINA_ANTERIOR[limpo] ?? "/";
 }
+
 
 
 /** Admin master enxerga tudo; os demais apenas as áreas do seu perfil. */
