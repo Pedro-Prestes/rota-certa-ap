@@ -97,8 +97,6 @@ export const Route = createFileRoute("/motorista_/$uf")({
           }),
         },
       ],
-      // Sigla mantida para depuração de rotas inválidas em log de servidor.
-      ...(sigla ? {} : {}),
     };
   },
   component: RecrutamentoUf,
