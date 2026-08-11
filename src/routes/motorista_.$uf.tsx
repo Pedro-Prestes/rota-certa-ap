@@ -45,9 +45,8 @@ function ufDaRota(raw: string): UnidadeFederativa {
 
 export const Route = createFileRoute("/motorista_/$uf")({
   loader: ({ params }) => ({ uf: ufDaRota(params.uf) }),
-  head: ({ params, loaderData }) => {
-    const uf = loaderData?.uf;
-    const sigla = (params.uf ?? "").toLowerCase();
+  head: ({ loaderData }) => {
+    const uf = (loaderData as { uf: UnidadeFederativa } | undefined)?.uf;
     if (!uf) {
       return {
         meta: [
@@ -56,6 +55,7 @@ export const Route = createFileRoute("/motorista_/$uf")({
         ],
       };
     }
+
     const url = `${BASE_URL}/motorista/${uf.sigla.toLowerCase()}`;
     const titulo = `Seja motorista no ${uf.nome} (${uf.sigla}) | RotaCerta Brasil`;
     const descricao = `Cadastre suas rotas intermunicipais e interestaduais no ${uf.nome} e receba passageiros com hora marcada. Carteira digital com repasses, rastreio ao vivo e 10 mensalidades gratuitas para os primeiros motoristas do estado.`;
