@@ -51,6 +51,8 @@ export const previaDaReserva = createServerFn({ method: "POST" })
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
         enderecoEmbarque: data.enderecoEmbarque,
+        exclusiva: data.exclusiva,
+        bagagemKg: data.bagagemKg,
         environment: data.environment ?? "live",
 
       });
@@ -88,6 +90,8 @@ export const gerarPixDaCorrida = createServerFn({ method: "POST" })
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
         enderecoEmbarque: data.enderecoEmbarque,
+        exclusiva: data.exclusiva,
+        bagagemKg: data.bagagemKg,
         environment: data.environment ?? "live",
 
         email,
@@ -117,6 +121,8 @@ export const pagarReservaComCreditos = createServerFn({ method: "POST" })
         assentos: data.assentos,
         assentosBagagem: data.assentosBagagem,
         enderecoEmbarque: data.enderecoEmbarque,
+        exclusiva: data.exclusiva,
+        bagagemKg: data.bagagemKg,
         environment: data.environment ?? "live",
 
       });
