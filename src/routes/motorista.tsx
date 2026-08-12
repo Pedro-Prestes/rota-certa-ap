@@ -10,6 +10,7 @@ import {
   Loader2,
   MapPin,
   Plus,
+  Building2,
   Route as RouteIcon,
   Trash2,
   Wrench,
@@ -17,6 +18,7 @@ import {
 
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
+import { PainelUrbanoMotorista } from "@/components/urbano/PainelUrbanoMotorista";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { medirTrechoRota } from "@/utils/rota.functions";
@@ -170,7 +172,7 @@ function useDadosMotorista() {
 }
 
 function Motorista() {
-  const [aba, setAba] = useState<"rotas" | "embarques" | "veiculo" | "avisos">("rotas");
+  const [aba, setAba] = useState<"rotas" | "embarques" | "veiculo" | "avisos" | "urbano">("rotas");
   const { user, carregando } = useAuth();
 
   return (
@@ -190,6 +192,7 @@ function Motorista() {
               ["embarques", "Embarques", MapPin],
               ["veiculo", "Frota", Car],
               ["avisos", "Manutenção", Wrench],
+              ["urbano", "Modo urbano", Building2],
             ] as const
           ).map(([id, label, Icon]) => (
             <button
@@ -226,6 +229,7 @@ function Motorista() {
               {aba === "embarques" && <AbaEmbarques />}
               {aba === "veiculo" && <AbaFrota />}
               {aba === "avisos" && <AbaManutencao />}
+              {aba === "urbano" && <PainelUrbanoMotorista />}
             </PortaoBiometriaMotorista>
           )}
         </div>

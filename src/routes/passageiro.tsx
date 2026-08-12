@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
+import { PedirCorridaUrbana } from "@/components/urbano/PedirCorridaUrbana";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
 import {
