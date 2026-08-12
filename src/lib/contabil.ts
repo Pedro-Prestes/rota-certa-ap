@@ -122,6 +122,32 @@ export interface CustoContabil {
   recorrente: boolean;
 }
 
+export interface CorridaUrbanaContabil {
+  id: string;
+  concluida_em: string;
+  municipio: string;
+  forma: string;
+  distanciaKm: number;
+  duracaoMin: number;
+  base: number;
+  taxaAdministrativa: number;
+  total: number;
+  parcelaPlataforma: number;
+  parcelaCooperativa: number;
+  cooperativa: string | null;
+}
+
+export interface RateioCooperativaContabil {
+  cooperativaId: string;
+  nome: string;
+  cnpj: string;
+  praca: string;
+  corridas: number;
+  rateado: number;
+  repassado: number;
+  saldo: number;
+}
+
 export interface ResumoContabil {
   periodo: PeriodoContabil;
   config: ConfigTaxa;
@@ -143,6 +169,16 @@ export interface ResumoContabil {
   cobrancasPix: CobrancaPixContabil[];
   custos: CustoContabil[];
   competencias: LinhaCompetencia[];
+  urbano: {
+    corridas: number;
+    base: number;
+    taxaAdministrativa: number;
+    total: number;
+    parcelaPlataforma: number;
+    parcelaCooperativa: number;
+    linhas: CorridaUrbanaContabil[];
+  };
+  cooperativas: RateioCooperativaContabil[];
 }
 
 /* ---------------------------------------------------------------- períodos */
@@ -286,6 +322,52 @@ export function csvCompetencias(linhas: LinhaCompetencia[]): string {
       l.estorno.toFixed(2).replace(".", ","),
       l.custos.toFixed(2).replace(".", ","),
       l.resultado.toFixed(2).replace(".", ","),
+    ]),
+  );
+}
+
+export function csvCorridasUrbanas(linhas: CorridaUrbanaContabil[]): string {
+  return gerarCsv(
+    [
+      "Data",
+      "Praça",
+      "Meio",
+      "Distância (km)",
+      "Duração (min)",
+      "Base da corrida",
+      "Taxa administrativa",
+      "Total cobrado",
+      "Parcela da plataforma",
+      "Parcela da cooperativa",
+      "Cooperativa",
+    ],
+    linhas.map((l) => [
+      l.concluida_em ? dataHora(l.concluida_em) : "",
+      l.municipio,
+      ROTULO_FORMA[l.forma] ?? l.forma,
+      String(l.distanciaKm).replace(".", ","),
+      String(l.duracaoMin),
+      l.base.toFixed(2).replace(".", ","),
+      l.taxaAdministrativa.toFixed(2).replace(".", ","),
+      l.total.toFixed(2).replace(".", ","),
+      l.parcelaPlataforma.toFixed(2).replace(".", ","),
+      l.parcelaCooperativa.toFixed(2).replace(".", ","),
+      l.cooperativa ?? "Sem cooperativa",
+    ]),
+  );
+}
+
+export function csvRateioCooperativas(linhas: RateioCooperativaContabil[]): string {
+  return gerarCsv(
+    ["Cooperativa", "CNPJ", "Praça", "Corridas rateadas", "Valor rateado", "Repassado", "Saldo"],
+    linhas.map((l) => [
+      l.nome,
+      l.cnpj,
+      l.praca,
+      String(l.corridas),
+      l.rateado.toFixed(2).replace(".", ","),
+      l.repassado.toFixed(2).replace(".", ","),
+      l.saldo.toFixed(2).replace(".", ","),
     ]),
   );
 }
