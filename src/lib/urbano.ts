@@ -73,6 +73,14 @@ export const SEGUNDOS_PARA_ACEITAR = 45;
 /** Raio de despacho da oferta imediata (km). */
 export const RAIO_DESPACHO_KM = 12;
 
+/** Raio de busca do motorista designado para uma corrida agendada (km). */
+export const RAIO_AGENDAMENTO_KM = 25;
+
+/** Janela (minutos) em que um agendamento bloqueia o motorista designado. */
+export const JANELA_AGENDAMENTO_MIN = 90;
+
+
+
 /** Após o motorista sair para o embarque, o cancelamento tem custo. */
 export const CANCELAMENTO_COM_CUSTO: StatusCorridaUrbana[] = [
   "a_caminho",
