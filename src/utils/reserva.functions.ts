@@ -8,6 +8,8 @@ interface EntradaReservaCliente {
   assentosBagagem?: number;
   enderecoEmbarque?: string;
   environment?: "sandbox" | "live";
+  exclusiva?: boolean;
+  bagagemKg?: number;
 }
 
 const validar = (data: EntradaReservaCliente) => {
@@ -20,12 +22,19 @@ const validar = (data: EntradaReservaCliente) => {
   if (bagagem < 0 || bagagem > 8) throw new Error("Bagagem excedente inválida.");
   const endereco = data.enderecoEmbarque?.trim() ?? "";
   if (endereco.length > 240) throw new Error("Endereço de embarque muito longo.");
+  const bagagemKg = Number(data.bagagemKg ?? 0);
+  if (!Number.isFinite(bagagemKg) || bagagemKg < 0 || bagagemKg > 1000) {
+    throw new Error("Peso da bagagem inválido.");
+  }
   return {
     ...data,
     assentosBagagem: bagagem,
+    exclusiva: data.exclusiva === true,
+    bagagemKg,
     ...(endereco ? { enderecoEmbarque: endereco } : {}),
   };
 };
+
 
 
 /** Valor da reserva, saldo de créditos e quanto falta para garantir o assento. */
