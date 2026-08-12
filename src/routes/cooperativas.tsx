@@ -1,6 +1,4 @@
-import { useState, type FormEvent } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BarChart3,
@@ -9,23 +7,15 @@ import {
   CircleDollarSign,
   Handshake,
   MessageCircle,
-  Route as RouteIcon,
-  ShieldCheck,
   Users,
 } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { DiagnosticoCooperativa } from "@/components/DiagnosticoCooperativa";
 import { UFS } from "@/lib/ufs";
+import { BASE_URL, FAQ_COOPERATIVAS, WHATSAPP, breadcrumbJsonLd, faqJsonLd } from "@/lib/cooperativas";
 import heroImg from "@/assets/hero-rota.jpg";
-
-const BASE_URL = "https://rotacertabrasil.com.br";
-const WHATSAPP = "5596984095871";
 
 export const Route = createFileRoute("/cooperativas")({
   head: () => ({
@@ -41,18 +31,25 @@ export const Route = createFileRoute("/cooperativas")({
       { name: "twitter:image", content: `${BASE_URL}/og-rotacerta.jpg` },
     ],
     links: [{ rel: "canonical", href: `${BASE_URL}/cooperativas` }],
-    scripts: [{
-      type: "application/ld+json",
-      children: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Service",
-        name: "Programa Cooperativa Pioneira RotaCerta",
-        provider: { "@type": "Organization", name: "RotaCerta Brasil", url: BASE_URL },
-        areaServed: { "@type": "Country", name: "Brasil" },
-        audience: { "@type": "Audience", audienceType: "Cooperativas e associações de taxistas" },
-        serviceType: "Gestão de transporte e mobilidade cooperativa",
-      }),
-    }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Programa Cooperativa Pioneira RotaCerta",
+          provider: { "@type": "Organization", name: "RotaCerta Brasil", url: BASE_URL },
+          areaServed: { "@type": "Country", name: "Brasil" },
+          audience: { "@type": "Audience", audienceType: "Cooperativas e associações de taxistas" },
+          serviceType: "Gestão de transporte e mobilidade cooperativa",
+        }),
+      },
+      { type: "application/ld+json", children: JSON.stringify(faqJsonLd()) },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(breadcrumbJsonLd([["Início", "/"], ["Cooperativas", "/cooperativas"]])),
+      },
+    ],
   }),
   component: Cooperativas,
 });
@@ -64,56 +61,7 @@ const BENEFICIOS = [
   { Icone: BarChart3, titulo: "Gestão em um painel", texto: "Acompanhe frota, motoristas, rotas, reservas e resultados sem planilhas dispersas." },
 ];
 
-const FAQ: Array<[string, string]> = [
-  ["O piloto realmente não tem mensalidade?", "Sim. Durante 90 dias, a entidade selecionada recebe implantação e acompanhamento sem mensalidade. Não há renovação automática."],
-  ["Precisamos cadastrar toda a frota de uma vez?", "Não. A implantação começa com um grupo de 5 a 10 motoristas e cresce somente após o fluxo inicial funcionar."],
-  ["O que acontece ao final dos 90 dias?", "A diretoria recebe um relatório dos resultados. A continuidade paga só é proposta depois dessa revisão e depende da aprovação da entidade."],
-  ["Como os dados são protegidos?", "O acesso é compartimentado por perfil, com biometria, regras de visibilidade e registros auditáveis. A coleta comercial segue o princípio de dados mínimos."],
-  ["A cooperativa perde sua autonomia?", "Não. A entidade mantém suas regras e operação. O RotaCerta organiza a tecnologia, os registros e os fluxos acordados para o piloto."],
-];
-
 function Cooperativas() {
-  const [enviando, setEnviando] = useState(false);
-  const [enviado, setEnviado] = useState(false);
-  const [uf, setUf] = useState("");
-  const [segmento, setSegmento] = useState("cooperativa_taxi");
-
-  async function enviar(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    if (!uf) {
-      toast.error("Selecione o estado da entidade.");
-      return;
-    }
-    setEnviando(true);
-    const cnpj = String(form.get("cnpj") ?? "").replace(/\D/g, "");
-    const { error } = await supabase.from("parcerias_leads").insert({
-      entidade: String(form.get("entidade") ?? "").trim(),
-      cnpj: cnpj || null,
-      responsavel: String(form.get("responsavel") ?? "").trim(),
-      cargo: String(form.get("cargo") ?? "").trim(),
-      telefone: String(form.get("telefone") ?? "").trim(),
-      email: String(form.get("email") ?? "").trim(),
-      municipio: String(form.get("municipio") ?? "").trim(),
-      uf,
-      segmento,
-      associados: Number(form.get("associados")),
-      veiculos: Number(form.get("veiculos")),
-      rotas_atuais: Number(form.get("rotas_atuais") ?? 0),
-      dificuldade: String(form.get("dificuldade") ?? "").trim(),
-      interesse_piloto: true,
-      consentimento_contato: true,
-      origem: "pagina_cooperativas",
-    });
-    setEnviando(false);
-    if (error) {
-      toast.error("Não foi possível enviar agora. Confira os campos e tente novamente.");
-      return;
-    }
-    setEnviado(true);
-    toast.success("Diagnóstico solicitado com sucesso.");
-  }
-
   const mensagem = encodeURIComponent("Olá! Represento uma cooperativa/associação e quero conhecer o piloto de 90 dias do RotaCerta. Entidade: ___ | Cidade/UF: ___ | Frota: ___ veículos.");
 
   return (
@@ -168,37 +116,49 @@ function Cooperativas() {
           </div>
         </section>
 
-        <section id="diagnostico" className="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-[.75fr_1.25fr]">
-          <div><p className="text-sm font-semibold text-accent">Primeiro passo</p><h2 className="mt-2 text-3xl font-bold">Conte como sua cooperativa opera hoje</h2><p className="mt-4 text-muted-foreground">O diagnóstico não cria conta nem gera cobrança. Usaremos os dados apenas para avaliar a aderência ao piloto e entrar em contato.</p><div className="mt-6 flex gap-3 text-sm"><ShieldCheck className="size-5 shrink-0 text-success" /><p>Contato direto, coleta mínima de dados e nenhuma renovação automática.</p></div></div>
-          {enviado ? (
-            <div className="flex min-h-80 flex-col items-center justify-center border border-success/30 bg-success/10 p-8 text-center"><CheckCircle2 className="size-12 text-success" /><h3 className="mt-4 text-2xl font-bold">Solicitação recebida</h3><p className="mt-2 max-w-md text-muted-foreground">Analisaremos o perfil da entidade e entraremos em contato para agendar o diagnóstico.</p></div>
-          ) : (
-            <form onSubmit={enviar} className="grid gap-5 border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:grid-cols-2 sm:p-7">
-              <Campo nome="entidade" rotulo="Cooperativa ou associação" placeholder="Nome da entidade" />
-              <Campo nome="cnpj" rotulo="CNPJ (opcional)" placeholder="Somente números" inputMode="numeric" />
-              <Campo nome="responsavel" rotulo="Responsável" placeholder="Nome completo" />
-              <Campo nome="cargo" rotulo="Cargo" placeholder="Ex.: presidente, diretor" />
-              <Campo nome="telefone" rotulo="WhatsApp/telefone" placeholder="(00) 00000-0000" type="tel" />
-              <Campo nome="email" rotulo="E-mail institucional" placeholder="contato@entidade.org.br" type="email" />
-              <Campo nome="municipio" rotulo="Município" placeholder="Cidade sede" />
-              <div className="grid gap-2"><Label>Estado</Label><Select value={uf} onValueChange={setUf}><SelectTrigger><SelectValue placeholder="Selecione a UF" /></SelectTrigger><SelectContent>{UFS.map((item) => <SelectItem key={item.sigla} value={item.sigla}>{item.nome} ({item.sigla})</SelectItem>)}</SelectContent></Select></div>
-              <div className="grid gap-2 sm:col-span-2"><Label>Tipo de entidade</Label><Select value={segmento} onValueChange={setSegmento}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="cooperativa_taxi">Cooperativa de táxi</SelectItem><SelectItem value="associacao_taxi">Associação de taxistas</SelectItem><SelectItem value="transporte_passageiros">Transporte de passageiros</SelectItem><SelectItem value="fretes_encomendas">Fretes e encomendas</SelectItem><SelectItem value="outro">Outro segmento</SelectItem></SelectContent></Select></div>
-              <Campo nome="associados" rotulo="Número de associados" type="number" min="1" />
-              <Campo nome="veiculos" rotulo="Número de veículos" type="number" min="1" />
-              <Campo nome="rotas_atuais" rotulo="Rotas atuais (aproximado)" type="number" min="0" defaultValue="0" />
-              <div className="grid gap-2 sm:col-span-2"><Label htmlFor="dificuldade">Principal dificuldade hoje</Label><Textarea id="dificuldade" name="dificuldade" required minLength={10} maxLength={1500} rows={4} placeholder="Ex.: baixa ocupação, organização de escalas, cobrança, prestação de contas..." /></div>
-              <label className="flex gap-3 text-xs text-muted-foreground sm:col-span-2"><input type="checkbox" required className="mt-0.5 size-4 accent-primary" /> Autorizo o RotaCerta a usar estes dados para avaliar o piloto e entrar em contato sobre esta solicitação.</label>
-              <Button type="submit" size="lg" disabled={enviando} className="sm:col-span-2">{enviando ? "Enviando…" : "Solicitar diagnóstico da cooperativa"} <ArrowRight /></Button>
-            </form>
-          )}
+        <DiagnosticoCooperativa origem="pagina_cooperativas" />
+
+        <section className="mx-auto max-w-3xl px-5 pb-12">
+          <h2 className="text-2xl font-bold">Dúvidas da diretoria</h2>
+          <Accordion type="single" collapsible className="mt-5">
+            {FAQ_COOPERATIVAS.map(([pergunta, resposta]) => (
+              <AccordionItem key={pergunta} value={pergunta}>
+                <AccordionTrigger>{pergunta}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">{resposta}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </section>
 
-        <section className="mx-auto max-w-3xl px-5 pb-20"><h2 className="text-2xl font-bold">Dúvidas da diretoria</h2><Accordion type="single" collapsible className="mt-5">{FAQ.map(([pergunta, resposta]) => <AccordionItem key={pergunta} value={pergunta}><AccordionTrigger>{pergunta}</AccordionTrigger><AccordionContent className="text-muted-foreground">{resposta}</AccordionContent></AccordionItem>)}</Accordion></section>
+        <section className="border-t border-border bg-secondary/40">
+          <div className="mx-auto max-w-6xl px-5 py-14">
+            <h2 className="text-2xl font-bold">Cooperativas por estado</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              Veja o contexto do seu estado, as vagas do piloto e solicite o diagnóstico com a UF já preenchida.
+            </p>
+            <ul className="mt-6 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 lg:grid-cols-4">
+              {UFS.map((u) => (
+                <li key={u.sigla}>
+                  <Link
+                    to="/cooperativas/$uf"
+                    params={{ uf: u.sigla.toLowerCase() }}
+                    className="block border border-border bg-card px-3 py-2 font-medium transition-colors hover:border-accent hover:text-accent"
+                  >
+                    Cooperativas em {u.nome}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-8 text-sm text-muted-foreground">
+              Tem empresa com frota própria (CNPJ)?{" "}
+              <Link to="/sou-frotista" className="font-semibold text-primary underline">
+                Conheça a área para frotistas
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
       </main>
     </div>
   );
-}
-
-function Campo({ nome, rotulo, ...props }: { nome: string; rotulo: string } & React.ComponentProps<typeof Input>) {
-  return <div className="grid gap-2"><Label htmlFor={nome}>{rotulo}</Label><Input id={nome} name={nome} required {...props} /></div>;
 }
