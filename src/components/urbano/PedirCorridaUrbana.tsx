@@ -103,9 +103,15 @@ export function PedirCorridaUrbana() {
         toast.error(r.error);
         return;
       }
+      const designado = "designado" in r ? r.designado : null;
       toast.success(
-        modo === "agendado" ? "Corrida agendada." : "Pedido enviado aos motoristas online.",
+        modo === "agendado"
+          ? designado
+            ? `Corrida agendada e reservada para o motorista mais próximo (${designado.distanciaKm.toFixed(1)} km).`
+            : "Corrida agendada. Assim que um motorista ficar disponível na região, ela será designada."
+          : "Pedido enviado aos motoristas online.",
       );
+
       setEstimativa(null);
       qc.invalidateQueries({ queryKey: ["urbano"] });
     },
