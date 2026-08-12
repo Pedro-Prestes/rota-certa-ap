@@ -99,7 +99,10 @@ export function PedirCorridaUrbana() {
         },
       }),
     onSuccess: (r) => {
-      if ("error" in r && r.error) return toast.error(r.error);
+      if ("error" in r && r.error) {
+        toast.error(r.error);
+        return;
+      }
       toast.success(
         modo === "agendado" ? "Corrida agendada." : "Pedido enviado aos motoristas online.",
       );
@@ -113,7 +116,10 @@ export function PedirCorridaUrbana() {
     mutationFn: (corridaId: string) =>
       cancelar({ data: { corridaId, motivo: "Cancelada pelo passageiro" } }),
     onSuccess: (r) => {
-      if ("error" in r && r.error) return toast.error(r.error);
+      if ("error" in r && r.error) {
+        toast.error(r.error);
+        return;
+      }
       const taxa = (r as { taxaAplicada?: number }).taxaAplicada ?? 0;
       toast.success(taxa > 0 ? `Cancelada com taxa de ${moeda(taxa)}.` : "Corrida cancelada.");
       qc.invalidateQueries({ queryKey: ["urbano"] });
@@ -124,7 +130,10 @@ export function PedirCorridaUrbana() {
   const mAvaliar = useMutation({
     mutationFn: (v: { corridaId: string; nota: number }) => avaliar({ data: v }),
     onSuccess: (r) => {
-      if ("error" in r && r.error) return toast.error(r.error);
+      if ("error" in r && r.error) {
+        toast.error(r.error);
+        return;
+      }
       toast.success("Obrigado pela avaliação!");
       qc.invalidateQueries({ queryKey: ["urbano"] });
     },
