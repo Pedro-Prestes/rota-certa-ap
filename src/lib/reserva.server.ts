@@ -25,7 +25,12 @@ export interface EntradaReserva {
   environment: StripeEnv;
   /** Endereço do embarque combinado — gera a taxa de desvio da rota. */
   enderecoEmbarque?: string | undefined;
+  /** Reserva exclusiva da saída: tarifa integral do veículo. */
+  exclusiva?: boolean | undefined;
+  /** Peso total da bagagem (kg) — usado na franquia de 40 kg da exclusividade. */
+  bagagemKg?: number | undefined;
 }
+
 
 /** Menor pacote de créditos que cobre o valor faltante. */
 export function pacoteSugerido(faltando: number): string {
