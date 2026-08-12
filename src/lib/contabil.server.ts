@@ -24,6 +24,8 @@ import type {
   CobrancaPixContabil,
   LinhaCompetencia,
   CustoContabil,
+  CorridaUrbanaContabil,
+  RateioCooperativaContabil,
   ResumoContabil,
 } from "./contabil";
 
