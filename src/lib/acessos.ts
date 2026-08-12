@@ -7,6 +7,7 @@ export type Perfil =
   | "passageiro"
   | "motorista"
   | "frotista"
+  | "cooperativa"
   | "admin"
   | "admin_secundario"
   | "gerente"
@@ -16,6 +17,7 @@ export const ROTULO_PERFIL: Record<Perfil, string> = {
   passageiro: "Passageiro",
   motorista: "Motorista",
   frotista: "Frotista",
+  cooperativa: "Cooperativa",
   admin: "Administrador",
   admin_secundario: "Administrador secundário",
   gerente: "Gerente",
@@ -26,6 +28,7 @@ export const TODOS_PERFIS: Perfil[] = [
   "passageiro",
   "motorista",
   "frotista",
+  "cooperativa",
   "admin",
   "admin_secundario",
   "gerente",
@@ -57,9 +60,11 @@ export const AREAS: AreaPlataforma[] = [
   { to: "/passageiro", label: "Sou passageiro", perfis: ["passageiro"] },
   { to: "/embarque", label: "Embarque", perfis: ["passageiro"] },
   { to: "/motorista", label: "Sou motorista", perfis: ["motorista", "frotista"] },
+  { to: "/urbano", label: "Modo urbano", perfis: ["passageiro", "motorista", "frotista"] },
   { to: "/viagem", label: "Viagem ao vivo", perfis: ["motorista", "frotista"] },
   { to: "/carteira", label: "Carteira", perfis: ["motorista", "frotista"] },
   { to: "/sou-frotista", label: "Sou frotista (PJ)", perfis: TODOS_PERFIS },
+  { to: "/cooperativa", label: "Cooperativa", perfis: ["cooperativa", "motorista", "frotista"] },
   { to: "/area-administrativa", label: "Área administrativa", perfis: TODOS_PERFIS },
   { to: "/pagamentos", label: "Pagamentos", perfis: TODOS_PERFIS },
   { to: "/planos", label: "Planos", perfis: TODOS_PERFIS },
@@ -88,6 +93,8 @@ export const PAGINA_ANTERIOR: Record<string, string> = {
   "/passageiro": "/",
   "/embarque": "/passageiro",
   "/motorista": "/",
+  "/urbano": "/",
+  "/cooperativa": "/",
   "/viagem": "/motorista",
   "/carteira": "/motorista",
   "/sou-frotista": "/",
