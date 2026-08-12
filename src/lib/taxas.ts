@@ -16,6 +16,8 @@ export interface ConfigTaxa {
   taxa_percentual: number;
   taxa_fixa: number;
   repasse_motorista_percentual: number;
+  /** Pontos percentuais da taxa administrativa destinados à cooperativa (padrão 3). */
+  rateio_cooperativa_percentual?: number;
   descricao?: string;
 }
 
@@ -24,8 +26,13 @@ export const CONFIG_PADRAO: ConfigTaxa = {
   taxa_percentual: 12,
   taxa_fixa: 1.5,
   repasse_motorista_percentual: 85,
+  rateio_cooperativa_percentual: 3,
   descricao: "Taxa administrativa padrão da plataforma",
 };
+
+/** Pontos percentuais padrão destinados à cooperativa cadastrada. */
+export const RATEIO_COOPERATIVA_PADRAO = 3;
+
 
 export interface ItemComposicao {
   rotulo: string;
@@ -100,3 +107,42 @@ export type TipoLancamento = (typeof TIPOS_LANCAMENTO)[number]["id"];
 
 export const rotuloTipo = (id: string) => TIPOS_LANCAMENTO.find((t) => t.id === id)?.rotulo ?? id;
 export const sinalTipo = (id: string) => TIPOS_LANCAMENTO.find((t) => t.id === id)?.sinal ?? 1;
+
+/* -------------------------------------------- rateio com cooperativas */
+
+export interface RateioTaxa {
+  /** Taxa administrativa total cobrada na transação. */
+  taxaAdministrativa: number;
+  /** Pontos percentuais destinados à cooperativa (0 quando não há vínculo). */
+  percentualCooperativa: number;
+  /** Parcela da taxa que fica com a plataforma. */
+  parcelaPlataforma: number;
+  /** Parcela da taxa destinada à cooperativa vinculada ao motorista. */
+  parcelaCooperativa: number;
+}
+
+/**
+ * Particiona a taxa administrativa entre a plataforma e a cooperativa do
+ * motorista. Com a configuração padrão (12% + fixa, rateio de 3 p.p.), a
+ * cooperativa recebe 3% da base da corrida e a plataforma fica com o restante.
+ * Sem vínculo com cooperativa, a taxa é integralmente da plataforma.
+ */
+export function ratearTaxa(
+  base: number,
+  taxaAdministrativa: number,
+  cfg: ConfigTaxa = CONFIG_PADRAO,
+  temCooperativa = false,
+): RateioTaxa {
+  const taxa = arred(Math.max(0, Number(taxaAdministrativa) || 0));
+  const pp = temCooperativa
+    ? Math.max(0, Number(cfg.rateio_cooperativa_percentual ?? RATEIO_COOPERATIVA_PADRAO) || 0)
+    : 0;
+  const bruta = arred((Math.max(0, Number(base) || 0) * pp) / 100);
+  const parcelaCooperativa = arred(Math.min(bruta, taxa));
+  return {
+    taxaAdministrativa: taxa,
+    percentualCooperativa: pp,
+    parcelaCooperativa,
+    parcelaPlataforma: arred(taxa - parcelaCooperativa),
+  };
+}
