@@ -24,7 +24,14 @@ const entries: SitemapEntry[] = [
     changefreq: "weekly" as const,
     priority: "0.8",
   })),
+  // Conquista de cooperativas e associações nas 27 unidades federativas.
+  ...UFS.map((u) => ({
+    path: `/cooperativas/${u.sigla.toLowerCase()}`,
+    changefreq: "weekly" as const,
+    priority: "0.8",
+  })),
 ];
+
 
 
 export const Route = createFileRoute("/sitemap.xml")({

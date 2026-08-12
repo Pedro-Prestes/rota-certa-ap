@@ -37,6 +37,7 @@ import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authe
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as CooperativasUfRouteImport } from './routes/cooperativas.$uf'
 import { Route as SejaMotoristaUfRouteImport } from './routes/seja-motorista.$uf'
 import { Route as ApiPaymentsMercadopagoPixRouteImport } from './routes/api/payments/mercadopago/pix'
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
@@ -188,6 +189,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CooperativasUfRoute = CooperativasUfRouteImport.update({
+  id: '/$uf',
+  path: '/$uf',
+  getParentRoute: () => CooperativasRoute,
+} as any)
 const SejaMotoristaUfRoute = SejaMotoristaUfRouteImport.update({
   id: '/seja-motorista/$uf',
   path: '/seja-motorista/$uf',
@@ -235,7 +241,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
-  '/cooperativas': typeof CooperativasRoute
+  '/cooperativas': typeof CooperativasRouteWithChildren
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
+  '/cooperativas/$uf': typeof CooperativasUfRoute
   '/seja-motorista/$uf': typeof SejaMotoristaUfRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
@@ -271,7 +278,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
-  '/cooperativas': typeof CooperativasRoute
+  '/cooperativas': typeof CooperativasRouteWithChildren
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -293,6 +300,7 @@ export interface FileRoutesByTo {
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
+  '/cooperativas/$uf': typeof CooperativasUfRoute
   '/seja-motorista/$uf': typeof SejaMotoristaUfRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
@@ -309,7 +317,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/checkout-retorno': typeof CheckoutRetornoRoute
-  '/cooperativas': typeof CooperativasRoute
+  '/cooperativas': typeof CooperativasRouteWithChildren
   '/motorista': typeof MotoristaRoute
   '/passageiro': typeof PassageiroRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
+  '/cooperativas/$uf': typeof CooperativasUfRoute
   '/seja-motorista/$uf': typeof SejaMotoristaUfRoute
   '/api/payments/mercadopago/pix': typeof ApiPaymentsMercadopagoPixRoute
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
+    | '/cooperativas/$uf'
     | '/seja-motorista/$uf'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
+    | '/cooperativas/$uf'
     | '/seja-motorista/$uf'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
     | '/api/chat'
+    | '/cooperativas/$uf'
     | '/seja-motorista/$uf'
     | '/api/payments/mercadopago/pix'
     | '/api/public/assinaturas/renovar'
@@ -458,7 +470,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CadastroRoute: typeof CadastroRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
-  CooperativasRoute: typeof CooperativasRoute
+  CooperativasRoute: typeof CooperativasRouteWithChildren
   MotoristaRoute: typeof MotoristaRoute
   PassageiroRoute: typeof PassageiroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -672,6 +684,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cooperativas/$uf': {
+      id: '/cooperativas/$uf'
+      path: '/$uf'
+      fullPath: '/cooperativas/$uf'
+      preLoaderRoute: typeof CooperativasUfRouteImport
+      parentRoute: typeof CooperativasRoute
+    }
     '/seja-motorista/$uf': {
       id: '/seja-motorista/$uf'
       path: '/seja-motorista/$uf'
@@ -763,6 +782,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface CooperativasRouteChildren {
+  CooperativasUfRoute: typeof CooperativasUfRoute
+}
+
+const CooperativasRouteChildren: CooperativasRouteChildren = {
+  CooperativasUfRoute: CooperativasUfRoute,
+}
+
+const CooperativasRouteWithChildren = CooperativasRoute._addFileChildren(
+  CooperativasRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -770,7 +801,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CadastroRoute: CadastroRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
-  CooperativasRoute: CooperativasRoute,
+  CooperativasRoute: CooperativasRouteWithChildren,
   MotoristaRoute: MotoristaRoute,
   PassageiroRoute: PassageiroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
