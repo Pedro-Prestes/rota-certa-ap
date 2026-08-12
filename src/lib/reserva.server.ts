@@ -10,6 +10,13 @@ import { registrarEvento } from "./blockchain.server";
 import { carteiraDoUsuario } from "./assinatura.server";
 import { configDoUsuario } from "./cobranca.server";
 import { comporCobranca } from "./taxas";
+import {
+  FRANQUIA_EXCLUSIVA_KG,
+  PRECO_KG_EXCEDENTE,
+  custoPesoExcedente,
+  pesoExcedenteKg,
+} from "./logistica";
+
 import { PACOTES_CREDITO } from "./planos";
 import type { StripeEnv } from "./stripe.server";
 
@@ -25,7 +32,12 @@ export interface EntradaReserva {
   environment: StripeEnv;
   /** Endereço do embarque combinado — gera a taxa de desvio da rota. */
   enderecoEmbarque?: string | undefined;
+  /** Reserva exclusiva da saída: tarifa integral do veículo. */
+  exclusiva?: boolean | undefined;
+  /** Peso total da bagagem (kg) — usado na franquia de 40 kg da exclusividade. */
+  bagagemKg?: number | undefined;
 }
+
 
 /** Menor pacote de créditos que cobre o valor faltante. */
 export function pacoteSugerido(faltando: number): string {
@@ -73,21 +85,50 @@ async function rotaEComposicao(dados: EntradaReserva) {
   if (!rota || rota.status !== "ativa") throw new Error("Esta saída não está mais disponível.");
 
   const preco = Number(rota.preco_assento) || 0;
-  // Bagagem excedente equivale a 60% do preço do assento (mesma regra da vitrine).
-  const assentosValor = arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
+  const capacidade = Number(rota.assentos) || 0;
+  const exclusiva = dados.exclusiva === true;
+
+  // Exclusividade: tarifa integral do veículo (todos os assentos), sem cálculo
+  // por assento avulso; a bagagem tem franquia de 40 kg e o excedente é cobrado
+  // por quilo. Sem exclusividade, mantém-se a regra da vitrine (60% por
+  // assento-equivalente de bagagem).
+  const excedenteKg = exclusiva ? pesoExcedenteKg(dados.bagagemKg ?? 0) : 0;
+  const valorPesoExcedente = exclusiva ? arred(custoPesoExcedente(dados.bagagemKg ?? 0)) : 0;
+  const assentosValor = exclusiva
+    ? arred(preco * Math.max(1, capacidade) + valorPesoExcedente)
+    : arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
   if (assentosValor <= 0) throw new Error("Esta saída ainda não tem tarifa publicada.");
 
   const desvio = await desvioDoEmbarque(dados.rotaId, dados.enderecoEmbarque);
   const base = arred(assentosValor + (desvio?.taxa ?? 0));
 
   const cfg = await configDoUsuario(dados.userId, dados.environment);
-  return { rota, base, assentosValor, desvio, composicao: comporCobranca(base, cfg) };
+  return {
+    rota,
+    base,
+    assentosValor,
+    desvio,
+    exclusiva,
+    capacidade,
+    excedenteKg,
+    valorPesoExcedente,
+    composicao: comporCobranca(base, cfg),
+  };
 }
 
 
 /** Prévia do valor da reserva e do saldo disponível em créditos. */
 export async function previaReserva(dados: EntradaReserva) {
-  const { rota, composicao, assentosValor, desvio } = await rotaEComposicao(dados);
+  const {
+    rota,
+    composicao,
+    assentosValor,
+    desvio,
+    exclusiva,
+    capacidade,
+    excedenteKg,
+    valorPesoExcedente,
+  } = await rotaEComposicao(dados);
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
   const faltando = arred(Math.max(0, composicao.total - saldo));
   return {
@@ -98,6 +139,12 @@ export async function previaReserva(dados: EntradaReserva) {
 
     assentosValor,
     desvio,
+    exclusiva,
+    capacidade,
+    excedenteKg,
+    valorPesoExcedente,
+    franquiaKg: FRANQUIA_EXCLUSIVA_KG,
+    precoKgExcedente: PRECO_KG_EXCEDENTE,
     base: composicao.base,
     taxaAdministrativa: composicao.taxaAdministrativa,
     total: composicao.total,
@@ -105,6 +152,7 @@ export async function previaReserva(dados: EntradaReserva) {
     faltando,
     ...(faltando > 0 ? { pacoteSugerido: pacoteSugerido(faltando) } : {}),
   };
+
 
 }
 
@@ -150,7 +198,8 @@ export async function criarPixDaCorrida(
 
 /** Débita os créditos, registra o pagamento e garante o assento na saída. */
 export async function reservarComCreditos(dados: EntradaReserva) {
-  const { rota, composicao } = await rotaEComposicao(dados);
+  const { rota, composicao, exclusiva, valorPesoExcedente } = await rotaEComposicao(dados);
+
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
 
   if (saldo < composicao.total) {
@@ -173,10 +222,19 @@ export async function reservarComCreditos(dados: EntradaReserva) {
     .eq("destino", rota.destino);
   const ocupados = (reservados ?? []).reduce((a, r) => a + (Number(r.assentos) || 0), 0);
   const capacidade = Number(rota.assentos) || 0;
-  const pedidos = dados.assentos + Math.max(0, dados.assentosBagagem);
-  if (capacidade > 0 && ocupados + pedidos > capacidade) {
-    return { status: "lotado" as const, disponiveis: Math.max(0, capacidade - ocupados) };
+  if (exclusiva) {
+    // A exclusividade só é possível quando ninguém mais reservou esta saída.
+    if (ocupados > 0) {
+      return { status: "lotado" as const, disponiveis: Math.max(0, capacidade - ocupados) };
+    }
+  } else {
+    const pedidos = dados.assentos + Math.max(0, dados.assentosBagagem);
+    if (capacidade > 0 && ocupados + pedidos > capacidade) {
+      return { status: "lotado" as const, disponiveis: Math.max(0, capacidade - ocupados) };
+    }
   }
+  const assentosCorrida = exclusiva ? Math.max(1, capacidade) : dados.assentos;
+
 
   const { data: perfil } = await supabaseAdmin
     .from("profiles")
@@ -202,15 +260,20 @@ export async function reservarComCreditos(dados: EntradaReserva) {
       hora_partida: rota.saida_ida,
       hora_chegada: rota.chegada_ida,
       distancia_km: Number(rota.distancia_km) || 0,
-      assentos: dados.assentos,
+      assentos: assentosCorrida,
       bagagem_l: 0,
-      valor_tarifa: arred(Number(rota.preco_assento) * dados.assentos),
-      valor_bagagem: arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
+      valor_tarifa: arred(Number(rota.preco_assento) * assentosCorrida),
+      valor_bagagem: exclusiva
+        ? valorPesoExcedente
+        : arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
       valor_pedagios: 0,
       valor_extras: 0,
       desconto: 0,
       comissao_percentual: 0,
-      observacoes: "Reserva de lotação paga com créditos da carteira.",
+      observacoes: exclusiva
+        ? `Reserva exclusiva da saída (tarifa integral do veículo) paga com créditos. Bagagem ${(dados.bagagemKg ?? 0).toFixed(1)} kg — franquia de ${FRANQUIA_EXCLUSIVA_KG} kg.`
+        : "Reserva de lotação paga com créditos da carteira.",
+
     })
     .select("id")
     .single();
