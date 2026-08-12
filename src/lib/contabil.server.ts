@@ -24,6 +24,8 @@ import type {
   CobrancaPixContabil,
   LinhaCompetencia,
   CustoContabil,
+  CorridaUrbanaContabil,
+  RateioCooperativaContabil,
   ResumoContabil,
 } from "./contabil";
 
@@ -60,7 +62,17 @@ export async function resumoContabil(periodo: PeriodoContabil): Promise<ResumoCo
   doze.setUTCMonth(doze.getUTCMonth() - 11);
   const inicioDoze = `${doze.toISOString().slice(0, 7)}-01`;
 
-  const [pagRes, lancRes, lancDozeRes, custosRes, payoutsRes, pixRes] = await Promise.all([
+  const [
+    pagRes,
+    lancRes,
+    lancDozeRes,
+    custosRes,
+    payoutsRes,
+    pixRes,
+    urbanasRes,
+    coopTxRes,
+    coopsRes,
+  ] = await Promise.all([
     supabaseAdmin
       .from("pagamentos")
       .select("*")
@@ -98,8 +110,31 @@ export async function resumoContabil(periodo: PeriodoContabil): Promise<ResumoCo
       .lte("created_at", fim)
       .order("created_at", { ascending: false })
       .limit(500),
+    supabaseAdmin
+      .from("corridas_urbanas")
+      .select(
+        "id, concluida_em, municipio, uf, cooperativa_id, base, taxa_administrativa, total, parcela_plataforma, parcela_cooperativa, forma_pagamento, distancia_km, duracao_min",
+      )
+      .eq("status", "concluida")
+      .gte("concluida_em", inicio)
+      .lte("concluida_em", fim)
+      .order("concluida_em", { ascending: false })
+      .limit(2000),
+    supabaseAdmin
+      .from("cooperativa_transacoes")
+      .select("id, cooperativa_id, tipo, valor, created_at")
+      .gte("created_at", inicio)
+      .lte("created_at", fim)
+      .limit(3000),
+    supabaseAdmin
+      .from("cooperativas")
+      .select("id, razao_social, nome_fantasia, cnpj, municipio, uf")
+      .limit(500),
   ]);
 
+  const urbanas = urbanasRes.data ?? [];
+  const coopTx = coopTxRes.data ?? [];
+  const coops = coopsRes.data ?? [];
   const pagamentos = pagRes.data ?? [];
   const lancamentos = (lancRes.data ?? []) as unknown as LancamentoResumo[];
   const custos = (custosRes.data ?? []) as unknown as CustoContabil[];
@@ -305,9 +340,61 @@ export async function resumoContabil(periodo: PeriodoContabil): Promise<ResumoCo
     return linha;
   });
 
+  const urbanoLinhas: CorridaUrbanaContabil[] = urbanas.map((c) => ({
+    id: c.id,
+    concluida_em: c.concluida_em ?? "",
+    municipio: `${c.municipio} — ${c.uf}`,
+    forma: c.forma_pagamento,
+    distanciaKm: n(c.distancia_km),
+    duracaoMin: Number(c.duracao_min ?? 0),
+    base: n(c.base),
+    taxaAdministrativa: n(c.taxa_administrativa),
+    total: n(c.total),
+    parcelaPlataforma: n(c.parcela_plataforma),
+    parcelaCooperativa: n(c.parcela_cooperativa),
+    cooperativa:
+      coops.find((k) => k.id === c.cooperativa_id)?.nome_fantasia ||
+      coops.find((k) => k.id === c.cooperativa_id)?.razao_social ||
+      null,
+  }));
+
+  const urbano = {
+    corridas: urbanoLinhas.length,
+    base: arred(urbanoLinhas.reduce((a, c) => a + c.base, 0)),
+    taxaAdministrativa: arred(urbanoLinhas.reduce((a, c) => a + c.taxaAdministrativa, 0)),
+    total: arred(urbanoLinhas.reduce((a, c) => a + c.total, 0)),
+    parcelaPlataforma: arred(urbanoLinhas.reduce((a, c) => a + c.parcelaPlataforma, 0)),
+    parcelaCooperativa: arred(urbanoLinhas.reduce((a, c) => a + c.parcelaCooperativa, 0)),
+    linhas: urbanoLinhas,
+  };
+
+  const cooperativas: RateioCooperativaContabil[] = coops
+    .map((k) => {
+      const minhas = coopTx.filter((t) => t.cooperativa_id === k.id);
+      const rateado = arred(
+        minhas.filter((t) => t.tipo === "rateio_corrida").reduce((a, t) => a + n(t.valor), 0),
+      );
+      const repassado = arred(
+        Math.abs(minhas.filter((t) => t.tipo === "repasse").reduce((a, t) => a + n(t.valor), 0)),
+      );
+      return {
+        cooperativaId: k.id,
+        nome: k.nome_fantasia || k.razao_social,
+        cnpj: k.cnpj,
+        praca: [k.municipio, k.uf].filter(Boolean).join(" — "),
+        corridas: minhas.filter((t) => t.tipo === "rateio_corrida").length,
+        rateado,
+        repassado,
+        saldo: arred(rateado - repassado),
+      };
+    })
+    .filter((k) => k.rateado > 0 || k.repassado > 0);
+
   return {
     periodo,
     config: cfg,
+    urbano,
+    cooperativas,
     totais: {
       transacoes: validas.length,
       base: totalBase,

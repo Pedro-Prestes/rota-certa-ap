@@ -270,6 +270,287 @@ export type Database = {
         }
         Relationships: []
       }
+      cooperativa_carteira: {
+        Row: {
+          cooperativa_id: string
+          created_at: string
+          moeda: string
+          saldo_disponivel: number
+          saldo_repassado: number
+          updated_at: string
+        }
+        Insert: {
+          cooperativa_id: string
+          created_at?: string
+          moeda?: string
+          saldo_disponivel?: number
+          saldo_repassado?: number
+          updated_at?: string
+        }
+        Update: {
+          cooperativa_id?: string
+          created_at?: string
+          moeda?: string
+          saldo_disponivel?: number
+          saldo_repassado?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cooperativa_carteira_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: true
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cooperativa_motoristas: {
+        Row: {
+          cooperativa_id: string
+          created_at: string
+          id: string
+          motorista_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cooperativa_id: string
+          created_at?: string
+          id?: string
+          motorista_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cooperativa_id?: string
+          created_at?: string
+          id?: string
+          motorista_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cooperativa_motoristas_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: false
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cooperativa_repasses: {
+        Row: {
+          cooperativa_id: string
+          created_at: string
+          id: string
+          liquido: number
+          metodo: string
+          modo: string
+          motivo_falha: string | null
+          processado_em: string | null
+          provedor: string | null
+          provedor_ref: string | null
+          solicitado_em: string
+          status: string
+          taxa: number
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          cooperativa_id: string
+          created_at?: string
+          id?: string
+          liquido: number
+          metodo?: string
+          modo?: string
+          motivo_falha?: string | null
+          processado_em?: string | null
+          provedor?: string | null
+          provedor_ref?: string | null
+          solicitado_em?: string
+          status?: string
+          taxa?: number
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          cooperativa_id?: string
+          created_at?: string
+          id?: string
+          liquido?: number
+          metodo?: string
+          modo?: string
+          motivo_falha?: string | null
+          processado_em?: string | null
+          provedor?: string | null
+          provedor_ref?: string | null
+          solicitado_em?: string
+          status?: string
+          taxa?: number
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cooperativa_repasses_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: false
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cooperativa_transacoes: {
+        Row: {
+          cooperativa_id: string
+          corrida_id: string | null
+          corrida_urbana_id: string | null
+          created_at: string
+          descricao: string
+          environment: string
+          id: string
+          motorista_id: string | null
+          pagamento_id: string | null
+          referencia_externa: string | null
+          tipo: string
+          valor: number
+        }
+        Insert: {
+          cooperativa_id: string
+          corrida_id?: string | null
+          corrida_urbana_id?: string | null
+          created_at?: string
+          descricao: string
+          environment?: string
+          id?: string
+          motorista_id?: string | null
+          pagamento_id?: string | null
+          referencia_externa?: string | null
+          tipo: string
+          valor: number
+        }
+        Update: {
+          cooperativa_id?: string
+          corrida_id?: string | null
+          corrida_urbana_id?: string | null
+          created_at?: string
+          descricao?: string
+          environment?: string
+          id?: string
+          motorista_id?: string | null
+          pagamento_id?: string | null
+          referencia_externa?: string | null
+          tipo?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cooperativa_transacoes_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: false
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cooperativa_transacoes_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cooperativa_transacoes_corrida_urbana_fkey"
+            columns: ["corrida_urbana_id"]
+            isOneToOne: false
+            referencedRelation: "corridas_urbanas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cooperativa_transacoes_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cooperativas: {
+        Row: {
+          agencia: string | null
+          banco_codigo: string | null
+          banco_nome: string | null
+          cnpj: string
+          conta: string | null
+          created_at: string
+          email_contato: string | null
+          id: string
+          municipio: string | null
+          nome_fantasia: string | null
+          pix_chave: string | null
+          pix_tipo: string | null
+          razao_social: string
+          responsavel_nome: string
+          status: string
+          telefone: string | null
+          tipo_conta: string | null
+          titular_documento: string
+          titular_nome: string
+          uf: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agencia?: string | null
+          banco_codigo?: string | null
+          banco_nome?: string | null
+          cnpj: string
+          conta?: string | null
+          created_at?: string
+          email_contato?: string | null
+          id?: string
+          municipio?: string | null
+          nome_fantasia?: string | null
+          pix_chave?: string | null
+          pix_tipo?: string | null
+          razao_social: string
+          responsavel_nome: string
+          status?: string
+          telefone?: string | null
+          tipo_conta?: string | null
+          titular_documento: string
+          titular_nome: string
+          uf?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agencia?: string | null
+          banco_codigo?: string | null
+          banco_nome?: string | null
+          cnpj?: string
+          conta?: string | null
+          created_at?: string
+          email_contato?: string | null
+          id?: string
+          municipio?: string | null
+          nome_fantasia?: string | null
+          pix_chave?: string | null
+          pix_tipo?: string | null
+          razao_social?: string
+          responsavel_nome?: string
+          status?: string
+          telefone?: string | null
+          tipo_conta?: string | null
+          titular_documento?: string
+          titular_nome?: string
+          uf?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       corridas: {
         Row: {
           assentos: number
@@ -344,6 +625,144 @@ export type Database = {
           veiculo?: string | null
         }
         Relationships: []
+      }
+      corridas_urbanas: {
+        Row: {
+          aceita_em: string | null
+          agendada_para: string | null
+          avaliacao_motorista: number | null
+          avaliacao_passageiro: number | null
+          bandeirada: number
+          base: number
+          cancelada_por: string | null
+          concluida_em: string | null
+          cooperativa_id: string | null
+          created_at: string
+          destino_endereco: string
+          destino_latitude: number
+          destino_longitude: number
+          distancia_km: number
+          duracao_min: number
+          fator_pico: number
+          forma_pagamento: string
+          id: string
+          iniciada_em: string | null
+          modo: string
+          motivo_cancelamento: string | null
+          motorista_id: string | null
+          municipio: string
+          origem_endereco: string
+          origem_latitude: number
+          origem_longitude: number
+          pagamento_id: string | null
+          parcela_cooperativa: number
+          parcela_plataforma: number
+          passageiro_id: string
+          status: string
+          taxa_administrativa: number
+          taxa_cancelamento: number
+          total: number
+          uf: string
+          updated_at: string
+          valor_km: number
+          valor_minuto: number
+        }
+        Insert: {
+          aceita_em?: string | null
+          agendada_para?: string | null
+          avaliacao_motorista?: number | null
+          avaliacao_passageiro?: number | null
+          bandeirada?: number
+          base?: number
+          cancelada_por?: string | null
+          concluida_em?: string | null
+          cooperativa_id?: string | null
+          created_at?: string
+          destino_endereco: string
+          destino_latitude: number
+          destino_longitude: number
+          distancia_km?: number
+          duracao_min?: number
+          fator_pico?: number
+          forma_pagamento?: string
+          id?: string
+          iniciada_em?: string | null
+          modo?: string
+          motivo_cancelamento?: string | null
+          motorista_id?: string | null
+          municipio: string
+          origem_endereco: string
+          origem_latitude: number
+          origem_longitude: number
+          pagamento_id?: string | null
+          parcela_cooperativa?: number
+          parcela_plataforma?: number
+          passageiro_id: string
+          status?: string
+          taxa_administrativa?: number
+          taxa_cancelamento?: number
+          total?: number
+          uf: string
+          updated_at?: string
+          valor_km?: number
+          valor_minuto?: number
+        }
+        Update: {
+          aceita_em?: string | null
+          agendada_para?: string | null
+          avaliacao_motorista?: number | null
+          avaliacao_passageiro?: number | null
+          bandeirada?: number
+          base?: number
+          cancelada_por?: string | null
+          concluida_em?: string | null
+          cooperativa_id?: string | null
+          created_at?: string
+          destino_endereco?: string
+          destino_latitude?: number
+          destino_longitude?: number
+          distancia_km?: number
+          duracao_min?: number
+          fator_pico?: number
+          forma_pagamento?: string
+          id?: string
+          iniciada_em?: string | null
+          modo?: string
+          motivo_cancelamento?: string | null
+          motorista_id?: string | null
+          municipio?: string
+          origem_endereco?: string
+          origem_latitude?: number
+          origem_longitude?: number
+          pagamento_id?: string | null
+          parcela_cooperativa?: number
+          parcela_plataforma?: number
+          passageiro_id?: string
+          status?: string
+          taxa_administrativa?: number
+          taxa_cancelamento?: number
+          total?: number
+          uf?: string
+          updated_at?: string
+          valor_km?: number
+          valor_minuto?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corridas_urbanas_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: false
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corridas_urbanas_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       custos_terceiros: {
         Row: {
@@ -757,7 +1176,9 @@ export type Database = {
       lancamentos_contabeis: {
         Row: {
           competencia: string
+          cooperativa_id: string | null
           corrida_id: string | null
+          corrida_urbana_id: string | null
           created_at: string
           custo_id: string | null
           descricao: string
@@ -771,7 +1192,9 @@ export type Database = {
         }
         Insert: {
           competencia?: string
+          cooperativa_id?: string | null
           corrida_id?: string | null
+          corrida_urbana_id?: string | null
           created_at?: string
           custo_id?: string | null
           descricao?: string
@@ -785,7 +1208,9 @@ export type Database = {
         }
         Update: {
           competencia?: string
+          cooperativa_id?: string | null
           corrida_id?: string | null
+          corrida_urbana_id?: string | null
           created_at?: string
           custo_id?: string | null
           descricao?: string
@@ -799,10 +1224,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "lancamentos_contabeis_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: false
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lancamentos_contabeis_corrida_id_fkey"
             columns: ["corrida_id"]
             isOneToOne: false
             referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_contabeis_corrida_urbana_id_fkey"
+            columns: ["corrida_urbana_id"]
+            isOneToOne: false
+            referencedRelation: "corridas_urbanas"
             referencedColumns: ["id"]
           },
           {
@@ -824,6 +1263,56 @@ export type Database = {
             columns: ["pagamento_id"]
             isOneToOne: false
             referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      motoristas_urbanos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          municipio: string | null
+          online: boolean
+          uf: string | null
+          ultima_latitude: number | null
+          ultima_longitude: number | null
+          ultima_posicao_em: string | null
+          updated_at: string
+          user_id: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          municipio?: string | null
+          online?: boolean
+          uf?: string | null
+          ultima_latitude?: number | null
+          ultima_longitude?: number | null
+          ultima_posicao_em?: string | null
+          updated_at?: string
+          user_id: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          municipio?: string | null
+          online?: boolean
+          uf?: string | null
+          ultima_latitude?: number | null
+          ultima_longitude?: number | null
+          ultima_posicao_em?: string | null
+          updated_at?: string
+          user_id?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "motoristas_urbanos_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
             referencedColumns: ["id"]
           },
         ]
@@ -1236,6 +1725,7 @@ export type Database = {
           created_at: string
           descricao: string
           id: string
+          rateio_cooperativa_percentual: number
           repasse_motorista_percentual: number
           taxa_fixa: number
           taxa_percentual: number
@@ -1247,6 +1737,7 @@ export type Database = {
           created_at?: string
           descricao?: string
           id?: string
+          rateio_cooperativa_percentual?: number
           repasse_motorista_percentual?: number
           taxa_fixa?: number
           taxa_percentual?: number
@@ -1258,6 +1749,7 @@ export type Database = {
           created_at?: string
           descricao?: string
           id?: string
+          rateio_cooperativa_percentual?: number
           repasse_motorista_percentual?: number
           taxa_fixa?: number
           taxa_percentual?: number
@@ -1829,6 +2321,51 @@ export type Database = {
         }
         Relationships: []
       }
+      tarifas_urbanas: {
+        Row: {
+          ativa: boolean
+          bandeirada: number
+          created_at: string
+          fator_pico: number
+          id: string
+          minimo: number
+          municipio: string
+          taxa_cancelamento: number
+          uf: string
+          updated_at: string
+          valor_km: number
+          valor_minuto: number
+        }
+        Insert: {
+          ativa?: boolean
+          bandeirada?: number
+          created_at?: string
+          fator_pico?: number
+          id?: string
+          minimo?: number
+          municipio: string
+          taxa_cancelamento?: number
+          uf: string
+          updated_at?: string
+          valor_km?: number
+          valor_minuto?: number
+        }
+        Update: {
+          ativa?: boolean
+          bandeirada?: number
+          created_at?: string
+          fator_pico?: number
+          id?: string
+          minimo?: number
+          municipio?: string
+          taxa_cancelamento?: number
+          uf?: string
+          updated_at?: string
+          valor_km?: number
+          valor_minuto?: number
+        }
+        Relationships: []
+      }
       trajetos: {
         Row: {
           corrida_id: string
@@ -2364,6 +2901,7 @@ export type Database = {
           origin_neighborhood: string
         }[]
       }
+      cooperativa_do_motorista: { Args: { _user_id: string }; Returns: string }
       eh_admin_master: { Args: { _user_id: string }; Returns: boolean }
       eh_colaborador: { Args: { _user_id: string }; Returns: boolean }
       eh_frotista_da_rota: {
@@ -2371,6 +2909,10 @@ export type Database = {
         Returns: boolean
       }
       eh_gestao: { Args: { _user_id: string }; Returns: boolean }
+      eh_responsavel_cooperativa: {
+        Args: { _cooperativa_id: string; _user_id: string }
+        Returns: boolean
+      }
       frotista_id_do_usuario: { Args: { _user_id: string }; Returns: string }
       frotista_liberado: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
@@ -2420,6 +2962,7 @@ export type Database = {
         | "admin_secundario"
         | "gerente"
         | "operacional"
+        | "cooperativa"
       driver_account_type: "CHECKING" | "SAVINGS"
       driver_payout_status:
         | "REQUESTED"
@@ -2593,6 +3136,7 @@ export const Constants = {
         "admin_secundario",
         "gerente",
         "operacional",
+        "cooperativa",
       ],
       driver_account_type: ["CHECKING", "SAVINGS"],
       driver_payout_status: [

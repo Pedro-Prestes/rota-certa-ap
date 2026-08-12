@@ -29,11 +29,13 @@ import { Route as AuthenticatedCarteiraRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedColaboradorRouteImport } from './routes/_authenticated/colaborador'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
+import { Route as AuthenticatedCooperativaRouteImport } from './routes/_authenticated/cooperativa'
 import { Route as AuthenticatedEmbarqueRouteImport } from './routes/_authenticated/embarque'
 import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticated/frotista'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authenticated/solicitar-admin'
+import { Route as AuthenticatedUrbanoRouteImport } from './routes/_authenticated/urbano'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -147,6 +149,12 @@ const AuthenticatedContabilRoute = AuthenticatedContabilRouteImport.update({
   path: '/contabil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCooperativaRoute =
+  AuthenticatedCooperativaRouteImport.update({
+    id: '/cooperativa',
+    path: '/cooperativa',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmbarqueRoute = AuthenticatedEmbarqueRouteImport.update({
   id: '/embarque',
   path: '/embarque',
@@ -173,6 +181,11 @@ const AuthenticatedSolicitarAdminRoute =
     path: '/solicitar-admin',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedUrbanoRoute = AuthenticatedUrbanoRouteImport.update({
+  id: '/urbano',
+  path: '/urbano',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVerificacaoRoute =
   AuthenticatedVerificacaoRouteImport.update({
     id: '/verificacao',
@@ -255,11 +268,13 @@ export interface FileRoutesByFullPath {
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/cooperativa': typeof AuthenticatedCooperativaRoute
   '/embarque': typeof AuthenticatedEmbarqueRoute
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
+  '/urbano': typeof AuthenticatedUrbanoRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
@@ -292,11 +307,13 @@ export interface FileRoutesByTo {
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/cooperativa': typeof AuthenticatedCooperativaRoute
   '/embarque': typeof AuthenticatedEmbarqueRoute
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
+  '/urbano': typeof AuthenticatedUrbanoRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
@@ -331,11 +348,13 @@ export interface FileRoutesById {
   '/_authenticated/colaborador': typeof AuthenticatedColaboradorRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
+  '/_authenticated/cooperativa': typeof AuthenticatedCooperativaRoute
   '/_authenticated/embarque': typeof AuthenticatedEmbarqueRoute
   '/_authenticated/frotista': typeof AuthenticatedFrotistaRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
+  '/_authenticated/urbano': typeof AuthenticatedUrbanoRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
@@ -370,11 +389,13 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/conta'
     | '/contabil'
+    | '/cooperativa'
     | '/embarque'
     | '/frotista'
     | '/pagamentos'
     | '/planos'
     | '/solicitar-admin'
+    | '/urbano'
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
@@ -407,11 +428,13 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/conta'
     | '/contabil'
+    | '/cooperativa'
     | '/embarque'
     | '/frotista'
     | '/pagamentos'
     | '/planos'
     | '/solicitar-admin'
+    | '/urbano'
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
@@ -445,11 +468,13 @@ export interface FileRouteTypes {
     | '/_authenticated/colaborador'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
+    | '/_authenticated/cooperativa'
     | '/_authenticated/embarque'
     | '/_authenticated/frotista'
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
     | '/_authenticated/solicitar-admin'
+    | '/_authenticated/urbano'
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
     | '/api/chat'
@@ -628,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContabilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cooperativa': {
+      id: '/_authenticated/cooperativa'
+      path: '/cooperativa'
+      fullPath: '/cooperativa'
+      preLoaderRoute: typeof AuthenticatedCooperativaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/embarque': {
       id: '/_authenticated/embarque'
       path: '/embarque'
@@ -661,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/solicitar-admin'
       fullPath: '/solicitar-admin'
       preLoaderRoute: typeof AuthenticatedSolicitarAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/urbano': {
+      id: '/_authenticated/urbano'
+      path: '/urbano'
+      fullPath: '/urbano'
+      preLoaderRoute: typeof AuthenticatedUrbanoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/verificacao': {
@@ -752,11 +791,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedColaboradorRoute: typeof AuthenticatedColaboradorRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
+  AuthenticatedCooperativaRoute: typeof AuthenticatedCooperativaRoute
   AuthenticatedEmbarqueRoute: typeof AuthenticatedEmbarqueRoute
   AuthenticatedFrotistaRoute: typeof AuthenticatedFrotistaRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedSolicitarAdminRoute: typeof AuthenticatedSolicitarAdminRoute
+  AuthenticatedUrbanoRoute: typeof AuthenticatedUrbanoRoute
   AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
   AuthenticatedViagemRoute: typeof AuthenticatedViagemRoute
 }
@@ -770,11 +811,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedColaboradorRoute: AuthenticatedColaboradorRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
+  AuthenticatedCooperativaRoute: AuthenticatedCooperativaRoute,
   AuthenticatedEmbarqueRoute: AuthenticatedEmbarqueRoute,
   AuthenticatedFrotistaRoute: AuthenticatedFrotistaRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedSolicitarAdminRoute: AuthenticatedSolicitarAdminRoute,
+  AuthenticatedUrbanoRoute: AuthenticatedUrbanoRoute,
   AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
   AuthenticatedViagemRoute: AuthenticatedViagemRoute,
 }
