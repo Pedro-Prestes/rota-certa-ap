@@ -198,7 +198,8 @@ export async function criarPixDaCorrida(
 
 /** Débita os créditos, registra o pagamento e garante o assento na saída. */
 export async function reservarComCreditos(dados: EntradaReserva) {
-  const { rota, composicao } = await rotaEComposicao(dados);
+  const { rota, composicao, exclusiva, valorPesoExcedente } = await rotaEComposicao(dados);
+
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
 
   if (saldo < composicao.total) {
