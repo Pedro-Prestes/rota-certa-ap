@@ -34,6 +34,7 @@ import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedSolicitarAdminRouteImport } from './routes/_authenticated/solicitar-admin'
+import { Route as AuthenticatedUrbanoRouteImport } from './routes/_authenticated/urbano'
 import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as AuthenticatedViagemRouteImport } from './routes/_authenticated/viagem'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -173,6 +174,11 @@ const AuthenticatedSolicitarAdminRoute =
     path: '/solicitar-admin',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedUrbanoRoute = AuthenticatedUrbanoRouteImport.update({
+  id: '/urbano',
+  path: '/urbano',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVerificacaoRoute =
   AuthenticatedVerificacaoRouteImport.update({
     id: '/verificacao',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
+  '/urbano': typeof AuthenticatedUrbanoRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
@@ -297,6 +304,7 @@ export interface FileRoutesByTo {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
+  '/urbano': typeof AuthenticatedUrbanoRoute
   '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/solicitar-admin': typeof AuthenticatedSolicitarAdminRoute
+  '/_authenticated/urbano': typeof AuthenticatedUrbanoRoute
   '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/_authenticated/viagem': typeof AuthenticatedViagemRoute
   '/api/chat': typeof ApiChatRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/planos'
     | '/solicitar-admin'
+    | '/urbano'
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/planos'
     | '/solicitar-admin'
+    | '/urbano'
     | '/verificacao'
     | '/viagem'
     | '/api/chat'
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pagamentos'
     | '/_authenticated/planos'
     | '/_authenticated/solicitar-admin'
+    | '/_authenticated/urbano'
     | '/_authenticated/verificacao'
     | '/_authenticated/viagem'
     | '/api/chat'
@@ -663,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSolicitarAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/urbano': {
+      id: '/_authenticated/urbano'
+      path: '/urbano'
+      fullPath: '/urbano'
+      preLoaderRoute: typeof AuthenticatedUrbanoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/verificacao': {
       id: '/_authenticated/verificacao'
       path: '/verificacao'
@@ -757,6 +776,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedSolicitarAdminRoute: typeof AuthenticatedSolicitarAdminRoute
+  AuthenticatedUrbanoRoute: typeof AuthenticatedUrbanoRoute
   AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
   AuthenticatedViagemRoute: typeof AuthenticatedViagemRoute
 }
@@ -775,6 +795,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedSolicitarAdminRoute: AuthenticatedSolicitarAdminRoute,
+  AuthenticatedUrbanoRoute: AuthenticatedUrbanoRoute,
   AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
   AuthenticatedViagemRoute: AuthenticatedViagemRoute,
 }
