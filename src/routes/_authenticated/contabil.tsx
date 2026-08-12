@@ -24,6 +24,7 @@ import { FiltroPeriodo } from "@/components/contabil/FiltroPeriodo";
 import { ExtratoTransacoes } from "@/components/contabil/ExtratoTransacoes";
 import { DemonstrativoCompetencia } from "@/components/contabil/DemonstrativoCompetencia";
 import { RepassesPeriodo } from "@/components/contabil/RepassesPeriodo";
+import { UrbanoCooperativas } from "@/components/contabil/UrbanoCooperativas";
 import { periodoDoAtalho, type AtalhoPeriodo, type PeriodoContabil } from "@/lib/contabil";
 import { carregarResumoContabil, estornarPagamento } from "@/utils/contabil.functions";
 
@@ -278,6 +279,13 @@ function Contabil() {
               cobrancas={resumo.data?.cobrancasPix ?? []}
             />
             <DemonstrativoCompetencia linhas={resumo.data?.competencias ?? []} />
+            {resumo.data?.urbano && (
+              <UrbanoCooperativas
+                periodo={periodo}
+                urbano={resumo.data.urbano}
+                cooperativas={resumo.data.cooperativas ?? []}
+              />
+            )}
           </>
         )}
 
