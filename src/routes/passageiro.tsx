@@ -14,7 +14,17 @@ import {
   previaDaReserva,
 } from "@/utils/reserva.functions";
 
-import { avaliarBagagem, brl, calcularTarifa, rotuloClasse, type Volume } from "@/lib/logistica";
+import {
+  FRANQUIA_EXCLUSIVA_KG,
+  PRECO_KG_EXCEDENTE,
+  avaliarBagagem,
+  brl,
+  calcularTarifa,
+  custoPesoExcedente,
+  pesoExcedenteKg,
+  rotuloClasse,
+  type Volume,
+} from "@/lib/logistica";
 
 type RotaPublica = {
   id: string;
@@ -80,6 +90,7 @@ function Passageiro() {
   const hoje = diaLocal(agora);
   const [data, setData] = useState(() => diaLocal(new Date()));
   const [assentos, setAssentos] = useState(1);
+  const [exclusiva, setExclusiva] = useState(false);
   const [selecionada, setSelecionada] = useState<string | null>(null);
 
   const [pagando, setPagando] = useState(false);
@@ -189,6 +200,8 @@ function Passageiro() {
     dataViagem: data,
     assentos,
     assentosBagagem: avaliacao.assentosEquivalentes,
+    exclusiva,
+    bagagemKg: Number(avaliacao.pesoKg.toFixed(1)),
     ...(enderecoValido ? { enderecoEmbarque: enderecoDebounced } : {}),
     environment: "live" as const,
   });
@@ -200,6 +213,8 @@ function Passageiro() {
       data,
       assentos,
       avaliacao.assentosEquivalentes,
+      exclusiva,
+      avaliacao.pesoKg,
       enderecoValido ? enderecoDebounced : "",
     ],
     enabled: Boolean(selecionada),
@@ -486,17 +501,56 @@ function Passageiro() {
                     </span>
                   </label>
 
+                  <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-accent/40 bg-accent/10 p-3">
+                    <input
+                      type="checkbox"
+                      checked={exclusiva}
+                      onChange={(e) => setExclusiva(e.target.checked)}
+                      className="mt-0.5 size-4 accent-current"
+                    />
+                    <span className="text-[11px] leading-relaxed text-primary-foreground/80">
+                      <strong className="block text-xs text-primary-foreground">
+                        Quero esta saída com exclusividade
+                      </strong>
+                      Tarifa integral do veículo ({viagem.assentos} assentos), sem dividir com outros
+                      passageiros. Bagagem liberada até {FRANQUIA_EXCLUSIVA_KG} kg — acima disso,
+                      cobramos {brl(PRECO_KG_EXCEDENTE)} por quilo excedente.
+                    </span>
+                  </label>
+
                   <dl className="mt-4 space-y-1.5 text-sm">
-                    <div className="flex justify-between">
-                      <dt className="text-primary-foreground/70">{assentos} assento(s)</dt>
-                      <dd>{brl(tarifa.precoAssento * assentos)}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-primary-foreground/70">
-                        Bagagem excedente ({avaliacao.assentosEquivalentes})
-                      </dt>
-                      <dd>{brl(tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes)}</dd>
-                    </div>
+                    {exclusiva ? (
+                      <>
+                        <div className="flex justify-between">
+                          <dt className="text-primary-foreground/70">
+                            Exclusividade · tarifa integral ({viagem.assentos} assentos)
+                          </dt>
+                          <dd>{brl(tarifa.precoAssento * viagem.assentos)}</dd>
+                        </div>
+                        <div className="flex justify-between">
+                          <dt className="text-primary-foreground/70">
+                            Peso excedente ({previa.data?.excedenteKg ?? pesoExcedenteKg(avaliacao.pesoKg)} kg
+                            acima de {FRANQUIA_EXCLUSIVA_KG} kg)
+                          </dt>
+                          <dd>
+                            {brl(previa.data?.valorPesoExcedente ?? custoPesoExcedente(avaliacao.pesoKg))}
+                          </dd>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex justify-between">
+                          <dt className="text-primary-foreground/70">{assentos} assento(s)</dt>
+                          <dd>{brl(tarifa.precoAssento * assentos)}</dd>
+                        </div>
+                        <div className="flex justify-between">
+                          <dt className="text-primary-foreground/70">
+                            Bagagem excedente ({avaliacao.assentosEquivalentes})
+                          </dt>
+                          <dd>{brl(tarifa.precoAssentoBagagem * avaliacao.assentosEquivalentes)}</dd>
+                        </div>
+                      </>
+                    )}
                     <div className="flex justify-between">
                       <dt className="text-primary-foreground/70">
                         Desvio do embarque
