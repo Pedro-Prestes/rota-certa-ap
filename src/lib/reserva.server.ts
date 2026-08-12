@@ -78,21 +78,50 @@ async function rotaEComposicao(dados: EntradaReserva) {
   if (!rota || rota.status !== "ativa") throw new Error("Esta saída não está mais disponível.");
 
   const preco = Number(rota.preco_assento) || 0;
-  // Bagagem excedente equivale a 60% do preço do assento (mesma regra da vitrine).
-  const assentosValor = arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
+  const capacidade = Number(rota.assentos) || 0;
+  const exclusiva = dados.exclusiva === true;
+
+  // Exclusividade: tarifa integral do veículo (todos os assentos), sem cálculo
+  // por assento avulso; a bagagem tem franquia de 40 kg e o excedente é cobrado
+  // por quilo. Sem exclusividade, mantém-se a regra da vitrine (60% por
+  // assento-equivalente de bagagem).
+  const excedenteKg = exclusiva ? pesoExcedenteKg(dados.bagagemKg ?? 0) : 0;
+  const valorPesoExcedente = exclusiva ? arred(custoPesoExcedente(dados.bagagemKg ?? 0)) : 0;
+  const assentosValor = exclusiva
+    ? arred(preco * Math.max(1, capacidade) + valorPesoExcedente)
+    : arred(preco * dados.assentos + preco * 0.6 * Math.max(0, dados.assentosBagagem));
   if (assentosValor <= 0) throw new Error("Esta saída ainda não tem tarifa publicada.");
 
   const desvio = await desvioDoEmbarque(dados.rotaId, dados.enderecoEmbarque);
   const base = arred(assentosValor + (desvio?.taxa ?? 0));
 
   const cfg = await configDoUsuario(dados.userId, dados.environment);
-  return { rota, base, assentosValor, desvio, composicao: comporCobranca(base, cfg) };
+  return {
+    rota,
+    base,
+    assentosValor,
+    desvio,
+    exclusiva,
+    capacidade,
+    excedenteKg,
+    valorPesoExcedente,
+    composicao: comporCobranca(base, cfg),
+  };
 }
 
 
 /** Prévia do valor da reserva e do saldo disponível em créditos. */
 export async function previaReserva(dados: EntradaReserva) {
-  const { rota, composicao, assentosValor, desvio } = await rotaEComposicao(dados);
+  const {
+    rota,
+    composicao,
+    assentosValor,
+    desvio,
+    exclusiva,
+    capacidade,
+    excedenteKg,
+    valorPesoExcedente,
+  } = await rotaEComposicao(dados);
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
   const faltando = arred(Math.max(0, composicao.total - saldo));
   return {
@@ -103,6 +132,12 @@ export async function previaReserva(dados: EntradaReserva) {
 
     assentosValor,
     desvio,
+    exclusiva,
+    capacidade,
+    excedenteKg,
+    valorPesoExcedente,
+    franquiaKg: FRANQUIA_EXCLUSIVA_KG,
+    precoKgExcedente: PRECO_KG_EXCEDENTE,
     base: composicao.base,
     taxaAdministrativa: composicao.taxaAdministrativa,
     total: composicao.total,
@@ -110,6 +145,7 @@ export async function previaReserva(dados: EntradaReserva) {
     faltando,
     ...(faltando > 0 ? { pacoteSugerido: pacoteSugerido(faltando) } : {}),
   };
+
 
 }
 
