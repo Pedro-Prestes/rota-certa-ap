@@ -279,8 +279,104 @@ export async function solicitarCorridaUrbana(e: EntradaCorridaUrbana) {
     },
   }).catch((erro) => console.error("[urbano] bloco não registrado", erro));
 
-  return { corrida: data, estimativa };
+  // Agendamento: o sistema já reserva o motorista mais perto, ativo e desocupado.
+  let designado: { motoristaId: string; distanciaKm: number } | null = null;
+  let corrida = data;
+  if (e.modo === "agendado") {
+    designado = await designarMotoristaAgendado(data).catch((erro) => {
+      console.error("[urbano] falha ao designar motorista do agendamento", erro);
+      return null;
+    });
+    if (designado) {
+      const { data: atualizada } = await supabaseAdmin
+        .from("corridas_urbanas")
+        .select("*")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (atualizada) corrida = atualizada;
+    }
+  }
+
+  return { corrida, estimativa, designado };
 }
+
+/**
+ * Escolhe, para uma corrida agendada, o motorista urbano mais próximo do ponto
+ * de embarque que esteja com a chave ligada, online e sem corrida em andamento
+ * nem outro agendamento na mesma janela de horário. A corrida fica reservada
+ * para ele (permanece "ofertada", mas só aparece no painel desse motorista);
+ * se ninguém atender aos critérios, a oferta segue aberta a todos.
+ */
+export async function designarMotoristaAgendado(corrida: {
+  id: string;
+  municipio: string;
+  uf: string;
+  origem_latitude: unknown;
+  origem_longitude: unknown;
+  agendada_para: string | null;
+}) {
+  const { data: candidatos } = await supabaseAdmin
+    .from("motoristas_urbanos")
+    .select("user_id, ultima_latitude, ultima_longitude")
+    .eq("ativo", true)
+    .eq("online", true)
+    .eq("uf", corrida.uf)
+    .eq("municipio", corrida.municipio);
+  if (!candidatos?.length) return null;
+
+  const embarque = {
+    latitude: n(corrida.origem_latitude),
+    longitude: n(corrida.origem_longitude),
+  };
+
+  const ordenados = candidatos
+    .filter((c) => c.ultima_latitude != null && c.ultima_longitude != null)
+    .map((c) => ({
+      motoristaId: c.user_id,
+      distanciaKm: arred(
+        distanciaKm(embarque, {
+          latitude: n(c.ultima_latitude),
+          longitude: n(c.ultima_longitude),
+        }),
+      ),
+    }))
+    .filter((c) => c.distanciaKm <= RAIO_AGENDAMENTO_KM)
+    .sort((a, b) => a.distanciaKm - b.distanciaKm);
+  if (!ordenados.length) return null;
+
+  const quando = corrida.agendada_para ? new Date(corrida.agendada_para) : null;
+  const janela = JANELA_AGENDAMENTO_MIN * 60 * 1000;
+
+  for (const candidato of ordenados) {
+    const { data: ocupacoes } = await supabaseAdmin
+      .from("corridas_urbanas")
+      .select("id, status, agendada_para")
+      .eq("motorista_id", candidato.motoristaId)
+      .in("status", ["ofertada", "aceita", "a_caminho", "aguardando", "em_viagem"]);
+
+    const ocupado = (ocupacoes ?? []).some((o) => {
+      if (o.id === corrida.id) return false;
+      if (o.status !== "ofertada" && !o.agendada_para) return true; // corrida em andamento
+      if (!o.agendada_para || !quando) return o.status !== "ofertada";
+      return Math.abs(new Date(o.agendada_para).getTime() - quando.getTime()) < janela;
+    });
+    if (ocupado) continue;
+
+    const { data: reservada } = await supabaseAdmin
+      .from("corridas_urbanas")
+      .update({ motorista_id: candidato.motoristaId })
+      .eq("id", corrida.id)
+      .eq("status", "ofertada")
+      .is("motorista_id", null)
+      .select("id")
+      .maybeSingle();
+    if (reservada) return candidato;
+    return null; // já reservada/aceita por outro fluxo
+  }
+
+  return null;
+}
+
 
 /** Ofertas visíveis ao motorista urbano, ordenadas por proximidade. */
 export async function ofertasDoMotorista(userId: string) {
