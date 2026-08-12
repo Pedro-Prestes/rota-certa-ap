@@ -85,6 +85,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#0f766e" },
       { name: "mobile-web-app-capable", content: "yes" },
+      { name: "google-site-verification", content: "dpLBY9FTcNTBVXyaLaomtK_jIluXbcrlJWZO-JsP5R8" },
+
 
       { title: "RotaCerta — transporte intermunicipal e interestadual" },
       { name: "description", content: "Van e carro intermunicipal e interestadual com hora marcada: reserve assento e bagagem com antecedência em rotas de todo o Brasil." },
