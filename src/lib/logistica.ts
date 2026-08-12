@@ -178,3 +178,20 @@ export function calcularTarifa(p: ParametrosRota): Tarifa {
 
 export const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+/* ------------------------------------------------------------------ */
+/* 3. Exclusividade da saída (fretamento do veículo inteiro)           */
+/* ------------------------------------------------------------------ */
+
+/** Franquia de bagagem quando o passageiro reserva a rota com exclusividade. */
+export const FRANQUIA_EXCLUSIVA_KG = 40;
+/** Valor cobrado por quilo acima da franquia exclusiva. */
+export const PRECO_KG_EXCEDENTE = 3.5;
+
+/** Peso acima da franquia de 40 kg, arredondado para o quilo cheio. */
+export const pesoExcedenteKg = (pesoKg: number) =>
+  Math.max(0, Math.ceil(pesoKg - FRANQUIA_EXCLUSIVA_KG));
+
+/** Custo do peso excedente na reserva exclusiva. */
+export const custoPesoExcedente = (pesoKg: number) =>
+  pesoExcedenteKg(pesoKg) * PRECO_KG_EXCEDENTE;
