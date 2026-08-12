@@ -10,6 +10,13 @@ import { registrarEvento } from "./blockchain.server";
 import { carteiraDoUsuario } from "./assinatura.server";
 import { configDoUsuario } from "./cobranca.server";
 import { comporCobranca } from "./taxas";
+import {
+  FRANQUIA_EXCLUSIVA_KG,
+  PRECO_KG_EXCEDENTE,
+  custoPesoExcedente,
+  pesoExcedenteKg,
+} from "./logistica";
+
 import { PACOTES_CREDITO } from "./planos";
 import type { StripeEnv } from "./stripe.server";
 
