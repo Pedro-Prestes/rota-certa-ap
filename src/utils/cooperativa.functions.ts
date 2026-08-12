@@ -60,18 +60,19 @@ export const repassarCooperativa = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data, context }) => {
-    const { cooperativaDoResponsavel, repassarCooperativa: repassar } = await import(
-      "@/lib/cooperativa.server"
-    );
+    const { cooperativaDoResponsavel, repassarCooperativa: repassar, liquidarSeElegivel } =
+      await import("@/lib/cooperativa.server");
     try {
       const coop = await cooperativaDoResponsavel(context.userId);
       if (!coop || coop.id !== data.cooperativaId) {
         return { error: "Cooperativa não encontrada para este responsável." };
       }
-      return await repassar({
-        cooperativaId: data.cooperativaId,
-        ...(data.valor ? { valor: Number(data.valor) } : {}),
-      });
+      const valor = Number(data.valor ?? 0);
+      const repasse = valor > 0
+        ? await repassar({ cooperativaId: data.cooperativaId, valor, modo: "manual" })
+        : await liquidarSeElegivel(data.cooperativaId);
+      if (!repasse) return { error: "Saldo insuficiente para o repasse mínimo." };
+      return repasse;
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Não foi possível solicitar o repasse." };
     }
