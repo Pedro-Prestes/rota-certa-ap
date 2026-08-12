@@ -18,6 +18,8 @@ import { registrarEvento } from "./blockchain.server";
 import { creditarRateioCooperativa } from "./cooperativa.server";
 import {
   CANCELAMENTO_COM_CUSTO,
+  JANELA_AGENDAMENTO_MIN,
+  RAIO_AGENDAMENTO_KM,
   RAIO_DESPACHO_KM,
   TARIFA_URBANA_PADRAO,
   distanciaKm,
@@ -390,6 +392,7 @@ export async function ofertasDoMotorista(userId: string) {
       .eq("status", "ofertada")
       .eq("uf", estado.uf)
       .eq("municipio", estado.municipio)
+      .or(`motorista_id.is.null,motorista_id.eq.${userId}`)
       .order("created_at", { ascending: true })
       .limit(30),
     supabaseAdmin
@@ -436,10 +439,13 @@ export async function aceitarCorridaUrbana(params: { userId: string; corridaId: 
     })
     .eq("id", params.corridaId)
     .eq("status", "ofertada")
+    .or(`motorista_id.is.null,motorista_id.eq.${params.userId}`)
     .select("*")
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("Esta corrida já foi aceita por outro motorista.");
+  if (!data) {
+    throw new Error("Esta corrida já foi aceita ou está reservada para outro motorista.");
+  }
   return data;
 }
 
