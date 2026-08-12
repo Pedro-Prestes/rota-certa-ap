@@ -118,10 +118,10 @@ function Cooperativa() {
       titular_nome: coop.titular_nome ?? "",
       titular_documento: coop.titular_documento ?? "",
       banco_codigo: coop.banco_codigo ?? "",
-      tipo_conta: (coop.tipo_conta ?? "") as EntradaCooperativa["tipo_conta"],
+      tipo_conta: (coop.tipo_conta ?? "") as NonNullable<EntradaCooperativa["tipo_conta"]>,
       agencia: coop.agencia ?? "",
       conta: coop.conta ?? "",
-      pix_tipo: (coop.pix_tipo ?? "") as EntradaCooperativa["pix_tipo"],
+      pix_tipo: (coop.pix_tipo ?? "") as NonNullable<EntradaCooperativa["pix_tipo"]>,
       pix_chave: coop.pix_chave ?? "",
     });
   }, [coop?.id]); // eslint-disable-line react-hooks/exhaustive-deps

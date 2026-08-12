@@ -29,6 +29,7 @@ import { Route as AuthenticatedCarteiraRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedColaboradorRouteImport } from './routes/_authenticated/colaborador'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedContabilRouteImport } from './routes/_authenticated/contabil'
+import { Route as AuthenticatedCooperativaRouteImport } from './routes/_authenticated/cooperativa'
 import { Route as AuthenticatedEmbarqueRouteImport } from './routes/_authenticated/embarque'
 import { Route as AuthenticatedFrotistaRouteImport } from './routes/_authenticated/frotista'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
@@ -148,6 +149,12 @@ const AuthenticatedContabilRoute = AuthenticatedContabilRouteImport.update({
   path: '/contabil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCooperativaRoute =
+  AuthenticatedCooperativaRouteImport.update({
+    id: '/cooperativa',
+    path: '/cooperativa',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmbarqueRoute = AuthenticatedEmbarqueRouteImport.update({
   id: '/embarque',
   path: '/embarque',
@@ -261,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/cooperativa': typeof AuthenticatedCooperativaRoute
   '/embarque': typeof AuthenticatedEmbarqueRoute
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -299,6 +307,7 @@ export interface FileRoutesByTo {
   '/colaborador': typeof AuthenticatedColaboradorRoute
   '/conta': typeof AuthenticatedContaRoute
   '/contabil': typeof AuthenticatedContabilRoute
+  '/cooperativa': typeof AuthenticatedCooperativaRoute
   '/embarque': typeof AuthenticatedEmbarqueRoute
   '/frotista': typeof AuthenticatedFrotistaRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -339,6 +348,7 @@ export interface FileRoutesById {
   '/_authenticated/colaborador': typeof AuthenticatedColaboradorRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/contabil': typeof AuthenticatedContabilRoute
+  '/_authenticated/cooperativa': typeof AuthenticatedCooperativaRoute
   '/_authenticated/embarque': typeof AuthenticatedEmbarqueRoute
   '/_authenticated/frotista': typeof AuthenticatedFrotistaRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/conta'
     | '/contabil'
+    | '/cooperativa'
     | '/embarque'
     | '/frotista'
     | '/pagamentos'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/conta'
     | '/contabil'
+    | '/cooperativa'
     | '/embarque'
     | '/frotista'
     | '/pagamentos'
@@ -456,6 +468,7 @@ export interface FileRouteTypes {
     | '/_authenticated/colaborador'
     | '/_authenticated/conta'
     | '/_authenticated/contabil'
+    | '/_authenticated/cooperativa'
     | '/_authenticated/embarque'
     | '/_authenticated/frotista'
     | '/_authenticated/pagamentos'
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContabilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cooperativa': {
+      id: '/_authenticated/cooperativa'
+      path: '/cooperativa'
+      fullPath: '/cooperativa'
+      preLoaderRoute: typeof AuthenticatedCooperativaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/embarque': {
       id: '/_authenticated/embarque'
       path: '/embarque'
@@ -771,6 +791,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedColaboradorRoute: typeof AuthenticatedColaboradorRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedContabilRoute: typeof AuthenticatedContabilRoute
+  AuthenticatedCooperativaRoute: typeof AuthenticatedCooperativaRoute
   AuthenticatedEmbarqueRoute: typeof AuthenticatedEmbarqueRoute
   AuthenticatedFrotistaRoute: typeof AuthenticatedFrotistaRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
@@ -790,6 +811,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedColaboradorRoute: AuthenticatedColaboradorRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedContabilRoute: AuthenticatedContabilRoute,
+  AuthenticatedCooperativaRoute: AuthenticatedCooperativaRoute,
   AuthenticatedEmbarqueRoute: AuthenticatedEmbarqueRoute,
   AuthenticatedFrotistaRoute: AuthenticatedFrotistaRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
