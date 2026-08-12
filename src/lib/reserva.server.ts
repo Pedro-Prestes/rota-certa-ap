@@ -260,15 +260,20 @@ export async function reservarComCreditos(dados: EntradaReserva) {
       hora_partida: rota.saida_ida,
       hora_chegada: rota.chegada_ida,
       distancia_km: Number(rota.distancia_km) || 0,
-      assentos: dados.assentos,
+      assentos: assentosCorrida,
       bagagem_l: 0,
-      valor_tarifa: arred(Number(rota.preco_assento) * dados.assentos),
-      valor_bagagem: arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
+      valor_tarifa: arred(Number(rota.preco_assento) * assentosCorrida),
+      valor_bagagem: exclusiva
+        ? valorPesoExcedente
+        : arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
       valor_pedagios: 0,
       valor_extras: 0,
       desconto: 0,
       comissao_percentual: 0,
-      observacoes: "Reserva de lotação paga com créditos da carteira.",
+      observacoes: exclusiva
+        ? `Reserva exclusiva da saída (tarifa integral do veículo) paga com créditos. Bagagem ${(dados.bagagemKg ?? 0).toFixed(1)} kg — franquia de ${FRANQUIA_EXCLUSIVA_KG} kg.`
+        : "Reserva de lotação paga com créditos da carteira.",
+
     })
     .select("id")
     .single();
