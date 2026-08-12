@@ -222,10 +222,19 @@ export async function reservarComCreditos(dados: EntradaReserva) {
     .eq("destino", rota.destino);
   const ocupados = (reservados ?? []).reduce((a, r) => a + (Number(r.assentos) || 0), 0);
   const capacidade = Number(rota.assentos) || 0;
-  const pedidos = dados.assentos + Math.max(0, dados.assentosBagagem);
-  if (capacidade > 0 && ocupados + pedidos > capacidade) {
-    return { status: "lotado" as const, disponiveis: Math.max(0, capacidade - ocupados) };
+  if (exclusiva) {
+    // A exclusividade só é possível quando ninguém mais reservou esta saída.
+    if (ocupados > 0) {
+      return { status: "lotado" as const, disponiveis: Math.max(0, capacidade - ocupados) };
+    }
+  } else {
+    const pedidos = dados.assentos + Math.max(0, dados.assentosBagagem);
+    if (capacidade > 0 && ocupados + pedidos > capacidade) {
+      return { status: "lotado" as const, disponiveis: Math.max(0, capacidade - ocupados) };
+    }
   }
+  const assentosCorrida = exclusiva ? Math.max(1, capacidade) : dados.assentos;
+
 
   const { data: perfil } = await supabaseAdmin
     .from("profiles")
