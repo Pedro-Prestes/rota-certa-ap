@@ -70,7 +70,7 @@ export function PainelUrbanoMotorista() {
 
   const painel = useQuery({
     queryKey: ["urbano", "motorista"],
-    queryFn: () => buscar({ data: {} }),
+    queryFn: () => buscar(),
     refetchInterval: 15000,
   });
 
