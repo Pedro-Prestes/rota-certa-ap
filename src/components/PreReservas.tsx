@@ -206,7 +206,16 @@ export function PreReservas() {
         })}
       </div>
 
-      {pixPrice && <CheckoutPix priceId={pixPrice} onFechar={() => setPixPrice(null)} />}
+      {pixPrice && (
+        <CheckoutPix
+          priceId={pixPrice}
+          onFechar={() => setPixPrice(null)}
+          onAprovado={() => {
+            setPixPrice(null);
+            void qc.invalidateQueries({ queryKey: ["minhas-pre-reservas"] });
+          }}
+        />
+      )}
     </section>
   );
 }
