@@ -685,7 +685,10 @@ function Passageiro() {
           </aside>
         </div>
 
+        <PreReservas />
+
         <section className="mt-14 border-t border-border pt-10">
+
           <h2 className="font-display text-2xl font-bold">Modo urbano</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Precisa de uma corrida dentro da cidade, distritos ou vilarejos? Veja o preço antes de
