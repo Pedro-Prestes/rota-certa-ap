@@ -1078,6 +1078,74 @@ export type Database = {
           },
         ]
       }
+      fechamentos_saida: {
+        Row: {
+          assentos_confirmados: number
+          assentos_prereservados: number
+          capacidade: number
+          created_at: string
+          data_viagem: string
+          fator_aplicado: number
+          fechada_em: string
+          id: string
+          km_desvio_total: number
+          minutos_desvio_total: number
+          observacoes: string | null
+          ocupacao: number
+          partida_prevista: string | null
+          receita_confirmada: number
+          rota_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assentos_confirmados?: number
+          assentos_prereservados?: number
+          capacidade?: number
+          created_at?: string
+          data_viagem: string
+          fator_aplicado?: number
+          fechada_em?: string
+          id?: string
+          km_desvio_total?: number
+          minutos_desvio_total?: number
+          observacoes?: string | null
+          ocupacao?: number
+          partida_prevista?: string | null
+          receita_confirmada?: number
+          rota_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assentos_confirmados?: number
+          assentos_prereservados?: number
+          capacidade?: number
+          created_at?: string
+          data_viagem?: string
+          fator_aplicado?: number
+          fechada_em?: string
+          id?: string
+          km_desvio_total?: number
+          minutos_desvio_total?: number
+          observacoes?: string | null
+          ocupacao?: number
+          partida_prevista?: string | null
+          receita_confirmada?: number
+          rota_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fechamentos_saida_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       frotista_motoristas: {
         Row: {
           cnh: string | null
@@ -1831,6 +1899,105 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "pontos_embarque_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pre_reservas: {
+        Row: {
+          assentos: number
+          assentos_bagagem: number
+          bagagem_kg: number
+          corrida_id: string | null
+          created_at: string
+          data_viagem: string
+          endereco: string
+          exclusiva: boolean
+          fator_ocupacao: number | null
+          id: string
+          km_desvio: number | null
+          latitude: number | null
+          longitude: number | null
+          minutos_desvio: number | null
+          oferta_enviada_em: string | null
+          oferta_expira_em: string | null
+          passageiro_id: string
+          prioridade: number
+          referencia: string | null
+          rota_id: string
+          status: string
+          taxa_desvio: number | null
+          updated_at: string
+          valor_base: number | null
+          valor_ofertado: number | null
+        }
+        Insert: {
+          assentos?: number
+          assentos_bagagem?: number
+          bagagem_kg?: number
+          corrida_id?: string | null
+          created_at?: string
+          data_viagem: string
+          endereco: string
+          exclusiva?: boolean
+          fator_ocupacao?: number | null
+          id?: string
+          km_desvio?: number | null
+          latitude?: number | null
+          longitude?: number | null
+          minutos_desvio?: number | null
+          oferta_enviada_em?: string | null
+          oferta_expira_em?: string | null
+          passageiro_id: string
+          prioridade?: number
+          referencia?: string | null
+          rota_id: string
+          status?: string
+          taxa_desvio?: number | null
+          updated_at?: string
+          valor_base?: number | null
+          valor_ofertado?: number | null
+        }
+        Update: {
+          assentos?: number
+          assentos_bagagem?: number
+          bagagem_kg?: number
+          corrida_id?: string | null
+          created_at?: string
+          data_viagem?: string
+          endereco?: string
+          exclusiva?: boolean
+          fator_ocupacao?: number | null
+          id?: string
+          km_desvio?: number | null
+          latitude?: number | null
+          longitude?: number | null
+          minutos_desvio?: number | null
+          oferta_enviada_em?: string | null
+          oferta_expira_em?: string | null
+          passageiro_id?: string
+          prioridade?: number
+          referencia?: string | null
+          rota_id?: string
+          status?: string
+          taxa_desvio?: number | null
+          updated_at?: string
+          valor_base?: number | null
+          valor_ofertado?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_reservas_corrida_id_fkey"
+            columns: ["corrida_id"]
+            isOneToOne: false
+            referencedRelation: "corridas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_reservas_rota_id_fkey"
             columns: ["rota_id"]
             isOneToOne: false
             referencedRelation: "rotas"

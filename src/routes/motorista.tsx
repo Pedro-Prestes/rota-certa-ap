@@ -25,6 +25,7 @@ import { medirTrechoRota } from "@/utils/rota.functions";
 import { consultarVagasPromo, resgatarPromoDaRota } from "@/utils/promocao.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { EmbarquesMotorista } from "@/components/EmbarquesMotorista";
+import { FechamentoMotorista } from "@/components/FechamentoMotorista";
 import { useAuth } from "@/hooks/use-auth";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL } from "@/lib/dados";
 import { SeletorCidade } from "@/components/SeletorCidade";
@@ -260,7 +261,12 @@ function AbaEmbarques() {
       </p>
     );
   }
-  return <EmbarquesMotorista rotas={lista} />;
+  return (
+    <div className="space-y-6">
+      <FechamentoMotorista />
+      <EmbarquesMotorista rotas={lista} />
+    </div>
+  );
 }
 
 function AbaRotas() {

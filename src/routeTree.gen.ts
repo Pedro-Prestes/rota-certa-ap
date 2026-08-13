@@ -45,6 +45,7 @@ import { Route as ApiPaymentsMercadopagoPixRouteImport } from './routes/api/paym
 import { Route as ApiPublicAssinaturasRenovarRouteImport } from './routes/api/public/assinaturas/renovar'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicRepassesSemanalRouteImport } from './routes/api/public/repasses/semanal'
+import { Route as ApiPublicRotasFechamentoRouteImport } from './routes/api/public/rotas/fechamento'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 
@@ -236,6 +237,12 @@ const ApiPublicRepassesSemanalRoute =
     path: '/api/public/repasses/semanal',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRotasFechamentoRoute =
+  ApiPublicRotasFechamentoRouteImport.update({
+    id: '/api/public/rotas/fechamento',
+    path: '/api/public/rotas/fechamento',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksMercadopagoRoute =
   ApiPublicWebhooksMercadopagoRouteImport.update({
     id: '/api/public/webhooks/mercadopago',
@@ -284,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/repasses/semanal': typeof ApiPublicRepassesSemanalRoute
+  '/api/public/rotas/fechamento': typeof ApiPublicRotasFechamentoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -323,6 +331,7 @@ export interface FileRoutesByTo {
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/repasses/semanal': typeof ApiPublicRepassesSemanalRoute
+  '/api/public/rotas/fechamento': typeof ApiPublicRotasFechamentoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -364,6 +373,7 @@ export interface FileRoutesById {
   '/api/public/assinaturas/renovar': typeof ApiPublicAssinaturasRenovarRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/repasses/semanal': typeof ApiPublicRepassesSemanalRoute
+  '/api/public/rotas/fechamento': typeof ApiPublicRotasFechamentoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
     | '/api/public/repasses/semanal'
+    | '/api/public/rotas/fechamento'
     | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
     | '/api/public/repasses/semanal'
+    | '/api/public/rotas/fechamento'
     | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   id:
@@ -484,6 +496,7 @@ export interface FileRouteTypes {
     | '/api/public/assinaturas/renovar'
     | '/api/public/payments/webhook'
     | '/api/public/repasses/semanal'
+    | '/api/public/rotas/fechamento'
     | '/api/public/webhooks/mercadopago'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
@@ -507,6 +520,7 @@ export interface RootRouteChildren {
   ApiPublicAssinaturasRenovarRoute: typeof ApiPublicAssinaturasRenovarRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicRepassesSemanalRoute: typeof ApiPublicRepassesSemanalRoute
+  ApiPublicRotasFechamentoRoute: typeof ApiPublicRotasFechamentoRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
@@ -765,6 +779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRepassesSemanalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/rotas/fechamento': {
+      id: '/api/public/rotas/fechamento'
+      path: '/api/public/rotas/fechamento'
+      fullPath: '/api/public/rotas/fechamento'
+      preLoaderRoute: typeof ApiPublicRotasFechamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/mercadopago': {
       id: '/api/public/webhooks/mercadopago'
       path: '/api/public/webhooks/mercadopago'
@@ -856,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAssinaturasRenovarRoute: ApiPublicAssinaturasRenovarRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicRepassesSemanalRoute: ApiPublicRepassesSemanalRoute,
+  ApiPublicRotasFechamentoRoute: ApiPublicRotasFechamentoRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }

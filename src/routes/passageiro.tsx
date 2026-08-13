@@ -1,13 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
+import { PreReservas } from "@/components/PreReservas";
 import { PedirCorridaUrbana } from "@/components/urbano/PedirCorridaUrbana";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
+import { ANTECEDENCIA_FECHAMENTO_MIN, faixaEstimada } from "@/lib/preco-dinamico";
+import { criarPreReserva } from "@/utils/pre-reserva.functions";
 import {
   gerarPixDaCorrida,
   pagarReservaComCreditos,
@@ -226,6 +230,43 @@ function Passageiro() {
   });
 
 
+  const qc = useQueryClient();
+  const preReservar = useServerFn(criarPreReserva);
+  const [preReservando, setPreReservando] = useState(false);
+
+  /** Pré-reserva sem pagamento: o valor é fechado 60 min antes da partida. */
+  const enviarPreReserva = async () => {
+    if (!selecionada) return;
+    const { data: sessao } = await supabase.auth.getSession();
+    if (!sessao.session) {
+      toast.info("Entre na sua conta para pré-reservar.");
+      void navigate({ to: "/auth" });
+      return;
+    }
+    setPreReservando(true);
+    try {
+      const r = await preReservar({
+        data: {
+          rotaId: selecionada,
+          dataViagem: data,
+          assentos,
+          assentosBagagem: avaliacao.assentosEquivalentes,
+          endereco: enderecoDebounced,
+          exclusiva,
+          bagagemKg: Number(avaliacao.pesoKg.toFixed(1)),
+        },
+      });
+      if ("error" in r) throw new Error(r.error);
+      toast.success(
+        `Pré-reserva registrada para ${r.endereco}. O valor final chega ${ANTECEDENCIA_FECHAMENTO_MIN} minutos antes da saída.`,
+      );
+      void qc.invalidateQueries({ queryKey: ["minhas-pre-reservas"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível pré-reservar.");
+    } finally {
+      setPreReservando(false);
+    }
+  };
 
 
   const pagarComCreditos = async (avisarFalta = true) => {
@@ -604,12 +645,35 @@ function Passageiro() {
                     Pagar esta corrida no Pix (sem carteira)
                   </button>
 
+                  <div className="mt-4 rounded-2xl border border-primary-foreground/20 bg-primary-foreground/5 p-3">
+                    <p className="text-xs font-semibold">
+                      Preço dinâmico: pré-reserve e pague só no fechamento
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-primary-foreground/70">
+                      {ANTECEDENCIA_FECHAMENTO_MIN} minutos antes da saída fechamos a rota e
+                      calculamos o valor conforme os assentos reservados e o desvio até o seu
+                      embarque. Estimativa para {assentos} assento(s):{" "}
+                      {brl(faixaEstimada(tarifa.precoAssento, assentos).minimo)} a{" "}
+                      {brl(faixaEstimada(tarifa.precoAssento, assentos).maximo)} + taxa. Avisamos por
+                      app, SMS, WhatsApp e e-mail; a confirmação é pelo pagamento.
+                    </p>
+                    <button
+                      onClick={() => void enviarPreReserva()}
+                      disabled={preReservando || !enderecoValido}
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-foreground/15 px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/25 disabled:opacity-60"
+                    >
+                      {preReservando && <Loader2 className="size-4 animate-spin" />}
+                      Pré-reservar (valor fechado 60 min antes)
+                    </button>
+                  </div>
+
                   <p className="mt-3 text-[11px] leading-relaxed text-primary-foreground/55">
                     Você pode pagar com os créditos da carteira ou gerar um Pix avulso pelo valor
                     exato desta corrida, sem precisar de saldo. O assento é garantido logo após a
                     confirmação. Em caso de pane, folga ou força maior registrada pelo motorista, o
                     valor é devolvido integralmente.
                   </p>
+
 
                 </>
               ) : (
@@ -621,7 +685,10 @@ function Passageiro() {
           </aside>
         </div>
 
+        <PreReservas />
+
         <section className="mt-14 border-t border-border pt-10">
+
           <h2 className="font-display text-2xl font-bold">Modo urbano</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Precisa de uma corrida dentro da cidade, distritos ou vilarejos? Veja o preço antes de
