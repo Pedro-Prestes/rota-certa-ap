@@ -260,7 +260,12 @@ function AbaEmbarques() {
       </p>
     );
   }
-  return <EmbarquesMotorista rotas={lista} />;
+  return (
+    <div className="space-y-6">
+      <FechamentoMotorista />
+      <EmbarquesMotorista rotas={lista} />
+    </div>
+  );
 }
 
 function AbaRotas() {
