@@ -230,6 +230,43 @@ function Passageiro() {
   });
 
 
+  const qc = useQueryClient();
+  const preReservar = useServerFn(criarPreReserva);
+  const [preReservando, setPreReservando] = useState(false);
+
+  /** Pré-reserva sem pagamento: o valor é fechado 60 min antes da partida. */
+  const enviarPreReserva = async () => {
+    if (!selecionada) return;
+    const { data: sessao } = await supabase.auth.getSession();
+    if (!sessao.session) {
+      toast.info("Entre na sua conta para pré-reservar.");
+      void navigate({ to: "/auth" });
+      return;
+    }
+    setPreReservando(true);
+    try {
+      const r = await preReservar({
+        data: {
+          rotaId: selecionada,
+          dataViagem: data,
+          assentos,
+          assentosBagagem: avaliacao.assentosEquivalentes,
+          endereco: enderecoDebounced,
+          exclusiva,
+          bagagemKg: Number(avaliacao.pesoKg.toFixed(1)),
+        },
+      });
+      if ("error" in r) throw new Error(r.error);
+      toast.success(
+        `Pré-reserva registrada para ${r.endereco}. O valor final chega ${ANTECEDENCIA_FECHAMENTO_MIN} minutos antes da saída.`,
+      );
+      void qc.invalidateQueries({ queryKey: ["minhas-pre-reservas"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível pré-reservar.");
+    } finally {
+      setPreReservando(false);
+    }
+  };
 
 
   const pagarComCreditos = async (avisarFalta = true) => {
