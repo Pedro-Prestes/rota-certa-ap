@@ -5,9 +5,12 @@ import { toast } from "sonner";
 import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
+import { PreReservas } from "@/components/PreReservas";
 import { PedirCorridaUrbana } from "@/components/urbano/PedirCorridaUrbana";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
+import { ANTECEDENCIA_FECHAMENTO_MIN, faixaEstimada } from "@/lib/preco-dinamico";
+import { criarPreReserva } from "@/utils/pre-reserva.functions";
 import {
   gerarPixDaCorrida,
   pagarReservaComCreditos,
