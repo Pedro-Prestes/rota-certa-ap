@@ -1854,8 +1854,11 @@ export type Database = {
       pj_conformidade: {
         Row: {
           created_at: string
+          decidido_em: string | null
+          decidido_por: string | null
           entidade_id: string
           id: string
+          motivo_reprovacao: string | null
           numero: string | null
           observacao: string | null
           orgao_emissor: string | null
@@ -1869,8 +1872,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
           entidade_id: string
           id?: string
+          motivo_reprovacao?: string | null
           numero?: string | null
           observacao?: string | null
           orgao_emissor?: string | null
@@ -1884,8 +1890,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
           entidade_id?: string
           id?: string
+          motivo_reprovacao?: string | null
           numero?: string | null
           observacao?: string | null
           orgao_emissor?: string | null
