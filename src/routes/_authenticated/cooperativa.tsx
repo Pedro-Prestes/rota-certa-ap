@@ -481,3 +481,58 @@ function Cooperativa() {
     </div>
   );
 }
+
+/** Semáforo de conformidade dos condutores vinculados (CNH, EAR e biometria). */
+function SemaforoCondutores({ cooperativaId }: { cooperativaId: string }) {
+  const buscar = useServerFn(conformidadeCondutoresCooperativa);
+  const q = useQuery({
+    queryKey: ["cooperativa-condutores", cooperativaId],
+    queryFn: () => buscar({ data: { cooperativaId } }),
+  });
+
+  const condutores = q.data?.condutores ?? [];
+  if (q.isLoading) {
+    return <p className="mt-3 text-xs text-muted-foreground">Carregando condutores…</p>;
+  }
+  if (!condutores.length) {
+    return (
+      <p className="mt-3 text-xs text-muted-foreground">
+        Nenhum condutor vinculado ainda. Só entram motoristas com idoneidade, biometria facial e CNH
+        aprovadas.
+      </p>
+    );
+  }
+
+  return (
+    <ul className="mt-3 space-y-2">
+      {condutores.map((c) => {
+        const dias = c.cnhValidade
+          ? Math.ceil((new Date(`${c.cnhValidade}T12:00:00`).getTime() - Date.now()) / 86_400_000)
+          : null;
+        const alerta =
+          !c.biometriaOk || c.cnhStatus !== "aprovado" || (dias !== null && dias <= 30);
+        return (
+          <li
+            key={c.motorista_id}
+            className="flex flex-wrap items-center gap-2 rounded-xl bg-secondary/60 p-3 text-xs"
+          >
+            <strong className="text-sm">{c.nome}</strong>
+            <span
+              className={`rounded-full px-2 py-0.5 font-semibold ${
+                alerta ? "bg-destructive/10 text-destructive" : "bg-success/15 text-success"
+              }`}
+            >
+              {alerta ? "Regularizar" : "Conforme"}
+            </span>
+            <span className="text-muted-foreground">
+              CNH {c.cnhCategoria ?? "—"} {c.cnhEar ? "com EAR" : "sem EAR"}
+              {dias !== null ? ` · vence em ${dias} dia(s)` : ""}
+              {c.biometriaOk ? "" : " · biometria pendente"}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
