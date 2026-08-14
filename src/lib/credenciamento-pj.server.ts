@@ -176,3 +176,120 @@ export async function conformidadeMotoristasCooperativa(cooperativaId: string) {
     };
   });
 }
+
+/* --------------------------------------------- autorização do admin master */
+
+/** Somente o administrador master decide o credenciamento das empresas. */
+async function exigirMaster(userId: string) {
+  const { data } = await supabaseAdmin.rpc("eh_admin_master", { _user_id: userId });
+  if (!data) throw new Error("Apenas o administrador master pode autorizar o credenciamento.");
+}
+
+export interface ItemFilaPJ extends DocumentoPJ {
+  tipo_entidade: TipoEntidadePJ;
+  entidade_id: string;
+  empresa: string;
+  cnpj: string;
+  responsavel: string;
+  decidido_em: string | null;
+  motivo_reprovacao: string | null;
+  created_at: string;
+}
+
+/** Fila de análise do credenciamento das cooperativas e frotistas. */
+export async function filaCredenciamentoPJ(adminId: string): Promise<ItemFilaPJ[]> {
+  await exigirMaster(adminId);
+
+  const { data } = await supabaseAdmin
+    .from("pj_conformidade")
+    .select(
+      "id, tipo_entidade, entidade_id, user_id, tipo_documento, numero, orgao_emissor, validade, status, pendencias, observacao, motivo_reprovacao, decidido_em, created_at",
+    )
+    .order("created_at", { ascending: true });
+
+  const itens = (data ?? []) as unknown as (ItemFilaPJ & { user_id: string })[];
+  if (!itens.length) return [];
+
+  const coopIds = itens.filter((i) => i.tipo_entidade === "cooperativa").map((i) => i.entidade_id);
+  const frotIds = itens.filter((i) => i.tipo_entidade === "frotista").map((i) => i.entidade_id);
+
+  const [coops, frots, perfis] = await Promise.all([
+    coopIds.length
+      ? supabaseAdmin.from("cooperativas").select("id, razao_social, cnpj").in("id", coopIds)
+      : Promise.resolve({ data: [] as { id: string; razao_social: string; cnpj: string }[] }),
+    frotIds.length
+      ? supabaseAdmin.from("frotistas").select("id, razao_social, cnpj").in("id", frotIds)
+      : Promise.resolve({ data: [] as { id: string; razao_social: string; cnpj: string }[] }),
+    supabaseAdmin.from("profiles").select("id, nome_completo").in("id", itens.map((i) => i.user_id)),
+  ]);
+
+  const empresas = new Map(
+    [...(coops.data ?? []), ...(frots.data ?? [])].map((e) => [e.id, e]),
+  );
+  const nomes = new Map((perfis.data ?? []).map((p) => [p.id, p.nome_completo]));
+
+  return itens.map((i) => ({
+    ...i,
+    pendencias: Array.isArray(i.pendencias) ? i.pendencias : [],
+    empresa: empresas.get(i.entidade_id)?.razao_social ?? "Empresa",
+    cnpj: empresas.get(i.entidade_id)?.cnpj ?? "",
+    responsavel: nomes.get(i.user_id) || "Responsável legal",
+  }));
+}
+
+/**
+ * Aprova ou reprova um documento de credenciamento. A entrada da empresa em
+ * operação (fase 3) depende exclusivamente desta autorização.
+ */
+export async function decidirDocumentoPJ(params: {
+  adminId: string;
+  documentoId: string;
+  decisao: "aprovado" | "reprovado";
+  motivo?: string;
+}) {
+  await exigirMaster(params.adminId);
+
+  if (params.decisao === "reprovado" && !(params.motivo ?? "").trim()) {
+    throw new Error("Informe o motivo da reprovação.");
+  }
+
+  const { data: doc, error: erroDoc } = await supabaseAdmin
+    .from("pj_conformidade")
+    .select("id, tipo_entidade, entidade_id, user_id, tipo_documento")
+    .eq("id", params.documentoId)
+    .maybeSingle();
+  if (erroDoc) throw new Error(erroDoc.message);
+  if (!doc) throw new Error("Documento não encontrado.");
+
+  const { error } = await supabaseAdmin
+    .from("pj_conformidade")
+    .update({
+      status: params.decisao,
+      motivo_reprovacao: params.decisao === "reprovado" ? params.motivo!.trim() : null,
+      pendencias: params.decisao === "reprovado" ? [params.motivo!.trim()] : [],
+      decidido_por: params.adminId,
+      decidido_em: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", params.documentoId);
+  if (error) throw new Error(error.message);
+
+  const tipo = doc.tipo_entidade as TipoEntidadePJ;
+  const resultado = await sincronizarSituacao(tipo, doc.entidade_id, doc.user_id);
+
+  await registrarEvento({
+    evento: "credenciamento_pj_decisao",
+    registradoPor: params.adminId,
+    dados: {
+      tipo_entidade: tipo,
+      entidade: doc.entidade_id,
+      documento: doc.tipo_documento,
+      decisao: params.decisao,
+      motivo: params.motivo?.trim() || null,
+      fase: resultado.situacao.faseAtual,
+      score: resultado.situacao.score,
+    },
+  });
+
+  return { ok: true, situacao: resultado.situacao };
+}
