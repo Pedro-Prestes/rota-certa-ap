@@ -237,6 +237,10 @@ function Passageiro() {
   /** Pré-reserva sem pagamento: o valor é fechado 60 min antes da partida. */
   const enviarPreReserva = async () => {
     if (!selecionada) return;
+    if (exclusiva) {
+      toast.info("Saída com exclusividade não tem agendamento: pague agora para garantir.");
+      return;
+    }
     const { data: sessao } = await supabase.auth.getSession();
     if (!sessao.session) {
       toast.info("Entre na sua conta para pré-reservar.");
