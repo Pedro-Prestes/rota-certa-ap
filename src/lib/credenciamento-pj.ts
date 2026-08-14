@@ -146,8 +146,15 @@ export function avaliarDocumentoPJ(
     }
   }
 
-  return { status: pendencias.length ? "reprovado" : "aprovado", pendencias };
+  // A análise automática nunca aprova: apenas separa o que tem pendência do que
+  // segue para a decisão exclusiva do administrador master.
+  return { status: pendencias.length ? "pendente" : "em_analise", pendencias };
 }
+
+/** Documento aguardando a autorização do administrador master. */
+export const aguardandoMaster = (doc: DocumentoPJ | undefined | null) =>
+  !!doc && doc.status === "em_analise";
+
 
 /** Documento válido = aprovado e dentro da validade. */
 export const documentoValido = (doc: DocumentoPJ | undefined | null) =>
