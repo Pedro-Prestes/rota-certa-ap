@@ -237,6 +237,10 @@ function Passageiro() {
   /** Pré-reserva sem pagamento: o valor é fechado 60 min antes da partida. */
   const enviarPreReserva = async () => {
     if (!selecionada) return;
+    if (exclusiva) {
+      toast.info("Saída com exclusividade não tem agendamento: pague agora para garantir.");
+      return;
+    }
     const { data: sessao } = await supabase.auth.getSession();
     if (!sessao.session) {
       toast.info("Entre na sua conta para pré-reservar.");
@@ -645,27 +649,41 @@ function Passageiro() {
                     Pagar esta corrida no Pix (sem carteira)
                   </button>
 
-                  <div className="mt-4 rounded-2xl border border-primary-foreground/20 bg-primary-foreground/5 p-3">
-                    <p className="text-xs font-semibold">
-                      Preço dinâmico: pré-reserve e pague só no fechamento
-                    </p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-primary-foreground/70">
-                      {ANTECEDENCIA_FECHAMENTO_MIN} minutos antes da saída fechamos a rota e
-                      calculamos o valor conforme os assentos reservados e o desvio até o seu
-                      embarque. Estimativa para {assentos} assento(s):{" "}
-                      {brl(faixaEstimada(tarifa.precoAssento, assentos).minimo)} a{" "}
-                      {brl(faixaEstimada(tarifa.precoAssento, assentos).maximo)} + taxa. Avisamos por
-                      app, SMS, WhatsApp e e-mail; a confirmação é pelo pagamento.
-                    </p>
-                    <button
-                      onClick={() => void enviarPreReserva()}
-                      disabled={preReservando || !enderecoValido}
-                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-foreground/15 px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/25 disabled:opacity-60"
-                    >
-                      {preReservando && <Loader2 className="size-4 animate-spin" />}
-                      Pré-reservar (valor fechado 60 min antes)
-                    </button>
-                  </div>
+                  {exclusiva ? (
+                    <div className="mt-4 rounded-2xl border border-accent/40 bg-accent/10 p-3">
+                      <p className="text-xs font-semibold">
+                        Exclusividade: pagamento imediato, sem agendamento
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-primary-foreground/70">
+                        Como a saída fica exclusiva para você, não há pré-reserva nem preço dinâmico
+                        no fechamento: a tarifa integral do veículo já está calculada acima e o
+                        assento só é bloqueado com o pagamento confirmado agora.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-2xl border border-primary-foreground/20 bg-primary-foreground/5 p-3">
+                      <p className="text-xs font-semibold">
+                        Preço dinâmico: pré-reserve e pague só no fechamento
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-primary-foreground/70">
+                        {ANTECEDENCIA_FECHAMENTO_MIN} minutos antes da saída fechamos a rota e
+                        calculamos o valor conforme os assentos reservados e o desvio até o seu
+                        embarque. Estimativa para {assentos} assento(s):{" "}
+                        {brl(faixaEstimada(tarifa.precoAssento, assentos).minimo)} a{" "}
+                        {brl(faixaEstimada(tarifa.precoAssento, assentos).maximo)} + taxa. Avisamos
+                        por app, SMS, WhatsApp e e-mail; a confirmação é pelo pagamento.
+                      </p>
+                      <button
+                        onClick={() => void enviarPreReserva()}
+                        disabled={preReservando || !enderecoValido}
+                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-foreground/15 px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/25 disabled:opacity-60"
+                      >
+                        {preReservando && <Loader2 className="size-4 animate-spin" />}
+                        Pré-reservar (valor fechado 60 min antes)
+                      </button>
+                    </div>
+                  )}
+
 
                   <p className="mt-3 text-[11px] leading-relaxed text-primary-foreground/55">
                     Você pode pagar com os créditos da carteira ou gerar um Pix avulso pelo valor
