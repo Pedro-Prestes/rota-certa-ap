@@ -80,7 +80,7 @@ export const decidirDocumentoPJ = createServerFn({ method: "POST" })
         adminId: context.userId,
         documentoId: data.documentoId,
         decisao: data.decisao,
-        motivo: data.motivo,
+        ...(data.motivo ? { motivo: data.motivo } : {}),
       });
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Não foi possível registrar a decisão." };

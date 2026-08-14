@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { BadgeCheck, Building2, Loader2, ShieldCheck, XCircle } from "lucide-react";
-import { ROTULO_STATUS_DOC, formatarCnpj } from "@/lib/credenciamento-pj";
+import { ROTULO_STATUS_DOC } from "@/lib/credenciamento-pj";
+import { formatarCnpj } from "@/lib/frotista";
 import {
   decidirDocumentoPJ,
   filaCredenciamentoPJ,
