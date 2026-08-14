@@ -32,6 +32,15 @@ import {
   veiculosFaltantes,
   type StatusOperacional,
 } from "@/lib/frotista";
+import {
+  BENEFICIO_NIVEL_FROTA,
+  ROTULO_NIVEL_FROTA,
+  nivelFrota,
+} from "@/lib/credenciamento-pj";
+import {
+  TrilhaCredenciamentoPJ,
+  useCredenciamentoPJ,
+} from "@/components/TrilhaCredenciamentoPJ";
 
 export const Route = createFileRoute("/_authenticated/frotista")({
   head: () => ({
@@ -467,6 +476,9 @@ function PainelFrotista({ empresa }: { empresa: FrotistaRow }) {
           )}
         </div>
       </div>
+
+      <TrilhaCredenciamentoPJ tipo="frotista" extras={<NivelDaFrota veiculos={total} />} />
+
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Frota */}
