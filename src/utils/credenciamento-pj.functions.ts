@@ -50,3 +50,39 @@ export const conformidadeCondutoresCooperativa = createServerFn({ method: "POST"
     if (!coop || coop.id !== data.cooperativaId) return { condutores: [] };
     return { condutores: await conformidadeMotoristasCooperativa(data.cooperativaId) };
   });
+
+/** Fila de credenciamento das empresas — exclusiva do administrador master. */
+export const filaCredenciamentoPJ = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { filaCredenciamentoPJ: fila } = await import("@/lib/credenciamento-pj.server");
+    try {
+      return { itens: await fila(context.userId) };
+    } catch (e) {
+      return { itens: [], error: e instanceof Error ? e.message : "Acesso não autorizado." };
+    }
+  });
+
+/** Aprova ou reprova o documento — somente o administrador master. */
+export const decidirDocumentoPJ = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { documentoId: string; decisao: "aprovado" | "reprovado"; motivo?: string }) => {
+    if (!/^[0-9a-fA-F-]{36}$/.test(data?.documentoId ?? "")) throw new Error("Documento inválido.");
+    if (data.decisao !== "aprovado" && data.decisao !== "reprovado") {
+      throw new Error("Decisão inválida.");
+    }
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { decidirDocumentoPJ: decidir } = await import("@/lib/credenciamento-pj.server");
+    try {
+      return await decidir({
+        adminId: context.userId,
+        documentoId: data.documentoId,
+        decisao: data.decisao,
+        motivo: data.motivo,
+      });
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Não foi possível registrar a decisão." };
+    }
+  });
