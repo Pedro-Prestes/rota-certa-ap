@@ -26,6 +26,8 @@ import {
 } from "@/lib/cooperativa";
 import { UFS } from "@/lib/ufs";
 import { moeda } from "@/lib/urbano";
+import { TrilhaCredenciamentoPJ } from "@/components/TrilhaCredenciamentoPJ";
+import { conformidadeCondutoresCooperativa } from "@/utils/credenciamento-pj.functions";
 import {
   painelCooperativa,
   repassarCooperativa,
@@ -254,6 +256,14 @@ function Cooperativa() {
                 </div>
               </section>
             )}
+
+            {coop && (
+              <TrilhaCredenciamentoPJ
+                tipo="cooperativa"
+                extras={<SemaforoCondutores cooperativaId={coop.id} />}
+              />
+            )}
+
 
             <section className={cartao}>
               <h2 className="flex items-center gap-2 font-display text-lg font-bold">
