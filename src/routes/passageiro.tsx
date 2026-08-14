@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "lucide-react";
+import { ArrowRight, Clock, Loader2, Luggage, MapPin, Star, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { PreReservas } from "@/components/PreReservas";
