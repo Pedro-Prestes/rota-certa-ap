@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Json } from "@/integrations/supabase/types";
 import { registrarEvento } from "./blockchain.server";
+import { pendenciasCompatibilidade } from "./habilitacao";
 import {
   avaliarPessoa,
   avaliarVeiculo,
@@ -112,6 +113,28 @@ export async function verificarIdoneidade(entrada: EntradaVerificacao) {
       crlv_exercicio: veiculo.crlv_exercicio,
       crlv_situacao: veiculo.crlv_situacao,
     });
+
+    // Fase 3 exige CNH compatível com o veículo (categoria e EAR).
+    const { data: habilitacao } = await supabaseAdmin
+      .from("habilitacoes_motorista")
+      .select("categoria, ear, status")
+      .eq("user_id", veiculo.user_id)
+      .maybeSingle();
+    const incompat = pendenciasCompatibilidade(
+      habilitacao && habilitacao.status === "aprovado"
+        ? { categoria: habilitacao.categoria, ear: habilitacao.ear }
+        : null,
+      veiculo.assentos,
+    );
+    if (incompat.length) {
+      local = {
+        status: "reprovado",
+        pontuacao: Math.max(0, local.pontuacao - incompat.length * 22),
+        pendencias: [...local.pendencias, ...incompat],
+        aprovado: false,
+      };
+    }
+
     extra = { placa: veiculo.placa, renavam: veiculo.renavam, chassi: veiculo.chassi };
   } else {
     local = avaliarPessoa(entrada.alvo, {

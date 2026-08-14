@@ -16,6 +16,12 @@ import {
   type StatusVerificacao,
 } from "@/lib/idoneidade";
 import { consultarIdoneidade } from "@/utils/idoneidade.functions";
+import {
+  TrilhaCadastroMotorista,
+  useCredenciamentoMotorista,
+  type Habilitacao,
+} from "@/components/TrilhaCadastroMotorista";
+import { pendenciasCompatibilidade } from "@/lib/habilitacao";
 
 export const Route = createFileRoute("/_authenticated/verificacao")({
   head: () => ({
@@ -87,6 +93,7 @@ function Verificacao() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [novoVeiculo, setNovoVeiculo] = useState(false);
+  const cred = useCredenciamentoMotorista();
   const [alvo, setAlvo] = useState<AlvoVerificacao>("motorista");
   const [form, setForm] = useState({ documento: "", nome: "", cnh: "", dataNascimento: "", veiculoId: "" });
 
@@ -163,7 +170,11 @@ function Verificacao() {
           </div>
         </div>
 
-        <section className="mt-8 grid gap-4 lg:grid-cols-2">
+        <div className="mt-8">
+          <TrilhaCadastroMotorista />
+        </div>
+
+        <section className="mt-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-border bg-card p-5">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold">
               <ScanSearch className="size-4" /> Nova consulta
@@ -271,11 +282,23 @@ function Verificacao() {
               </h2>
               <button
                 onClick={() => setNovoVeiculo(true)}
-                className="ml-auto inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                disabled={!cred.veiculoLiberado}
+                title={
+                  cred.veiculoLiberado
+                    ? "Cadastrar veículo"
+                    : "Conclua as fases 1 e 2 do credenciamento"
+                }
+                className="ml-auto inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 <Plus className="size-4" /> Cadastrar
               </button>
             </div>
+            {!cred.veiculoLiberado && (
+              <p className="mt-3 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
+                Cadastro de veículo bloqueado: conclua a fase 1 (idoneidade + biometria facial) e a
+                fase 2 (CNH válida, categoria compatível e EAR) na trilha acima.
+              </p>
+            )}
             <div className="mt-4 space-y-2">
               {(veiculos.data ?? []).map((v) => {
                 const avaliacao = avaliarVeiculo({
@@ -393,6 +416,7 @@ function Verificacao() {
       {novoVeiculo && user && (
         <FormularioVeiculo
           userId={user.id}
+          habilitacao={cred.habilitacao}
           onFechar={() => setNovoVeiculo(false)}
           onSalvo={() => {
             setNovoVeiculo(false);
@@ -406,10 +430,12 @@ function Verificacao() {
 
 function FormularioVeiculo({
   userId,
+  habilitacao,
   onFechar,
   onSalvo,
 }: {
   userId: string;
+  habilitacao: Habilitacao | null;
   onFechar: () => void;
   onSalvo: () => void;
 }) {
@@ -439,6 +465,12 @@ function FormularioVeiculo({
     crlv_exercicio: Number(f.crlv_exercicio),
     crlv_situacao: f.crlv_situacao,
   });
+
+  const compatibilidade = pendenciasCompatibilidade(
+    habilitacao ? { categoria: habilitacao.categoria, ear: habilitacao.ear } : null,
+    Number(f.assentos),
+  );
+  const pendencias = [...avaliacao.pendencias, ...compatibilidade];
 
   const salvar = useMutation({
     mutationFn: async () => {
@@ -580,9 +612,9 @@ function FormularioVeiculo({
           </div>
         </div>
 
-        {avaliacao.pendencias.length > 0 && (
+        {pendencias.length > 0 && (
           <ul className="mt-4 space-y-1 rounded-xl bg-destructive/10 p-4">
-            {avaliacao.pendencias.map((p) => (
+            {pendencias.map((p) => (
               <li key={p} className="text-xs text-destructive">
                 • {p}
               </li>
@@ -592,7 +624,13 @@ function FormularioVeiculo({
 
         <button
           onClick={() => salvar.mutate()}
-          disabled={salvar.isPending || !f.placa || !f.marca || !f.modelo}
+          disabled={
+            salvar.isPending ||
+            !f.placa ||
+            !f.marca ||
+            !f.modelo ||
+            compatibilidade.length > 0
+          }
           className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
           {salvar.isPending && <Loader2 className="size-4 animate-spin" />} Cadastrar veículo
