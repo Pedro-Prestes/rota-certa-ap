@@ -8,6 +8,7 @@ import { TopNav } from "@/components/TopNav";
 import { useAuth } from "@/hooks/use-auth";
 import { alternarCampanhaPromo, consultarPainelPromo } from "@/utils/promocao.functions";
 import { ControleGeral } from "@/components/admin/ControleGeral";
+import { CredenciamentoEmpresas } from "@/components/admin/CredenciamentoEmpresas";
 import { PainelParcerias } from "@/components/admin/PainelParcerias";
 import { brl, resumoCorrida, type Corrida, type Pagamento } from "@/lib/pagamentos";
 
@@ -465,6 +466,8 @@ function Admin() {
             ))}
           </ul>
         </section>
+
+        {ehMaster.data && <CredenciamentoEmpresas />}
 
         <ControleGeral />
 
