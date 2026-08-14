@@ -18,6 +18,7 @@ import {
   ALERTA_VENCIMENTO_DIAS,
   DOCUMENTOS_PJ,
   ROTULO_STATUS_DOC,
+  aguardandoMaster,
   documentoValido,
   type DocumentoPJ,
   type TipoEntidadePJ,
@@ -54,7 +55,20 @@ export function useCredenciamentoPJ(tipo: TipoEntidadePJ) {
   };
 }
 
-function Selo({ estado }: { estado: "ok" | "pendente" | "bloqueado" }) {
+/** Situação exibida para cada exigência da empresa. */
+function estadoDoDoc(doc: DocumentoPJ | undefined) {
+  if (documentoValido(doc)) return "ok" as const;
+  if (aguardandoMaster(doc)) return "analise" as const;
+  return "pendente" as const;
+}
+
+function Selo({ estado }: { estado: "ok" | "analise" | "pendente" | "bloqueado" }) {
+  if (estado === "analise")
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+        <ShieldAlert className="size-3" /> Em análise do master
+      </span>
+    );
   if (estado === "ok")
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-semibold text-success">
@@ -128,7 +142,7 @@ export function TrilhaCredenciamentoPJ({
     onSuccess: (r) => {
       const pendencias = "avaliacao" in r ? r.avaliacao.pendencias : [];
       if (pendencias.length) toast.error(pendencias[0]);
-      else toast.success("Documento aprovado automaticamente.");
+      else toast.success("Documento enviado para autorização do administrador master.");
       setAberto(null);
       setNumero("");
       setOrgao("");
@@ -164,7 +178,8 @@ export function TrilhaCredenciamentoPJ({
       </div>
       <p className="mt-2 text-sm text-muted-foreground">
         A operação da {rotuloPerfil} é liberada por etapas: primeiro a empresa e o responsável
-        legal, depois a conformidade documental e só então a frota e os condutores.
+        legal, depois a conformidade documental e só então a frota e os condutores. A aprovação e a
+        reprovação de cada documento são feitas exclusivamente pelo administrador master.
       </p>
 
       {/* Fase 1 */}
@@ -179,7 +194,7 @@ export function TrilhaCredenciamentoPJ({
         <ul className="mt-3 space-y-2 text-sm">
           <li className="flex flex-wrap items-center gap-2">
             <span className="text-muted-foreground">CNPJ ativo</span>
-            <Selo estado={documentoValido(porTipo.get("cnpj")) ? "ok" : "pendente"} />
+            <Selo estado={estadoDoDoc(porTipo.get("cnpj"))} />
             <button
               onClick={() => setAberto(aberto === "cnpj" ? null : "cnpj")}
               className="text-xs font-semibold text-primary underline"
@@ -239,7 +254,7 @@ export function TrilhaCredenciamentoPJ({
                   <li key={d.tipo} className="rounded-xl bg-secondary/60 p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <strong className="text-sm">{d.titulo}</strong>
-                      <Selo estado={documentoValido(doc) ? "ok" : "pendente"} />
+                      <Selo estado={estadoDoDoc(doc)} />
                       <button
                         onClick={() => setAberto(aberto === d.tipo ? null : d.tipo)}
                         className="ml-auto text-xs font-semibold text-primary underline"
