@@ -734,3 +734,28 @@ function FrotistaProtegido() {
   );
 }
 
+/** Nível da frota (Bronze/Prata/Ouro) e o benefício de despacho correspondente. */
+function NivelDaFrota({ veiculos }: { veiculos: number }) {
+  const cred = useCredenciamentoPJ("frotista");
+  const nivel = nivelFrota({
+    score: cred.score,
+    veiculosConformes: cred.fase3Liberada ? veiculos : 0,
+    notaMedia: 4.6,
+  });
+
+  return (
+    <div className="mt-3 rounded-xl bg-secondary/60 p-3 text-xs">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-semibold text-primary">
+          Nível {ROTULO_NIVEL_FROTA[nivel]}
+        </span>
+        <span className="text-muted-foreground">
+          {veiculos} veículo(s) na frota · conformidade {cred.score}/100
+        </span>
+      </div>
+      <p className="mt-1.5 text-muted-foreground">{BENEFICIO_NIVEL_FROTA[nivel]}</p>
+    </div>
+  );
+}
+
+
