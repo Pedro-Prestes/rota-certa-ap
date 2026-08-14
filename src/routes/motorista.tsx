@@ -18,6 +18,7 @@ import {
 
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
+import { useCredenciamentoMotorista } from "@/components/TrilhaCadastroMotorista";
 import { PainelUrbanoMotorista } from "@/components/urbano/PainelUrbanoMotorista";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -789,6 +790,7 @@ function AbaRotas() {
 
 function AbaFrota() {
   const { veiculos, vinculos, rotas } = useDadosMotorista();
+  const cred = useCredenciamentoMotorista();
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
@@ -798,13 +800,21 @@ function AbaFrota() {
           to="/verificacao"
           className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold"
         >
-          <Plus className="size-4" /> Cadastrar veículo
+          <Plus className="size-4" />
+          {cred.veiculoLiberado ? "Cadastrar veículo" : "Concluir credenciamento"}
         </Link>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         Cada veículo é cadastrado com placa, Renavam e CRLV na área de idoneidade. Aqui você
         acompanha a situação operacional e as rotas em que ele opera.
       </p>
+
+      {!cred.carregando && !cred.veiculoLiberado && (
+        <p className="mt-3 rounded-2xl bg-secondary p-3 text-xs text-muted-foreground">
+          O cadastro de veículo é liberado em 3 fases: (1) idoneidade e biometria facial aprovadas,
+          (2) CNH válida com categoria compatível e EAR, (3) análise dos dados do veículo.
+        </p>
+      )}
 
       {veiculos.isLoading ? (
         <p className="mt-4 text-xs text-muted-foreground">Carregando…</p>
