@@ -530,12 +530,14 @@ export type Database = {
       cooperativas: {
         Row: {
           agencia: string | null
+          avaliada_em: string | null
           banco_codigo: string | null
           banco_nome: string | null
           cnpj: string
           conta: string | null
           created_at: string
           email_contato: string | null
+          fase_atual: number
           id: string
           municipio: string | null
           nome_fantasia: string | null
@@ -543,6 +545,7 @@ export type Database = {
           pix_tipo: string | null
           razao_social: string
           responsavel_nome: string
+          score_conformidade: number
           status: string
           telefone: string | null
           tipo_conta: string | null
@@ -551,15 +554,18 @@ export type Database = {
           uf: string | null
           updated_at: string
           user_id: string
+          verificada: boolean
         }
         Insert: {
           agencia?: string | null
+          avaliada_em?: string | null
           banco_codigo?: string | null
           banco_nome?: string | null
           cnpj: string
           conta?: string | null
           created_at?: string
           email_contato?: string | null
+          fase_atual?: number
           id?: string
           municipio?: string | null
           nome_fantasia?: string | null
@@ -567,6 +573,7 @@ export type Database = {
           pix_tipo?: string | null
           razao_social: string
           responsavel_nome: string
+          score_conformidade?: number
           status?: string
           telefone?: string | null
           tipo_conta?: string | null
@@ -575,15 +582,18 @@ export type Database = {
           uf?: string | null
           updated_at?: string
           user_id: string
+          verificada?: boolean
         }
         Update: {
           agencia?: string | null
+          avaliada_em?: string | null
           banco_codigo?: string | null
           banco_nome?: string | null
           cnpj?: string
           conta?: string | null
           created_at?: string
           email_contato?: string | null
+          fase_atual?: number
           id?: string
           municipio?: string | null
           nome_fantasia?: string | null
@@ -591,6 +601,7 @@ export type Database = {
           pix_tipo?: string | null
           razao_social?: string
           responsavel_nome?: string
+          score_conformidade?: number
           status?: string
           telefone?: string | null
           tipo_conta?: string | null
@@ -599,6 +610,7 @@ export type Database = {
           uf?: string | null
           updated_at?: string
           user_id?: string
+          verificada?: boolean
         }
         Relationships: []
       }
@@ -1246,49 +1258,61 @@ export type Database = {
       }
       frotistas: {
         Row: {
+          avaliada_em: string | null
           cnpj: string
           created_at: string
           email_contato: string | null
+          fase_atual: number
           id: string
           municipio: string | null
           nome_fantasia: string | null
           razao_social: string
           responsavel_nome: string
+          score_conformidade: number
           status: string
           telefone: string | null
           uf: string | null
           updated_at: string
           user_id: string
+          verificada: boolean
         }
         Insert: {
+          avaliada_em?: string | null
           cnpj: string
           created_at?: string
           email_contato?: string | null
+          fase_atual?: number
           id?: string
           municipio?: string | null
           nome_fantasia?: string | null
           razao_social: string
           responsavel_nome: string
+          score_conformidade?: number
           status?: string
           telefone?: string | null
           uf?: string | null
           updated_at?: string
           user_id: string
+          verificada?: boolean
         }
         Update: {
+          avaliada_em?: string | null
           cnpj?: string
           created_at?: string
           email_contato?: string | null
+          fase_atual?: number
           id?: string
           municipio?: string | null
           nome_fantasia?: string | null
           razao_social?: string
           responsavel_nome?: string
+          score_conformidade?: number
           status?: string
           telefone?: string | null
           uf?: string | null
           updated_at?: string
           user_id?: string
+          verificada?: boolean
         }
         Relationships: []
       }
@@ -1824,6 +1848,54 @@ export type Database = {
           uf?: string
           updated_at?: string
           veiculos?: number
+        }
+        Relationships: []
+      }
+      pj_conformidade: {
+        Row: {
+          created_at: string
+          entidade_id: string
+          id: string
+          numero: string | null
+          observacao: string | null
+          orgao_emissor: string | null
+          pendencias: Json
+          status: Database["public"]["Enums"]["status_verificacao"]
+          tipo_documento: string
+          tipo_entidade: string
+          updated_at: string
+          user_id: string
+          validade: string | null
+        }
+        Insert: {
+          created_at?: string
+          entidade_id: string
+          id?: string
+          numero?: string | null
+          observacao?: string | null
+          orgao_emissor?: string | null
+          pendencias?: Json
+          status?: Database["public"]["Enums"]["status_verificacao"]
+          tipo_documento: string
+          tipo_entidade: string
+          updated_at?: string
+          user_id: string
+          validade?: string | null
+        }
+        Update: {
+          created_at?: string
+          entidade_id?: string
+          id?: string
+          numero?: string | null
+          observacao?: string | null
+          orgao_emissor?: string | null
+          pendencias?: Json
+          status?: Database["public"]["Enums"]["status_verificacao"]
+          tipo_documento?: string
+          tipo_entidade?: string
+          updated_at?: string
+          user_id?: string
+          validade?: string | null
         }
         Relationships: []
       }
@@ -3194,6 +3266,18 @@ export type Database = {
           rota_id: string
           total: number
         }[]
+      }
+      pj_documento_ok: {
+        Args: {
+          _entidade_id: string
+          _tipo_documento: string
+          _tipo_entidade: string
+        }
+        Returns: boolean
+      }
+      pj_fase_liberada: {
+        Args: { _entidade_id: string; _fase: number; _tipo_entidade: string }
+        Returns: boolean
       }
       pode_ver_viagem: {
         Args: { _user_id: string; _viagem_id: string }
