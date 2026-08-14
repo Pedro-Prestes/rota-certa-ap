@@ -175,6 +175,30 @@ function Passageiro() {
 
   const viagem = todas.find((r) => r.id === selecionada) ?? null;
 
+  /** Nome e avaliação (1 a 5 estrelas) do motorista de cada rota listada. */
+  const idsListados = useMemo(() => resultados.map((r) => r.id).sort(), [resultados]);
+  const motoristas = useQuery({
+    queryKey: ["motoristas-das-rotas", idsListados],
+    enabled: idsListados.length > 0,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("motoristas_das_rotas", {
+        _rota_ids: idsListados,
+      });
+      if (error) throw error;
+      const mapa: Record<string, ResumoMotorista> = {};
+      for (const r of data ?? []) {
+        mapa[r.rota_id] = {
+          motorista_nome: r.motorista_nome,
+          media: Number(r.media),
+          total: Number(r.total),
+        };
+      }
+      return mapa;
+    },
+  });
+
+
   const veiculo = frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
