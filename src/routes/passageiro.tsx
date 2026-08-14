@@ -555,6 +555,17 @@ function Passageiro() {
                     <Clock className="size-3" /> {data} · saída {hora(viagem.saida_ida)} · chegada{" "}
                     {hora(viagem.chegada_ida)}
                   </p>
+                  {motoristas.data?.[viagem.id] && (
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-primary-foreground/70">
+                      <Star className="size-3 fill-current" aria-hidden />
+                      Motorista {motoristas.data[viagem.id]!.motorista_nome} ·{" "}
+                      {motoristas.data[viagem.id]!.total > 0
+                        ? `${motoristas.data[viagem.id]!.media.toFixed(1).replace(".", ",")} de 5 (${motoristas.data[viagem.id]!.total} avaliações)`
+                        : "novo na plataforma"}
+                    </p>
+                  )}
+
+
 
                   <label className="mt-4 block">
                     <span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-primary-foreground/70">
