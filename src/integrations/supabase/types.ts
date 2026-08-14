@@ -83,6 +83,57 @@ export type Database = {
         }
         Relationships: []
       }
+      avaliacoes_motorista: {
+        Row: {
+          comentario: string | null
+          corrida_urbana_id: string | null
+          created_at: string
+          id: string
+          motorista_id: string
+          nota: number
+          passageiro_id: string
+          rota_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          comentario?: string | null
+          corrida_urbana_id?: string | null
+          created_at?: string
+          id?: string
+          motorista_id: string
+          nota: number
+          passageiro_id: string
+          rota_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comentario?: string | null
+          corrida_urbana_id?: string | null
+          created_at?: string
+          id?: string
+          motorista_id?: string
+          nota?: number
+          passageiro_id?: string
+          rota_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_motorista_corrida_urbana_id_fkey"
+            columns: ["corrida_urbana_id"]
+            isOneToOne: false
+            referencedRelation: "corridas_urbanas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_motorista_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blockchain_blocos: {
         Row: {
           corrida_id: string | null
@@ -3088,6 +3139,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      motoristas_das_rotas: {
+        Args: { _rota_ids: string[] }
+        Returns: {
+          media: number
+          motorista_nome: string
+          rota_id: string
+          total: number
+        }[]
       }
       pode_ver_viagem: {
         Args: { _user_id: string; _viagem_id: string }

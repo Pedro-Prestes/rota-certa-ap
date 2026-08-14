@@ -3,10 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowRight, Clock, Loader2, Luggage, MapPin, Users, Wallet } from "lucide-react";
+import { ArrowRight, Clock, Loader2, Luggage, MapPin, Star, Users, Wallet } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { PreReservas } from "@/components/PreReservas";
+import { AvaliacaoMotorista, type ResumoMotorista } from "@/components/AvaliacaoMotorista";
+
 import { PedirCorridaUrbana } from "@/components/urbano/PedirCorridaUrbana";
 import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
@@ -174,6 +176,30 @@ function Passageiro() {
   }, [resultados, selecionada]);
 
   const viagem = todas.find((r) => r.id === selecionada) ?? null;
+
+  /** Nome e avaliação (1 a 5 estrelas) do motorista de cada rota listada. */
+  const idsListados = useMemo(() => resultados.map((r) => r.id).sort(), [resultados]);
+  const motoristas = useQuery({
+    queryKey: ["motoristas-das-rotas", idsListados],
+    enabled: idsListados.length > 0,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("motoristas_das_rotas", {
+        _rota_ids: idsListados,
+      });
+      if (error) throw error;
+      const mapa: Record<string, ResumoMotorista> = {};
+      for (const r of data ?? []) {
+        mapa[r.rota_id] = {
+          motorista_nome: r.motorista_nome,
+          media: Number(r.media),
+          total: Number(r.total),
+        };
+      }
+      return mapa;
+    },
+  });
+
 
   const veiculo = frota[2]!;
 
@@ -419,6 +445,10 @@ function Passageiro() {
                           {Number(v.distancia_km)} km
 
                         </p>
+                        <div className="mt-2">
+                          <AvaliacaoMotorista resumo={motoristas.data?.[v.id]} />
+                        </div>
+
                         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Users className="size-3" />
@@ -525,6 +555,17 @@ function Passageiro() {
                     <Clock className="size-3" /> {data} · saída {hora(viagem.saida_ida)} · chegada{" "}
                     {hora(viagem.chegada_ida)}
                   </p>
+                  {motoristas.data?.[viagem.id] && (
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-primary-foreground/70">
+                      <Star className="size-3 fill-current" aria-hidden />
+                      Motorista {motoristas.data[viagem.id]!.motorista_nome} ·{" "}
+                      {motoristas.data[viagem.id]!.total > 0
+                        ? `${motoristas.data[viagem.id]!.media.toFixed(1).replace(".", ",")} de 5 (${motoristas.data[viagem.id]!.total} avaliações)`
+                        : "novo na plataforma"}
+                    </p>
+                  )}
+
+
 
                   <label className="mt-4 block">
                     <span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-primary-foreground/70">
