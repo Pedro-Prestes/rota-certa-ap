@@ -22,6 +22,8 @@ import {
   type Habilitacao,
 } from "@/components/TrilhaCadastroMotorista";
 import { pendenciasCompatibilidade } from "@/lib/habilitacao";
+import { LiberacaoCredenciamento } from "@/components/admin/LiberacaoCredenciamento";
+
 
 export const Route = createFileRoute("/_authenticated/verificacao")({
   head: () => ({
@@ -172,6 +174,11 @@ function Verificacao() {
 
         <div className="mt-8">
           <TrilhaCadastroMotorista />
+        </div>
+
+        <div className="mt-6">
+          <LiberacaoCredenciamento />
+
         </div>
 
         <section className="mt-6 grid gap-4 lg:grid-cols-2">
