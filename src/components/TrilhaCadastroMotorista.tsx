@@ -196,6 +196,21 @@ export function TrilhaCadastroMotorista() {
         Cada fase só abre com a anterior aprovada — o veículo só pode ser cadastrado ao final.
       </p>
 
+      {cred.liberacaoMaster && (
+        <p className="mt-3 rounded-xl border border-success/40 bg-success/5 p-3 text-xs text-success">
+          Credenciamento liberado pelo administrador master nas fases{" "}
+          {[
+            cred.liberadoFase1 && "1",
+            cred.liberadoFase2 && "2",
+            cred.liberadoFase3 && "3",
+          ]
+            .filter(Boolean)
+            .join(", ")}
+          . Motivo: {cred.liberacaoMaster.motivo}
+        </p>
+      )}
+
+
       {cred.carregando ? (
         <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" /> Conferindo o seu credenciamento…
