@@ -827,6 +827,48 @@ export type Database = {
           },
         ]
       }
+      credenciamento_liberacoes: {
+        Row: {
+          created_at: string
+          fase1: boolean
+          fase2: boolean
+          fase3: boolean
+          id: string
+          liberado_por: string | null
+          motivo: string
+          revogado_em: string | null
+          revogado_por: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fase1?: boolean
+          fase2?: boolean
+          fase3?: boolean
+          id?: string
+          liberado_por?: string | null
+          motivo: string
+          revogado_em?: string | null
+          revogado_por?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fase1?: boolean
+          fase2?: boolean
+          fase3?: boolean
+          id?: string
+          liberado_por?: string | null
+          motivo?: string
+          revogado_em?: string | null
+          revogado_por?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       custos_terceiros: {
         Row: {
           categoria: string
@@ -3243,6 +3285,10 @@ export type Database = {
         }[]
       }
       cooperativa_do_motorista: { Args: { _user_id: string }; Returns: string }
+      credenciamento_liberado_master: {
+        Args: { _fase: number; _user_id: string }
+        Returns: boolean
+      }
       eh_admin_master: { Args: { _user_id: string }; Returns: boolean }
       eh_colaborador: { Args: { _user_id: string }; Returns: boolean }
       eh_frotista_da_rota: {
