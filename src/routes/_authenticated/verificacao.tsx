@@ -174,6 +174,11 @@ function Verificacao() {
           <TrilhaCadastroMotorista />
         </div>
 
+        <div className="mt-6">
+          <LiberacaoCredenciamento />
+
+        </div>
+
         <section className="mt-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-border bg-card p-5">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold">
