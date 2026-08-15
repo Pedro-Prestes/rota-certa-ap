@@ -22,6 +22,8 @@ import {
   type Habilitacao,
 } from "@/components/TrilhaCadastroMotorista";
 import { pendenciasCompatibilidade } from "@/lib/habilitacao";
+import { LiberacaoCredenciamento } from "@/components/admin/LiberacaoCredenciamento";
+
 
 export const Route = createFileRoute("/_authenticated/verificacao")({
   head: () => ({
