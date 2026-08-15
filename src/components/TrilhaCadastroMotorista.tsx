@@ -73,14 +73,34 @@ export function useCredenciamentoMotorista() {
     },
   });
 
+  // Liberação manual concedida pelo administrador master (dispensa as fases).
+  const liberacao = useQuery({
+    queryKey: ["credenciamento-liberacao", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("credenciamento_liberacoes")
+        .select("fase1, fase2, fase3, motivo")
+        .is("revogado_em", null)
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
+    },
+  });
+
   const carregando = idoneidade.isLoading || biometria.isLoading || habilitacao.isLoading;
   const idoneidadeOk = idoneidade.data?.status === "aprovado";
   const biometriaOk = biometria.data?.status === "aprovada";
-  const fase1Ok = idoneidadeOk && biometriaOk;
+  const liberadoFase1 = !!liberacao.data?.fase1;
+  const liberadoFase2 = !!liberacao.data?.fase2;
+  const liberadoFase3 = !!liberacao.data?.fase3;
+  const fase1Ok = (idoneidadeOk && biometriaOk) || liberadoFase1;
   const validadeOk =
     !habilitacao.data?.validade ||
     new Date(`${habilitacao.data.validade}T12:00:00`).getTime() >= Date.now();
-  const fase2Ok = fase1Ok && habilitacao.data?.status === "aprovado" && validadeOk;
+  const fase2Ok =
+    liberadoFase2 || (fase1Ok && habilitacao.data?.status === "aprovado" && validadeOk);
 
   return {
     carregando,
@@ -91,10 +111,16 @@ export function useCredenciamentoMotorista() {
     biometriaOk,
     fase1Ok,
     fase2Ok,
+    /** Liberação manual do master, por fase. */
+    liberacaoMaster: liberacao.data ?? null,
+    liberadoFase1,
+    liberadoFase2,
+    liberadoFase3,
     /** Fase 3 (cadastro de veículo) liberada. */
-    veiculoLiberado: fase2Ok,
+    veiculoLiberado: fase2Ok || liberadoFase3,
   };
 }
+
 
 const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring";
