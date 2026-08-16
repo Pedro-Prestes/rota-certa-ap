@@ -81,7 +81,7 @@ async function rotaEComposicao(dados: EntradaReserva) {
   const { data: rota, error } = await supabaseAdmin
     .from("rotas")
     .select(
-      "id, user_id, origem, destino, uf_origem, uf_destino, saida_ida, chegada_ida, distancia_km, assentos, preco_assento, status",
+      "id, user_id, origem, destino, uf_origem, uf_destino, saida_ida, chegada_ida, saida_retorno, chegada_retorno, distancia_km, assentos, preco_assento, status",
     )
 
     .eq("id", dados.rotaId)
@@ -92,6 +92,14 @@ async function rotaEComposicao(dados: EntradaReserva) {
   const preco = Number(rota.preco_assento) || 0;
   const capacidade = Number(rota.assentos) || 0;
   const exclusiva = dados.exclusiva === true;
+  const idaEVolta = dados.idaEVolta === true;
+  if (idaEVolta && !rota.saida_retorno) {
+    throw new Error("Esta saída ainda não tem horário de retorno cadastrado.");
+  }
+  const dataVolta = idaEVolta ? (dados.dataVolta ?? dados.dataViagem) : null;
+  if (dataVolta && dataVolta < dados.dataViagem) {
+    throw new Error("A data da volta precisa ser igual ou posterior à data da ida.");
+  }
 
   // Exclusividade: tarifa integral do veículo (todos os assentos), sem cálculo
   // por assento avulso; a bagagem tem franquia de 40 kg e o excedente é cobrado
@@ -105,7 +113,28 @@ async function rotaEComposicao(dados: EntradaReserva) {
   if (assentosValor <= 0) throw new Error("Esta saída ainda não tem tarifa publicada.");
 
   const desvio = await desvioDoEmbarque(dados.rotaId, dados.enderecoEmbarque);
-  const base = arred(assentosValor + (desvio?.taxa ?? 0));
+  const taxaDesvio = desvio?.taxa ?? 0;
+
+  // Desconto promocional publicado pelo motorista + desconto padrão do retorno.
+  const { descontosVigentesDeRotas } = await import("./descontos.server");
+  const { DESCONTO_RETORNO_PADRAO, aplicarDesconto, descontoVigente, economiaDesconto } =
+    await import("./descontos");
+  const vigentes = await descontosVigentesDeRotas([dados.rotaId]);
+  const descontoIda = descontoVigente(vigentes, "ida");
+  const descontoVolta = idaEVolta
+    ? Math.max(descontoVigente(vigentes, "volta"), DESCONTO_RETORNO_PADRAO)
+    : descontoVigente(vigentes, "volta");
+
+  const valorIda = arred(aplicarDesconto(assentosValor, descontoIda) + taxaDesvio);
+  const valorVolta = idaEVolta
+    ? arred(aplicarDesconto(assentosValor, descontoVolta) + taxaDesvio)
+    : 0;
+  const economia = arred(
+    economiaDesconto(assentosValor, descontoIda) +
+      (idaEVolta ? economiaDesconto(assentosValor, descontoVolta) : 0),
+  );
+
+  const base = arred(valorIda + valorVolta);
 
   const cfg = await configDoUsuario(dados.userId, dados.environment);
   return {
@@ -117,6 +146,13 @@ async function rotaEComposicao(dados: EntradaReserva) {
     capacidade,
     excedenteKg,
     valorPesoExcedente,
+    idaEVolta,
+    dataVolta,
+    descontoIda,
+    descontoVolta,
+    valorIda,
+    valorVolta,
+    economia,
     composicao: comporCobranca(base, cfg),
   };
 }
@@ -133,6 +169,13 @@ export async function previaReserva(dados: EntradaReserva) {
     capacidade,
     excedenteKg,
     valorPesoExcedente,
+    idaEVolta,
+    dataVolta,
+    descontoIda,
+    descontoVolta,
+    valorIda,
+    valorVolta,
+    economia,
   } = await rotaEComposicao(dados);
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
   const faltando = arred(Math.max(0, composicao.total - saldo));
@@ -141,6 +184,7 @@ export async function previaReserva(dados: EntradaReserva) {
     destino: rota.destino,
     ufOrigem: rota.uf_origem,
     ufDestino: rota.uf_destino,
+    saidaRetorno: rota.saida_retorno,
 
     assentosValor,
     desvio,
@@ -148,6 +192,13 @@ export async function previaReserva(dados: EntradaReserva) {
     capacidade,
     excedenteKg,
     valorPesoExcedente,
+    idaEVolta,
+    dataVolta,
+    descontoIda,
+    descontoVolta,
+    valorIda,
+    valorVolta,
+    economia,
     franquiaKg: FRANQUIA_EXCLUSIVA_KG,
     precoKgExcedente: PRECO_KG_EXCEDENTE,
     base: composicao.base,
@@ -160,6 +211,7 @@ export async function previaReserva(dados: EntradaReserva) {
 
 
 }
+
 
 /**
  * Pix avulso pelo valor exato da corrida — não exige saldo prévio na carteira.
