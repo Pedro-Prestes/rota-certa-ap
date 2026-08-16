@@ -622,6 +622,7 @@ export type Database = {
           created_at: string
           data_corrida: string
           desconto: number
+          desconto_percentual: number
           destino: string
           distancia_km: number
           hora_chegada: string | null
@@ -631,6 +632,8 @@ export type Database = {
           observacoes: string | null
           origem: string
           passageiro_nome: string
+          reserva_par_id: string | null
+          trecho: string
           updated_at: string
           user_id: string
           valor_bagagem: number
@@ -646,6 +649,7 @@ export type Database = {
           created_at?: string
           data_corrida?: string
           desconto?: number
+          desconto_percentual?: number
           destino?: string
           distancia_km?: number
           hora_chegada?: string | null
@@ -655,6 +659,8 @@ export type Database = {
           observacoes?: string | null
           origem?: string
           passageiro_nome?: string
+          reserva_par_id?: string | null
+          trecho?: string
           updated_at?: string
           user_id: string
           valor_bagagem?: number
@@ -670,6 +676,7 @@ export type Database = {
           created_at?: string
           data_corrida?: string
           desconto?: number
+          desconto_percentual?: number
           destino?: string
           distancia_km?: number
           hora_chegada?: string | null
@@ -679,6 +686,8 @@ export type Database = {
           observacoes?: string | null
           origem?: string
           passageiro_nome?: string
+          reserva_par_id?: string | null
+          trecho?: string
           updated_at?: string
           user_id?: string
           valor_bagagem?: number
@@ -2130,6 +2139,7 @@ export type Database = {
           corrida_id: string | null
           created_at: string
           data_viagem: string
+          desconto_percentual: number
           endereco: string
           exclusiva: boolean
           fator_ocupacao: number | null
@@ -2143,9 +2153,11 @@ export type Database = {
           passageiro_id: string
           prioridade: number
           referencia: string | null
+          reserva_par_id: string | null
           rota_id: string
           status: string
           taxa_desvio: number | null
+          trecho: string
           updated_at: string
           valor_base: number | null
           valor_ofertado: number | null
@@ -2157,6 +2169,7 @@ export type Database = {
           corrida_id?: string | null
           created_at?: string
           data_viagem: string
+          desconto_percentual?: number
           endereco: string
           exclusiva?: boolean
           fator_ocupacao?: number | null
@@ -2170,9 +2183,11 @@ export type Database = {
           passageiro_id: string
           prioridade?: number
           referencia?: string | null
+          reserva_par_id?: string | null
           rota_id: string
           status?: string
           taxa_desvio?: number | null
+          trecho?: string
           updated_at?: string
           valor_base?: number | null
           valor_ofertado?: number | null
@@ -2184,6 +2199,7 @@ export type Database = {
           corrida_id?: string | null
           created_at?: string
           data_viagem?: string
+          desconto_percentual?: number
           endereco?: string
           exclusiva?: boolean
           fator_ocupacao?: number | null
@@ -2197,9 +2213,11 @@ export type Database = {
           passageiro_id?: string
           prioridade?: number
           referencia?: string | null
+          reserva_par_id?: string | null
           rota_id?: string
           status?: string
           taxa_desvio?: number | null
+          trecho?: string
           updated_at?: string
           valor_base?: number | null
           valor_ofertado?: number | null
@@ -2343,6 +2361,56 @@ export type Database = {
           },
           {
             foreignKeyName: "promo_lancamento_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rota_descontos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          criado_por: string
+          fim: string | null
+          id: string
+          inicio: string
+          observacao: string | null
+          percentual: number
+          rota_id: string
+          trecho: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          criado_por: string
+          fim?: string | null
+          id?: string
+          inicio?: string
+          observacao?: string | null
+          percentual: number
+          rota_id: string
+          trecho?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string
+          fim?: string | null
+          id?: string
+          inicio?: string
+          observacao?: string | null
+          percentual?: number
+          rota_id?: string
+          trecho?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rota_descontos_rota_id_fkey"
             columns: ["rota_id"]
             isOneToOne: false
             referencedRelation: "rotas"
