@@ -36,7 +36,12 @@ export interface EntradaReserva {
   exclusiva?: boolean | undefined;
   /** Peso total da bagagem (kg) — usado na franquia de 40 kg da exclusividade. */
   bagagemKg?: number | undefined;
+  /** Viagem casada: cobra ida e volta na mesma reserva. */
+  idaEVolta?: boolean | undefined;
+  /** Data do trecho de retorno (obrigatória quando idaEVolta). */
+  dataVolta?: string | undefined;
 }
+
 
 
 /** Menor pacote de créditos que cobre o valor faltante. */
