@@ -3,7 +3,17 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowRight, Clock, Loader2, Luggage, MapPin, Star, Users, Wallet } from "lucide-react";
+import {
+  ArrowRight,
+  BadgePercent,
+  Clock,
+  Loader2,
+  Luggage,
+  MapPin,
+  Star,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { PreReservas } from "@/components/PreReservas";
@@ -14,6 +24,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { CONSUMO_KM_L, PRECO_COMBUSTIVEL, frota } from "@/lib/dados";
 import { ANTECEDENCIA_FECHAMENTO_MIN, faixaEstimada } from "@/lib/preco-dinamico";
 import { criarPreReserva } from "@/utils/pre-reserva.functions";
+import { descontosDasRotas } from "@/utils/desconto.functions";
+import { DESCONTO_RETORNO_PADRAO, aplicarDesconto, descontoVigente } from "@/lib/descontos";
 import {
   gerarPixDaCorrida,
   pagarReservaComCreditos,
@@ -97,6 +109,8 @@ function Passageiro() {
   const [data, setData] = useState(() => diaLocal(new Date()));
   const [assentos, setAssentos] = useState(1);
   const [exclusiva, setExclusiva] = useState(false);
+  const [idaEVolta, setIdaEVolta] = useState(false);
+  const [dataVolta, setDataVolta] = useState(() => diaLocal(new Date()));
   const [selecionada, setSelecionada] = useState<string | null>(null);
 
   const [pagando, setPagando] = useState(false);
@@ -201,6 +215,23 @@ function Passageiro() {
   });
 
 
+  /** Descontos promocionais vigentes das saídas listadas. */
+  const listarDescontos = useServerFn(descontosDasRotas);
+  const promocoes = useQuery({
+    queryKey: ["descontos-das-rotas", idsListados],
+    enabled: idsListados.length > 0,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const r = await listarDescontos({ data: { rotaIds: idsListados } });
+      const mapa: Record<string, number> = {};
+      for (const d of r.descontos ?? []) {
+        const atual = mapa[d.rota_id] ?? 0;
+        mapa[d.rota_id] = Math.max(atual, descontoVigente([d], "ida"));
+      }
+      return mapa;
+    },
+  });
+
   const veiculo = frota[2]!;
 
   const avaliacao = useMemo(() => avaliarBagagem([bag], veiculo), [bag, veiculo]);
@@ -231,6 +262,8 @@ function Passageiro() {
     assentos,
     assentosBagagem: avaliacao.assentosEquivalentes,
     exclusiva,
+    idaEVolta,
+    dataVolta,
     bagagemKg: Number(avaliacao.pesoKg.toFixed(1)),
     ...(enderecoValido ? { enderecoEmbarque: enderecoDebounced } : {}),
     environment: "live" as const,
@@ -244,6 +277,8 @@ function Passageiro() {
       assentos,
       avaliacao.assentosEquivalentes,
       exclusiva,
+      idaEVolta,
+      dataVolta,
       avaliacao.pesoKg,
       enderecoValido ? enderecoDebounced : "",
     ],
@@ -283,6 +318,8 @@ function Passageiro() {
           assentosBagagem: avaliacao.assentosEquivalentes,
           endereco: enderecoDebounced,
           exclusiva,
+          idaEVolta,
+          dataVolta,
           bagagemKg: Number(avaliacao.pesoKg.toFixed(1)),
         },
       });
@@ -413,6 +450,32 @@ function Passageiro() {
                     onChange={(e) => setAssentos(Math.max(1, Number(e.target.value)))}
                   />
                 </label>
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-secondary/60 p-3 sm:col-span-1">
+                  <input
+                    type="checkbox"
+                    checked={idaEVolta}
+                    onChange={(e) => setIdaEVolta(e.target.checked)}
+                    className="mt-0.5 size-4"
+                  />
+                  <span className="text-[11px] leading-relaxed text-muted-foreground">
+                    <strong className="block text-xs text-foreground">Ida e volta</strong>
+                    Reserve os dois trechos juntos e ganhe {DESCONTO_RETORNO_PADRAO}% no retorno.
+                  </span>
+                </label>
+                {idaEVolta && (
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
+                      Data da volta
+                    </span>
+                    <input
+                      type="date"
+                      className={campo}
+                      min={data}
+                      value={dataVolta}
+                      onChange={(e) => setDataVolta(e.target.value < data ? data : e.target.value)}
+                    />
+                  </label>
+                )}
               </div>
             </div>
 
@@ -459,9 +522,24 @@ function Passageiro() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-display text-xl font-bold">
-                          {brl(Number(v.preco_assento))}
-                        </p>
+                        {(promocoes.data?.[v.id] ?? 0) > 0 ? (
+                          <>
+                            <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-foreground">
+                              <BadgePercent className="size-3" />
+                              Promoção {promocoes.data![v.id]}% OFF
+                            </span>
+                            <p className="mt-1 text-xs text-muted-foreground line-through">
+                              {brl(Number(v.preco_assento))}
+                            </p>
+                            <p className="font-display text-xl font-bold text-accent">
+                              {brl(aplicarDesconto(Number(v.preco_assento), promocoes.data![v.id]!))}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="font-display text-xl font-bold">
+                            {brl(Number(v.preco_assento))}
+                          </p>
+                        )}
                         <p className="text-[11px] text-muted-foreground">por assento</p>
                       </div>
                     </div>
@@ -652,6 +730,25 @@ function Passageiro() {
                           : "—"}
                       </dd>
                     </div>
+                    {previa.data?.idaEVolta && (
+                      <div className="flex justify-between">
+                        <dt className="text-primary-foreground/70">
+                          Trecho de volta ({previa.data.dataVolta} · saída{" "}
+                          {hora(previa.data.saidaRetorno ?? null)}
+                          {previa.data.descontoVolta > 0
+                            ? ` · -${previa.data.descontoVolta}%`
+                            : ""}
+                          )
+                        </dt>
+                        <dd>{brl(previa.data.valorVolta)}</dd>
+                      </div>
+                    )}
+                    {(previa.data?.economia ?? 0) > 0 && (
+                      <div className="flex justify-between text-accent">
+                        <dt>Desconto promocional aplicado</dt>
+                        <dd>-{brl(previa.data!.economia)}</dd>
+                      </div>
+                    )}
                     <div className="flex justify-between border-t border-primary-foreground/15 pt-2">
                       <dt className="text-primary-foreground/70">Subtotal da corrida</dt>
                       <dd>{brl(previa.data?.base ?? total)}</dd>

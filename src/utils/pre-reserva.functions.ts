@@ -10,6 +10,8 @@ interface EntradaPreReserva {
   referencia?: string;
   exclusiva?: boolean;
   bagagemKg?: number;
+  idaEVolta?: boolean;
+  dataVolta?: string;
 }
 
 const validar = (data: EntradaPreReserva) => {
@@ -28,6 +30,14 @@ const validar = (data: EntradaPreReserva) => {
   if (!Number.isFinite(bagagemKg) || bagagemKg < 0 || bagagemKg > 1000) {
     throw new Error("Peso da bagagem inválido.");
   }
+  const idaEVolta = data.idaEVolta === true;
+  const dataVolta = data.dataVolta ?? data.dataViagem;
+  if (idaEVolta) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataVolta)) throw new Error("Data da volta inválida.");
+    if (dataVolta < data.dataViagem) {
+      throw new Error("A data da volta precisa ser igual ou posterior à da ida.");
+    }
+  }
   return {
     rotaId: data.rotaId,
     dataViagem: data.dataViagem,
@@ -37,6 +47,8 @@ const validar = (data: EntradaPreReserva) => {
     referencia: (data.referencia ?? "").trim().slice(0, 240),
     exclusiva: data.exclusiva === true,
     bagagemKg,
+    idaEVolta,
+    dataVolta,
   };
 };
 
@@ -49,37 +61,71 @@ export const criarPreReserva = createServerFn({ method: "POST" })
       const { localizarEmbarque } = await import("@/lib/pre-reserva.server");
       const local = await localizarEmbarque(data.rotaId, data.endereco);
 
-      const { error } = await context.supabase.from("pre_reservas").upsert(
-        {
-          rota_id: data.rotaId,
-          data_viagem: data.dataViagem,
-          passageiro_id: context.userId,
-          assentos: data.assentos,
-          assentos_bagagem: data.assentosBagagem,
-          endereco: local.enderecoFormatado,
-          referencia: data.referencia || null,
-          latitude: local.latitude,
-          longitude: local.longitude,
-          exclusiva: data.exclusiva,
-          bagagem_kg: data.bagagemKg,
-          status: "pendente",
-          valor_ofertado: null,
-          valor_base: null,
-          taxa_desvio: null,
-          km_desvio: null,
-          minutos_desvio: null,
-          fator_ocupacao: null,
-          oferta_enviada_em: null,
-          oferta_expira_em: null,
-        },
-        { onConflict: "rota_id,data_viagem,passageiro_id" },
-      );
+      const comum = {
+        rota_id: data.rotaId,
+        passageiro_id: context.userId,
+        assentos: data.assentos,
+        assentos_bagagem: data.assentosBagagem,
+        endereco: local.enderecoFormatado,
+        referencia: data.referencia || null,
+        latitude: local.latitude,
+        longitude: local.longitude,
+        exclusiva: data.exclusiva,
+        bagagem_kg: data.bagagemKg,
+        status: "pendente",
+        valor_ofertado: null,
+        valor_base: null,
+        taxa_desvio: null,
+        km_desvio: null,
+        minutos_desvio: null,
+        fator_ocupacao: null,
+        oferta_enviada_em: null,
+        oferta_expira_em: null,
+      };
+
+      const { data: ida, error } = await context.supabase
+        .from("pre_reservas")
+        .upsert({ ...comum, data_viagem: data.dataViagem, trecho: "ida" }, {
+          onConflict: "rota_id,data_viagem,passageiro_id",
+        })
+        .select("id")
+        .single();
       if (error) throw new Error(error.message);
-      return { ok: true as const, endereco: local.enderecoFormatado };
+
+      // Viagem casada: o trecho de volta entra na fila da data de retorno e
+      // fica vinculado ao trecho de ida.
+      if (data.idaEVolta) {
+        const { data: volta, error: erroVolta } = await context.supabase
+          .from("pre_reservas")
+          .upsert(
+            {
+              ...comum,
+              data_viagem: data.dataVolta,
+              trecho: "volta",
+              reserva_par_id: ida.id,
+            },
+            { onConflict: "rota_id,data_viagem,passageiro_id" },
+          )
+          .select("id")
+          .single();
+        if (erroVolta) throw new Error(erroVolta.message);
+        await context.supabase
+          .from("pre_reservas")
+          .update({ reserva_par_id: volta.id })
+          .eq("id", ida.id);
+      }
+
+      return {
+        ok: true as const,
+        endereco: local.enderecoFormatado,
+        idaEVolta: data.idaEVolta,
+        dataVolta: data.dataVolta,
+      };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Não foi possível pré-reservar." };
     }
   });
+
 
 /** Pré-reservas do passageiro com a situação da fila de confirmação. */
 export const minhasPreReservas = createServerFn({ method: "GET" })

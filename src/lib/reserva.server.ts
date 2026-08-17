@@ -255,7 +255,17 @@ export async function criarPixDaCorrida(
 
 /** Débita os créditos, registra o pagamento e garante o assento na saída. */
 export async function reservarComCreditos(dados: EntradaReserva) {
-  const { rota, composicao, exclusiva, valorPesoExcedente } = await rotaEComposicao(dados);
+  const {
+    rota,
+    composicao,
+    exclusiva,
+    valorPesoExcedente,
+    idaEVolta,
+    dataVolta,
+    descontoIda,
+    descontoVolta,
+    economia,
+  } = await rotaEComposicao(dados);
 
   const { saldo } = await carteiraDoUsuario(dados.userId, dados.environment);
 
@@ -305,6 +315,13 @@ export async function reservarComCreditos(dados: EntradaReserva) {
     .eq("id", rota.user_id)
     .maybeSingle();
 
+  const observacaoBase = exclusiva
+    ? `Reserva exclusiva da saída (tarifa integral do veículo) paga com créditos. Bagagem ${(dados.bagagemKg ?? 0).toFixed(1)} kg — franquia de ${FRANQUIA_EXCLUSIVA_KG} kg.`
+    : "Reserva de lotação paga com créditos da carteira.";
+  const observacaoIda = idaEVolta
+    ? `${observacaoBase} Viagem de ida e volta (trecho de ida) — retorno em ${dataVolta}.`
+    : observacaoBase;
+
   const { data: corrida, error: erroCorrida } = await supabaseAdmin
     .from("corridas")
     .insert({
@@ -325,16 +342,54 @@ export async function reservarComCreditos(dados: EntradaReserva) {
         : arred(Number(rota.preco_assento) * 0.6 * Math.max(0, dados.assentosBagagem)),
       valor_pedagios: 0,
       valor_extras: 0,
-      desconto: 0,
+      desconto: economia,
+      desconto_percentual: descontoIda,
+      trecho: "ida",
       comissao_percentual: 0,
-      observacoes: exclusiva
-        ? `Reserva exclusiva da saída (tarifa integral do veículo) paga com créditos. Bagagem ${(dados.bagagemKg ?? 0).toFixed(1)} kg — franquia de ${FRANQUIA_EXCLUSIVA_KG} kg.`
-        : "Reserva de lotação paga com créditos da carteira.",
+      observacoes: observacaoIda,
 
     })
     .select("id")
     .single();
   if (erroCorrida) throw new Error(erroCorrida.message);
+
+  // Trecho de retorno da viagem casada: fica vinculado ao trecho de ida.
+  if (idaEVolta && dataVolta) {
+    const { data: volta } = await supabaseAdmin
+      .from("corridas")
+      .insert({
+        user_id: dados.userId,
+        passageiro_nome: perfil?.nome_completo || "Passageiro RotaCerta",
+        motorista_nome: motorista?.nome_completo || "Motorista RotaCerta",
+        origem: rota.destino,
+        destino: rota.origem,
+        data_corrida: dataVolta,
+        hora_partida: rota.saida_retorno,
+        hora_chegada: rota.chegada_retorno,
+        distancia_km: Number(rota.distancia_km) || 0,
+        assentos: assentosCorrida,
+        bagagem_l: 0,
+        valor_tarifa: arred(Number(rota.preco_assento) * assentosCorrida),
+        valor_bagagem: 0,
+        valor_pedagios: 0,
+        valor_extras: 0,
+        desconto: 0,
+        desconto_percentual: descontoVolta,
+        trecho: "volta",
+        reserva_par_id: corrida.id,
+        comissao_percentual: 0,
+        observacoes: `Trecho de volta da viagem casada paga com créditos (desconto de retorno de ${descontoVolta}%).`,
+      })
+      .select("id")
+      .single();
+    if (volta) {
+      await supabaseAdmin
+        .from("corridas")
+        .update({ reserva_par_id: volta.id })
+        .eq("id", corrida.id);
+    }
+  }
+
 
   const { data: pagamento, error: erroPagamento } = await supabaseAdmin
     .from("pagamentos")

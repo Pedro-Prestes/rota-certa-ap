@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   AlertTriangle,
+  BadgePercent,
+
   Brain,
   Car,
   CheckCircle2,
@@ -19,6 +21,7 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { PortaoBiometriaMotorista } from "@/components/PortaoBiometriaMotorista";
 import { useCredenciamentoMotorista } from "@/components/TrilhaCadastroMotorista";
+import { DescontoPromocional } from "@/components/DescontoPromocional";
 import { PainelUrbanoMotorista } from "@/components/urbano/PainelUrbanoMotorista";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -174,7 +177,7 @@ function useDadosMotorista() {
 }
 
 function Motorista() {
-  const [aba, setAba] = useState<"rotas" | "embarques" | "veiculo" | "avisos" | "urbano">("rotas");
+  const [aba, setAba] = useState<"rotas" | "embarques" | "veiculo" | "avisos" | "urbano" | "promo">("rotas");
   const { user, carregando } = useAuth();
 
   return (
@@ -194,6 +197,7 @@ function Motorista() {
               ["embarques", "Embarques", MapPin],
               ["veiculo", "Frota", Car],
               ["avisos", "Manutenção", Wrench],
+              ["promo", "Promoções", BadgePercent],
               ["urbano", "Modo urbano", Building2],
             ] as const
           ).map(([id, label, Icon]) => (
@@ -231,6 +235,7 @@ function Motorista() {
               {aba === "embarques" && <AbaEmbarques />}
               {aba === "veiculo" && <AbaFrota />}
               {aba === "avisos" && <AbaManutencao />}
+              {aba === "promo" && <AbaPromocoes />}
               {aba === "urbano" && <PainelUrbanoMotorista />}
             </PortaoBiometriaMotorista>
           )}
@@ -243,6 +248,23 @@ function Motorista() {
 /* ------------------------------------------------------------------ */
 /* Rotas e vínculo de veículos                                         */
 /* ------------------------------------------------------------------ */
+
+function AbaPromocoes() {
+  const { rotas } = useDadosMotorista();
+  return (
+    <DescontoPromocional
+      rotas={(rotas.data ?? []).map((r) => ({
+        id: r.id,
+        origem: r.origem,
+        destino: r.destino,
+        preco_assento: Number(r.preco_assento) || 0,
+        distancia_km: Number(r.distancia_km) || 0,
+        assentos: Number(r.assentos) || 1,
+        saida_retorno: r.saida_retorno ?? null,
+      }))}
+    />
+  );
+}
 
 function AbaEmbarques() {
   const { rotas } = useDadosMotorista();
