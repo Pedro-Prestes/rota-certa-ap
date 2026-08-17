@@ -10,6 +10,8 @@ interface EntradaReservaCliente {
   environment?: "sandbox" | "live";
   exclusiva?: boolean;
   bagagemKg?: number;
+  idaEVolta?: boolean;
+  dataVolta?: string;
 }
 
 const validar = (data: EntradaReservaCliente) => {
@@ -26,11 +28,21 @@ const validar = (data: EntradaReservaCliente) => {
   if (!Number.isFinite(bagagemKg) || bagagemKg < 0 || bagagemKg > 1000) {
     throw new Error("Peso da bagagem inválido.");
   }
+  const idaEVolta = data.idaEVolta === true;
+  const dataVolta = data.dataVolta ?? data.dataViagem;
+  if (idaEVolta) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataVolta)) throw new Error("Data da volta inválida.");
+    if (dataVolta < data.dataViagem) {
+      throw new Error("A data da volta precisa ser igual ou posterior à da ida.");
+    }
+  }
   return {
     ...data,
     assentosBagagem: bagagem,
     exclusiva: data.exclusiva === true,
     bagagemKg,
+    idaEVolta,
+    dataVolta,
     ...(endereco ? { enderecoEmbarque: endereco } : {}),
   };
 };
@@ -53,6 +65,8 @@ export const previaDaReserva = createServerFn({ method: "POST" })
         enderecoEmbarque: data.enderecoEmbarque,
         exclusiva: data.exclusiva,
         bagagemKg: data.bagagemKg,
+        idaEVolta: data.idaEVolta,
+        dataVolta: data.dataVolta,
         environment: data.environment ?? "live",
 
       });
@@ -92,6 +106,8 @@ export const gerarPixDaCorrida = createServerFn({ method: "POST" })
         enderecoEmbarque: data.enderecoEmbarque,
         exclusiva: data.exclusiva,
         bagagemKg: data.bagagemKg,
+        idaEVolta: data.idaEVolta,
+        dataVolta: data.dataVolta,
         environment: data.environment ?? "live",
 
         email,
@@ -123,6 +139,8 @@ export const pagarReservaComCreditos = createServerFn({ method: "POST" })
         enderecoEmbarque: data.enderecoEmbarque,
         exclusiva: data.exclusiva,
         bagagemKg: data.bagagemKg,
+        idaEVolta: data.idaEVolta,
+        dataVolta: data.dataVolta,
         environment: data.environment ?? "live",
 
       });
