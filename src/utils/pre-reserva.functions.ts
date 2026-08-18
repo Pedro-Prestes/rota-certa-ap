@@ -224,7 +224,9 @@ export const filaDaSaida = createServerFn({ method: "POST" })
     const [{ data: itens, error }, { data: fechamento }] = await Promise.all([
       context.supabase
         .from("pre_reservas")
-        .select("id, assentos, assentos_bagagem, endereco, status, valor_ofertado, oferta_expira_em")
+        .select(
+          "id, assentos, assentos_bagagem, endereco, status, valor_ofertado, oferta_expira_em, exclusiva",
+        )
         .eq("rota_id", data.rotaId)
         .eq("data_viagem", data.dataViagem)
         .order("assentos", { ascending: false }),
