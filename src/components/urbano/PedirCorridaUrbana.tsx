@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { CalendarClock, Loader2, MapPin, Navigation, Star, Timer, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { SeletorCidade } from "@/components/SeletorCidade";
+import { useBipDeNovidades } from "@/hooks/use-bip";
 import {
   CANCELAMENTO_COM_CUSTO,
   ROTULO_STATUS_URBANO,
@@ -152,6 +153,12 @@ export function PedirCorridaUrbana() {
     (c) => !["concluida", "cancelada", "expirada"].includes(c.status),
   );
   const historico = lista.filter((c) => ["concluida", "cancelada", "expirada"].includes(c.status));
+
+  // Bip de confirmação quando um motorista aceita a corrida urbana.
+  useBipDeNovidades(
+    lista.filter((c) => c.status !== "buscando").map((c) => `${c.id}:${c.status}`),
+    "aceite_urbano",
+  );
 
   return (
     <div className="space-y-6">

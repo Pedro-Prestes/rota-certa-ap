@@ -11,6 +11,7 @@ import {
   minhasPreReservas,
 } from "@/utils/pre-reserva.functions";
 import { CheckoutPix } from "@/components/CheckoutPix";
+import { useBipDeNovidades } from "@/hooks/use-bip";
 
 interface Item {
   id: string;
@@ -82,6 +83,14 @@ export function PreReservas() {
       return (r.itens ?? []) as unknown as Item[];
     },
   });
+
+  const itens = pre.data ?? [];
+
+  /* Aviso sonoro quando o valor da saída é ofertado ao passageiro. */
+  useBipDeNovidades(
+    itens.filter((i) => i.status === "ofertada").map((i) => i.id),
+    "aceite_intermunicipal",
+  );
 
   const pagar = useMutation({
     mutationFn: async (id: string) => {

@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { brl } from "@/lib/logistica";
 import { ANTECEDENCIA_FECHAMENTO_MIN } from "@/lib/preco-dinamico";
 import { filaDaSaida } from "@/utils/pre-reserva.functions";
+import { useBipDeNovidades } from "@/hooks/use-bip";
 
 const campo =
   "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring";
@@ -57,6 +58,18 @@ export function FechamentoMotorista() {
       return r;
     },
   });
+
+  const itens = (fila.data?.itens ?? []) as Array<Record<string, unknown>>;
+
+  /* Bips distintos: chamada exclusiva soa mais nobre que a fracionada. */
+  useBipDeNovidades(
+    itens.filter((i) => i["exclusiva"] === true).map((i) => String(i["id"])),
+    "chamada_exclusiva",
+  );
+  useBipDeNovidades(
+    itens.filter((i) => i["exclusiva"] !== true).map((i) => String(i["id"])),
+    "chamada_fracionada",
+  );
 
   const fechamento = fila.data?.fechamento as
     | {
