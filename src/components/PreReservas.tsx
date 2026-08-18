@@ -84,13 +84,12 @@ export function PreReservas() {
     },
   });
 
-  const itens = pre.data ?? [];
-
   /* Aviso sonoro quando o valor da saída é ofertado ao passageiro. */
   useBipDeNovidades(
-    itens.filter((i) => i.status === "ofertada").map((i) => i.id),
+    (pre.data ?? []).filter((i) => i.status === "ofertada").map((i) => i.id),
     "aceite_intermunicipal",
   );
+
 
   const pagar = useMutation({
     mutationFn: async (id: string) => {
