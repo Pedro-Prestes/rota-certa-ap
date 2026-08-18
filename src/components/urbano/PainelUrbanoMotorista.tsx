@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { SeletorCidade } from "@/components/SeletorCidade";
+import { useBipDeNovidades } from "@/hooks/use-bip";
+import { tocarBip } from "@/lib/bip";
 import {
   ETAPAS_URBANAS,
   RAIO_DESPACHO_KM,
@@ -128,7 +130,10 @@ export function PainelUrbanoMotorista() {
   const mAceitar = useMutation({
     mutationFn: (corridaId: string) => aceitar({ data: { corridaId } }),
     onSuccess: (r) => {
-      if (aviso(r)) toast.success("Corrida aceita. Siga para o embarque.");
+      if (aviso(r)) {
+        tocarBip("aceite_urbano");
+        toast.success("Corrida aceita. Siga para o embarque.");
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -155,6 +160,13 @@ export function PainelUrbanoMotorista() {
   const ativo = !!estado?.ativo;
   const online = !!estado?.online;
   const podeAtivar = useMemo(() => !!uf && !!cidade, [uf, cidade]);
+
+  // Bip de chamada urbana sempre que uma nova oferta entra na prateleira.
+  useBipDeNovidades(
+    ofertas.map((c) => c.id),
+    "chamada_urbana",
+    ativo && online,
+  );
 
   return (
     <div className="space-y-6">
