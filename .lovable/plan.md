@@ -1,44 +1,67 @@
-# Cadastro do motorista mais simples e guiado
+# Credenciamento amigável com documentos e revisão administrativa
 
 ## Objetivo
-Transformar biometria facial e CNH em uma sequência clara, especialmente no celular, sem reduzir nenhuma validação ou regra de segurança já existente.
+Simplificar biometria e CNH para motoristas e criar uma alternativa segura por documentos para motoristas e passageiros quando a biometria não for suficiente. O administrador master poderá decidir cada etapa, reiniciar partes do processo ou limpar todo o credenciamento sem excluir a conta da pessoa.
 
-## Experiência proposta
+## Jornada de motorista e passageiro
 
-### 1. Uma única jornada, com próximo passo evidente
-- Reorganizar “Idoneidade e veículos” como um passo a passo: **1. Dados pessoais e biometria → 2. CNH → 3. Veículo**.
-- Exibir somente a ação que o motorista precisa realizar agora; etapas futuras permanecem visíveis, mas recolhidas e com explicação simples.
-- Mostrar no topo o progresso geral e uma frase objetiva: “Falta concluir a biometria”, “Agora envie sua CNH” ou “Cadastro liberado para veículo”.
-- Após concluir a biometria, retornar automaticamente ao credenciamento e destacar a etapa da CNH.
+### 1. Passo a passo simples
+- Mostrar uma única jornada com progresso e próxima ação evidente: **dados pessoais → biometria → documentos → CNH e veículo**, quando aplicável ao perfil.
+- Exibir apenas a etapa atual aberta; etapas futuras ficam resumidas com o motivo do bloqueio.
+- Usar mensagens orientadas à ação: **Aprovado**, **Em análise** ou **Precisa corrigir**.
+- Manter as regras atuais de idoneidade, CNH, EAR, categoria, veículo e liberações do master.
 
 ### 2. Biometria assistida
-- Criar uma tela de preparação antes de abrir a câmera, com três verificações visuais: rosto descoberto, boa iluminação e câmera na altura dos olhos.
-- Iniciar os desafios somente após o motorista tocar em **Começar verificação**.
-- Exibir um desafio por vez, com contagem regressiva e confirmação visual de piscada, movimento e foto final.
-- Quando houver falha de câmera ou qualidade, explicar a causa em linguagem simples e oferecer **Tentar novamente**, sem obrigar o motorista a sair da tela.
-- Remover do fluxo do motorista a escolha entre biometria de passageiro e motorista; o perfil correto será definido pelo contexto.
-- Manter selfie privada, prova de vida, avaliação de qualidade e registro de integridade como estão.
+- Antes da câmera, mostrar preparação curta: rosto descoberto, boa iluminação e câmera na altura dos olhos.
+- Iniciar somente após o toque em **Começar verificação** e conduzir um desafio por vez, com progresso e confirmação visual.
+- Em falhas de câmera ou qualidade, explicar o motivo e oferecer **Tentar novamente** na própria tela.
+- Remover escolhas desnecessárias de perfil; a plataforma identifica se a captura pertence ao passageiro ou motorista.
+- Após sucesso, retornar à jornada e avançar para a próxima etapa.
 
-### 3. CNH explicada campo a campo
-- Apresentar um checklist curto antes do formulário: documento válido, EAR, categoria e datas legíveis.
-- Dividir o preenchimento em blocos claros: número/categoria, validade/primeira habilitação e confirmação de EAR.
-- Aplicar teclado numérico e formatação ao número da CNH, limitar a 11 dígitos e validar sem exibir erro enquanto o campo ainda está sendo digitado.
-- Explicar “EAR” junto à opção e indicar onde essa informação costuma aparecer no documento.
-- Preencher o formulário com os dados já salvos para facilitar correções, sem apagar informações após reprovação.
-- Desabilitar o envio com uma lista curta e específica do que ainda falta; durante o envio, impedir toque duplo.
+### 3. Alternativa por documentos
+- Quando a biometria for insuficiente, estiver em análise ou for recusada, oferecer **Enviar documentos para análise manual**.
+- Passageiro: documento oficial com foto, frente e verso, mais uma selfie segurando o documento.
+- Motorista: documento oficial com foto, frente e verso, CNH frente e verso e selfie segurando o documento; os dados estruturados da CNH continuam sendo preenchidos no formulário.
+- Upload com câmera ou galeria, pré-visualização, substituição antes do envio, formatos e limites claros.
+- Arquivos ficam privados; somente o titular e o administrador master podem visualizá-los por link temporário.
+- Validar tipo, tamanho e quantidade no navegador e novamente no servidor.
 
-### 4. Resultado e recuperação
-- Trocar mensagens técnicas por estados orientados à ação: **Aprovado**, **Em análise** ou **Precisa corrigir**.
-- Em cada pendência, mostrar o motivo e o botão correspondente: refazer biometria, corrigir CNH ou continuar para veículo.
-- Separar o histórico detalhado da tarefa atual, deixando-o recolhido para não competir com o cadastro.
-- Preservar liberações concedidas pelo administrador master e identificá-las de forma clara.
+### 4. CNH mais intuitiva
+- Mostrar um checklist curto: número válido, categoria, validade e EAR.
+- Organizar o formulário em blocos, explicar onde localizar a EAR e usar teclado numérico no número da CNH.
+- Limitar e formatar os 11 dígitos, sem mostrar erro antes do motorista terminar de preencher.
+- Reabrir dados já salvos para facilitar correções e indicar exatamente o que falta antes de habilitar o envio.
+
+## Central de análise do administrador master
+- Criar uma área única com busca e filtros por perfil, etapa e situação.
+- Exibir lado a lado dados declarados, biometria, documentos enviados, CNH e histórico de decisões.
+- Permitir em cada etapa: **aprovar**, **solicitar correção**, **rejeitar** ou **excluir a etapa**, sempre com justificativa obrigatória.
+- Aprovação manual substitui somente a etapa escolhida e libera a continuação coerente do processo.
+- Solicitação de correção devolve a etapa ao usuário com instrução objetiva e mantém o histórico.
+- Rejeição bloqueia a continuidade até nova decisão do master ou reinício autorizado.
+
+## Reinício parcial ou total
+- O administrador poderá escolher o ponto de reinício: biometria, documentos, CNH ou veículo.
+- O reinício remove a validade operacional da etapa escolhida e das etapas seguintes, sem alterar etapas anteriores já aprovadas.
+- O usuário recebe a próxima ação e continua exatamente do ponto definido.
+- **Exclusão total** significa excluir apenas o credenciamento: a conta e o acesso permanecem, mas biometria, documentos, CNH, veículo e liberações relacionadas deixam de valer e o processo volta ao início.
+- Dados de corridas, pagamentos e auditoria não serão apagados; registros necessários permanecem preservados para integridade contábil e legal.
+- Ações destrutivas exigem confirmação explícita, justificativa e resumo do impacto antes da execução.
+
+## Auditoria e segurança
+- Toda aprovação, correção, rejeição, exclusão e reinício registra administrador, data, motivo, etapa afetada e estado anterior/novo na cadeia de auditoria.
+- Criar armazenamento privado e registro próprio para documentos, com acesso do titular e do master.
+- Autorizações administrativas serão verificadas no servidor; nenhuma decisão privilegiada ficará disponível diretamente no navegador.
+- A interface distinguirá claramente “aprovação automática”, “aprovação manual pelo master” e “pendência documental”.
 
 ## Validação
-- Testar a jornada completa em celular e computador: câmera autorizada, câmera negada, biometria aprovada, biometria com baixa qualidade, CNH incompleta, CNH reprovada e retomada de cadastro.
-- Confirmar que nenhuma etapa de veículo é liberada sem aprovação normal ou autorização do administrador master.
-- Verificar legibilidade, foco do teclado, ausência de sobreposição e mensagens de erro em telas pequenas.
+- Testar em celular e computador: câmera permitida/negada, biometria aprovada/insuficiente, envio e substituição de documentos, CNH incompleta/reprovada e retomada do cadastro.
+- Testar decisões administrativas por etapa, reinício desde cada ponto e exclusão total somente do credenciamento.
+- Confirmar que passageiro e motorista veem apenas os próprios documentos e que nenhum perfil não autorizado acessa decisões ou arquivos.
+- Confirmar que veículo e operação continuam bloqueados até aprovação normal ou decisão explícita do master.
 
 ## Detalhes técnicos
-- Alterações concentradas nas telas e componentes de biometria e credenciamento do motorista.
-- Reutilizar as consultas e funções autenticadas existentes; não alterar tabelas, políticas, critérios de aprovação ou armazenamento.
-- Preservar a proteção em três fases e o fluxo administrativo atual.
+- A base atual possui verificações de biometria, idoneidade, CNH e liberações por fase, mas não possui registro específico para os documentos alternativos nem histórico completo de decisões e reinícios.
+- Será adicionada estrutura para documentos privados, decisões administrativas e estado atual por etapa, com permissões restritas ao titular e ao master.
+- As funções administrativas serão autenticadas, validarão o papel master no servidor e aceitarão somente ações, motivos e pontos de reinício previstos.
+- As telas existentes de biometria, credenciamento e administração serão reorganizadas para reutilizar as regras atuais e incorporar o novo fluxo.
