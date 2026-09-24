@@ -81,7 +81,10 @@ export function DocumentosCredenciamento({ perfil }: { perfil: PerfilDocumento }
 
   const abrir = async (id: string) => {
     const resposta = await abrirDocumentoCredenciamento({ data: { id } });
-    if ("error" in resposta) return toast.error(resposta.error as string);
+    if ("error" in resposta) {
+      toast.error(resposta.error as string);
+      return;
+    }
     window.open(resposta.url, "_blank", "noopener,noreferrer");
   };
 

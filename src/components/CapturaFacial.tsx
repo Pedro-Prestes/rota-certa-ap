@@ -205,7 +205,7 @@ export function CapturaFacial({
       stream?.getTracks().forEach((t) => t.stop());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iniciou, tentativa, capturarQuadro, selfieFinal, onEnviar]);
+  }, [iniciou, tentativa]);
 
   return (
     <div className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-foreground/60 p-4 backdrop-blur-sm">

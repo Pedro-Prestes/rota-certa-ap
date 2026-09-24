@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { registrarEvento } from "./blockchain.server";
 import { MAX_DOCUMENTO_BYTES, TIPOS_ACEITOS, TIPOS_DOCUMENTO, type PerfilDocumento, type TipoDocumento } from "./credenciamento-documentos";
+import type { Json } from "@/integrations/supabase/types";
 
 const BUCKET = "documentos-credenciamento";
 
@@ -154,27 +155,27 @@ export async function aplicarDecisaoCredenciamento(params: {
 
   if (afetadas.includes("biometria")) {
     const atual = await supabaseAdmin.from("verificacoes_biometricas").select("id, status").eq("user_id", params.userId);
-    estadoAnterior.biometria = atual.data ?? [];
+    estadoAnterior["biometria"] = atual.data ?? [];
     if (params.acao !== "aprovar") {
       await supabaseAdmin.from("verificacoes_biometricas").update({ status: params.acao === "rejeitar" ? "reprovada" : "em_analise", motivo }).eq("user_id", params.userId);
     }
   }
   if (afetadas.includes("documentos")) {
     const atual = await supabaseAdmin.from("credenciamento_documentos").select("id, status").eq("user_id", params.userId).neq("status", "excluido");
-    estadoAnterior.documentos = atual.data ?? [];
+    estadoAnterior["documentos"] = atual.data ?? [];
     const status = params.acao === "aprovar" ? "aprovado" : params.acao === "rejeitar" ? "rejeitado" : params.acao === "excluir" ? "excluido" : "correcao";
     await supabaseAdmin.from("credenciamento_documentos").update({ status, motivo, decidido_por: params.adminId, decidido_em: new Date().toISOString() }).eq("user_id", params.userId).neq("status", "excluido");
   }
   if (afetadas.includes("cnh")) {
     const atual = await supabaseAdmin.from("habilitacoes_motorista").select("id, status").eq("user_id", params.userId);
-    estadoAnterior.cnh = atual.data ?? [];
+    estadoAnterior["cnh"] = atual.data ?? [];
     if (params.acao !== "aprovar") {
       await supabaseAdmin.from("habilitacoes_motorista").update({ status: params.acao === "rejeitar" ? "reprovado" : "pendente", pendencias: [motivo] }).eq("user_id", params.userId);
     }
   }
   if (afetadas.includes("veiculo")) {
     const atual = await supabaseAdmin.from("veiculos").select("id, status_verificacao").eq("user_id", params.userId);
-    estadoAnterior.veiculo = atual.data ?? [];
+    estadoAnterior["veiculo"] = atual.data ?? [];
     if (params.acao !== "aprovar") {
       await supabaseAdmin.from("veiculos").update({ status_verificacao: params.acao === "rejeitar" ? "reprovado" : "pendente" }).eq("user_id", params.userId);
     }
@@ -190,7 +191,7 @@ export async function aplicarDecisaoCredenciamento(params: {
     acao: params.acao,
     motivo,
     decidido_por: params.adminId,
-    estado_anterior: estadoAnterior,
+    estado_anterior: estadoAnterior as Json,
     estado_novo: { etapas_afetadas: afetadas },
   });
   if (error) throw new Error(error.message);
