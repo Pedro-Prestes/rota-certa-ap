@@ -8,8 +8,8 @@ const INSTRUCOES: Record<Etapa, string> = {
   preparo: "Centralize o rosto no círculo, sem óculos escuros, boné ou máscara.",
   piscada: "Olhe para a câmera e pisque algumas vezes.",
   movimento: "Vire o rosto lentamente para a esquerda e para a direita.",
-  captura: "Fique parado — capturando a selfie final.",
-  enviando: "Enviando para verificação…",
+  captura: "Fique parado — estamos conferindo tudo.",
+  enviando: "Processando sua biometria…",
 };
 
 const L = 160;
