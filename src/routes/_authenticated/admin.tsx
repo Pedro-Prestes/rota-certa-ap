@@ -10,6 +10,7 @@ import { alternarCampanhaPromo, consultarPainelPromo } from "@/utils/promocao.fu
 import { ControleGeral } from "@/components/admin/ControleGeral";
 import { CredenciamentoEmpresas } from "@/components/admin/CredenciamentoEmpresas";
 import { PainelParcerias } from "@/components/admin/PainelParcerias";
+import { CentralCredenciamento } from "@/components/admin/CentralCredenciamento";
 import { brl, resumoCorrida, type Corrida, type Pagamento } from "@/lib/pagamentos";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -385,6 +386,7 @@ function Admin() {
 
         {ehMaster.data === true && (
           <>
+          <CentralCredenciamento />
           <PainelParcerias />
           <section className="mt-6 rounded-2xl border border-border bg-card p-5">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold">

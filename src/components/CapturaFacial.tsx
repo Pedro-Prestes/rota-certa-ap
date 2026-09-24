@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, CheckCircle2, Loader2, ScanFace, X } from "lucide-react";
-import { LIMITES, type ProvaVida } from "@/lib/biometria";
+import { Camera, CheckCircle2, Lightbulb, Loader2, ScanFace, Smartphone, UserRound, X } from "lucide-react";
+import { type ProvaVida } from "@/lib/biometria";
+import { Button } from "@/components/ui/button";
 
 type Etapa = "preparo" | "piscada" | "movimento" | "captura" | "enviando";
 
@@ -72,6 +73,8 @@ export function CapturaFacial({
   const [etapa, setEtapa] = useState<Etapa>("preparo");
   const [erro, setErro] = useState<string | null>(null);
   const [progresso, setProgresso] = useState(0);
+  const [iniciou, setIniciou] = useState(false);
+  const [tentativa, setTentativa] = useState(0);
   const dados = useRef<ProvaVida>({
     rostoDetectado: false,
     piscada: 0,
@@ -106,6 +109,7 @@ export function CapturaFacial({
   }, []);
 
   useEffect(() => {
+    if (!iniciou) return;
     let parado = false;
     let stream: MediaStream | null = null;
     let timer: ReturnType<typeof setInterval> | null = null;
@@ -129,7 +133,7 @@ export function CapturaFacial({
           audio: false,
         });
       } catch {
-        setErro("Não foi possível acessar a câmera. Autorize o uso e tente novamente.");
+        setErro("A câmera não foi liberada. Autorize o acesso nas configurações do navegador e tente novamente.");
         return;
       }
       if (parado) {
@@ -201,7 +205,7 @@ export function CapturaFacial({
       stream?.getTracks().forEach((t) => t.stop());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [iniciou, tentativa]);
 
   return (
     <div className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-foreground/60 p-4 backdrop-blur-sm">
@@ -227,22 +231,27 @@ export function CapturaFacial({
           </button>
         </div>
 
-        <div className="relative mt-5 overflow-hidden rounded-2xl bg-secondary">
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            className="aspect-[4/3] w-full scale-x-[-1] object-cover"
-          />
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="aspect-square h-[78%] rounded-full border-4 border-primary/70" />
+        {!iniciou ? (
+          <div className="mt-5 rounded-lg border border-border bg-secondary/50 p-5">
+            <h3 className="font-semibold">Antes de começar</h3>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li className="flex items-center gap-3"><UserRound className="size-5 text-primary" /> Retire boné, máscara e óculos escuros.</li>
+              <li className="flex items-center gap-3"><Lightbulb className="size-5 text-primary" /> Fique de frente para uma luz, sem claridade atrás.</li>
+              <li className="flex items-center gap-3"><Smartphone className="size-5 text-primary" /> Segure o aparelho na altura dos olhos.</li>
+            </ul>
+            <Button className="mt-5 w-full" size="lg" onClick={() => setIniciou(true)}><Camera /> Começar verificação</Button>
           </div>
-        </div>
+        ) : (
+          <div className="relative mt-5 overflow-hidden rounded-lg bg-secondary">
+            <video ref={videoRef} playsInline muted className="aspect-[4/3] w-full scale-x-[-1] object-cover" />
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center"><div className="aspect-square h-[78%] rounded-full border-4 border-primary/70" /></div>
+          </div>
+        )}
         <canvas ref={canvasRef} width={L} height={A} className="hidden" />
 
         {erro ? (
-          <p className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{erro}</p>
-        ) : (
+          <div className="mt-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive"><p>{erro}</p><Button variant="outline" className="mt-3" onClick={() => { setErro(null); setEtapa("preparo"); setProgresso(0); setTentativa((valor) => valor + 1); }}>Tentar novamente</Button></div>
+        ) : iniciou ? (
           <>
             <p className="mt-4 flex items-center gap-2 text-sm font-semibold">
               {etapa === "enviando" ? (
@@ -254,18 +263,12 @@ export function CapturaFacial({
               )}
               {INSTRUCOES[etapa]}
             </p>
-            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{ width: `${etapa === "preparo" ? 5 : progresso}%` }}
-              />
-            </div>
+            <progress className="mt-3 h-1.5 w-full accent-primary" max={100} value={etapa === "preparo" ? 5 : progresso} />
             <p className="mt-3 text-xs text-muted-foreground">
-              São necessários pelo menos {LIMITES.quadrosMin} quadros válidos, boa iluminação e os
-              dois desafios concluídos para aprovação automática.
+              Siga a instrução acima com calma. Avisaremos assim que cada etapa terminar.
             </p>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );

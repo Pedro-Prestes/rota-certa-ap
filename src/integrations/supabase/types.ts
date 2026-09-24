@@ -836,6 +836,96 @@ export type Database = {
           },
         ]
       }
+      credenciamento_decisoes: {
+        Row: {
+          acao: string
+          created_at: string
+          decidido_por: string
+          estado_anterior: Json
+          estado_novo: Json
+          etapa: string
+          id: string
+          motivo: string
+          perfil: string
+          user_id: string
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          decidido_por: string
+          estado_anterior?: Json
+          estado_novo?: Json
+          etapa: string
+          id?: string
+          motivo: string
+          perfil: string
+          user_id: string
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          decidido_por?: string
+          estado_anterior?: Json
+          estado_novo?: Json
+          etapa?: string
+          id?: string
+          motivo?: string
+          perfil?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credenciamento_documentos: {
+        Row: {
+          arquivo_path: string
+          created_at: string
+          decidido_em: string | null
+          decidido_por: string | null
+          id: string
+          mime_type: string
+          motivo: string | null
+          nome_arquivo: string
+          perfil: string
+          status: string
+          tamanho_bytes: number
+          tipo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          arquivo_path: string
+          created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          id?: string
+          mime_type: string
+          motivo?: string | null
+          nome_arquivo: string
+          perfil: string
+          status?: string
+          tamanho_bytes: number
+          tipo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          arquivo_path?: string
+          created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          id?: string
+          mime_type?: string
+          motivo?: string | null
+          nome_arquivo?: string
+          perfil?: string
+          status?: string
+          tamanho_bytes?: number
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       credenciamento_liberacoes: {
         Row: {
           created_at: string
