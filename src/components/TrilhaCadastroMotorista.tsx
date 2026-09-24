@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -153,16 +153,11 @@ export function TrilhaCadastroMotorista() {
   const [f, setF] = useState({ numero: "", categoria: "B", ear: true, validade: "", primeira: "" });
   const [inicializado, setInicializado] = useState(false);
 
-  if (cred.habilitacao && !inicializado) {
-    setF({
-      numero: cred.habilitacao.numero,
-      categoria: cred.habilitacao.categoria,
-      ear: cred.habilitacao.ear,
-      validade: cred.habilitacao.validade ?? "",
-      primeira: cred.habilitacao.primeira_habilitacao ?? "",
-    });
+  useEffect(() => {
+    if (!cred.habilitacao || inicializado) return;
+    setF({ numero: cred.habilitacao.numero, categoria: cred.habilitacao.categoria, ear: cred.habilitacao.ear, validade: cred.habilitacao.validade ?? "", primeira: cred.habilitacao.primeira_habilitacao ?? "" });
     setInicializado(true);
-  }
+  }, [cred.habilitacao, inicializado]);
 
   const previa = avaliarHabilitacao({
     numero: f.numero,
