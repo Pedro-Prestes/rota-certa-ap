@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { CalendarClock, Loader2, MapPin, Navigation, Star, Timer, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { SeletorCidade } from "@/components/SeletorCidade";
@@ -19,6 +20,7 @@ import {
   minhasCorridasUrbanas,
   solicitarCorridaUrbana,
 } from "@/utils/urbano.functions";
+import { useAuth } from "@/hooks/use-auth";
 
 const cartao = "rounded-2xl border border-border bg-card p-5 shadow-sm";
 const campo =
@@ -53,6 +55,7 @@ interface Corrida {
 /** Pedido de corrida urbana pelo passageiro: preço antes de pedir, imediato ou agendado. */
 export function PedirCorridaUrbana() {
   const qc = useQueryClient();
+  const { user, carregando } = useAuth();
   const estimar = useServerFn(estimarCorridaUrbana);
   const pedir = useServerFn(solicitarCorridaUrbana);
   const listar = useServerFn(minhasCorridasUrbanas);
@@ -71,6 +74,7 @@ export function PedirCorridaUrbana() {
   const corridas = useQuery({
     queryKey: ["urbano", "passageiro"],
     queryFn: () => listar(),
+    enabled: !!user,
     refetchInterval: 15000,
   });
 
@@ -169,6 +173,20 @@ export function PedirCorridaUrbana() {
           bandeirada, distância, tempo e taxa administrativa.
         </p>
 
+        {!carregando && !user && (
+          <div className="mt-4 rounded-xl border border-border bg-secondary/60 p-4 text-sm">
+            <p className="text-muted-foreground">
+              Entre na sua conta para calcular o valor, pedir uma corrida e acompanhar o motorista.
+            </p>
+            <Link
+              to="/auth"
+              className="mt-3 inline-flex rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              Entrar para continuar
+            </Link>
+          </div>
+        )}
+
         <div className="mt-5 space-y-4">
           <SeletorCidade
             titulo="Cidade da corrida"
@@ -250,7 +268,7 @@ export function PedirCorridaUrbana() {
             <button
               type="button"
               onClick={() => mEstimar.mutate()}
-              disabled={!preenchido || mEstimar.isPending}
+              disabled={!user || !preenchido || mEstimar.isPending}
               className={`${botao} border border-border`}
             >
               {mEstimar.isPending ? (
@@ -265,6 +283,7 @@ export function PedirCorridaUrbana() {
               onClick={() => mPedir.mutate()}
               disabled={
                 !estimativa ||
+                !user ||
                 mPedir.isPending ||
                 (modo === "agendado" && !agendada)
               }

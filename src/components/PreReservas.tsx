@@ -8,10 +8,10 @@ import { PRAZO_OFERTA_MIN } from "@/lib/preco-dinamico";
 import {
   aceitarOfertaComCreditos,
   cancelarPreReserva,
-  minhasPreReservas,
 } from "@/utils/pre-reserva.functions";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { useBipDeNovidades } from "@/hooks/use-bip";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Item {
   id: string;
@@ -26,12 +26,16 @@ interface Item {
   taxa_desvio: number | null;
   fator_ocupacao: number | null;
   oferta_expira_em: string | null;
+  trecho: "ida" | "volta";
+  reserva_par_id: string | null;
+  desconto_percentual: number;
   rotas: {
     origem: string;
     destino: string;
     uf_origem: string | null;
     uf_destino: string | null;
     saida_ida: string | null;
+    saida_retorno: string | null;
     preco_assento: number | null;
     assentos: number | null;
   } | null;
@@ -63,7 +67,6 @@ function restante(iso: string | null) {
 
 export function PreReservas() {
   const qc = useQueryClient();
-  const listar = useServerFn(minhasPreReservas);
   const aceitar = useServerFn(aceitarOfertaComCreditos);
   const cancelar = useServerFn(cancelarPreReserva);
   const [, setTique] = useState(0);
@@ -78,9 +81,14 @@ export function PreReservas() {
     queryKey: ["minhas-pre-reservas"],
     refetchInterval: 20_000,
     queryFn: async () => {
-      const r = await listar();
-      if ("error" in r) throw new Error(r.error);
-      return (r.itens ?? []) as unknown as Item[];
+      const { data, error } = await supabase
+        .from("pre_reservas")
+        .select(
+          "id, rota_id, data_viagem, assentos, assentos_bagagem, endereco, status, valor_ofertado, valor_base, taxa_desvio, fator_ocupacao, oferta_expira_em, trecho, reserva_par_id, desconto_percentual, rotas(origem, destino, uf_origem, uf_destino, saida_ida, saida_retorno, preco_assento, assentos)",
+        )
+        .order("data_viagem", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as unknown as Item[];
     },
   });
 
@@ -150,6 +158,7 @@ export function PreReservas() {
         {itens.map((i) => {
           const conta = i.status === "ofertada" ? restante(i.oferta_expira_em) : null;
           const vencido = conta === "00:00";
+          const volta = i.trecho === "volta";
           return (
             <article
               key={i.id}
@@ -158,14 +167,26 @@ export function PreReservas() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-bold">
-                    {i.rotas?.origem}/{i.rotas?.uf_origem} → {i.rotas?.destino}/
-                    {i.rotas?.uf_destino}
+                    {volta ? i.rotas?.destino : i.rotas?.origem}/
+                    {volta ? i.rotas?.uf_destino : i.rotas?.uf_origem} →{" "}
+                    {volta ? i.rotas?.origem : i.rotas?.destino}/
+                    {volta ? i.rotas?.uf_origem : i.rotas?.uf_destino}
                   </h3>
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="size-3" /> {i.data_viagem} · saída{" "}
-                    {i.rotas?.saida_ida?.slice(0, 5) ?? "--:--"} · {i.assentos} assento(s)
+                    <Clock className="size-3" /> {volta ? "Ponto B → Ponto A" : "Ponto A → Ponto B"} ·{" "}
+                    {i.data_viagem} · saída{" "}
+                    {(volta ? i.rotas?.saida_retorno : i.rotas?.saida_ida)?.slice(0, 5) ?? "--:--"} ·{" "}
+                    {i.assentos} assento(s)
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">Embarque: {i.endereco}</p>
+                  {i.reserva_par_id && (
+                    <p className="mt-1 text-[11px] font-semibold text-primary">Reserva de ida e volta vinculada</p>
+                  )}
+                  {Number(i.desconto_percentual) > 0 && (
+                    <p className="mt-1 text-[11px] font-semibold text-success">
+                      Desconto aplicado: {Number(i.desconto_percentual)}%
+                    </p>
+                  )}
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${COR[i.status] ?? ""}`}

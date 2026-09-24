@@ -97,7 +97,7 @@ function diaLocal(d: Date) {
 }
 
 function Passageiro() {
-  const [origem, setOrigem] = useState("Macapá (sede)");
+  const [origem, setOrigem] = useState("");
   const [destino, setDestino] = useState("");
   /** Relógio que avança a cada minuto para retirar embarques já vencidos. */
   const [agora, setAgora] = useState(() => new Date());
@@ -223,10 +223,14 @@ function Passageiro() {
     staleTime: 60_000,
     queryFn: async () => {
       const r = await listarDescontos({ data: { rotaIds: idsListados } });
-      const mapa: Record<string, number> = {};
+      const mapa: Record<string, { ida: number; volta: number; observacao: string | null }> = {};
       for (const d of r.descontos ?? []) {
-        const atual = mapa[d.rota_id] ?? 0;
-        mapa[d.rota_id] = Math.max(atual, descontoVigente([d], "ida"));
+        const atual = mapa[d.rota_id] ?? { ida: 0, volta: 0, observacao: null };
+        mapa[d.rota_id] = {
+          ida: Math.max(atual.ida, descontoVigente([d], "ida")),
+          volta: Math.max(atual.volta, descontoVigente([d], "volta")),
+          observacao: d.observacao?.trim() || atual.observacao,
+        };
       }
       return mapa;
     },
@@ -486,6 +490,7 @@ function Passageiro() {
             <div className="mt-4 space-y-3">
               {resultados.map((v) => {
                 const ativa = selecionada === v.id;
+                const promocao = promocoes.data?.[v.id];
                 return (
                   <button
                     key={v.id}
@@ -522,17 +527,17 @@ function Passageiro() {
                         </p>
                       </div>
                       <div className="text-right">
-                        {(promocoes.data?.[v.id] ?? 0) > 0 ? (
+                        {(promocao?.ida ?? 0) > 0 ? (
                           <>
                             <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-foreground">
                               <BadgePercent className="size-3" />
-                              Promoção {promocoes.data![v.id]}% OFF
+                              Ida {promocao?.ida}% OFF
                             </span>
                             <p className="mt-1 text-xs text-muted-foreground line-through">
                               {brl(Number(v.preco_assento))}
                             </p>
                             <p className="font-display text-xl font-bold text-accent">
-                              {brl(aplicarDesconto(Number(v.preco_assento), promocoes.data![v.id]!))}
+                              {brl(aplicarDesconto(Number(v.preco_assento), promocao?.ida ?? 0))}
                             </p>
                           </>
                         ) : (
@@ -541,8 +546,18 @@ function Passageiro() {
                           </p>
                         )}
                         <p className="text-[11px] text-muted-foreground">por assento</p>
+                        {(promocao?.volta ?? 0) > 0 && (
+                          <p className="mt-1 text-[11px] font-semibold text-accent">
+                            Volta com {promocao?.volta}% OFF
+                          </p>
+                        )}
                       </div>
                     </div>
+                    {promocao?.observacao && (
+                      <p className="mt-3 rounded-xl bg-accent/10 px-3 py-2 text-xs font-medium text-accent-foreground">
+                        {promocao.observacao}
+                      </p>
+                    )}
                   </button>
                 );
               })}
