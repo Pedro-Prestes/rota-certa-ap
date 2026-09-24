@@ -180,20 +180,12 @@ function Biometria() {
                   <span className="text-xs text-muted-foreground">
                     {new Date(r.created_at).toLocaleString("pt-BR")}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    Qualidade {Number(r.qualidade)}
-                  </span>
-                  <span
+
                     className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-semibold ${corStatus[r.status]}`}
                   >
                     {ROTULO_STATUS_BIOMETRIA[r.status]}
                   </span>
                 </div>
-                {r.imagem_hash && (
-                  <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
-                    hash {r.imagem_hash}
-                  </p>
-                )}
                 {r.pendencias?.length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {r.pendencias.map((p) => (

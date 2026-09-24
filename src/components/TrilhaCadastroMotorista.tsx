@@ -136,7 +136,7 @@ function Selo({ estado }: { estado: "ok" | "pendente" | "bloqueado" }) {
   if (estado === "bloqueado")
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
-        <Lock className="size-3" /> Bloqueado
+        <Lock className="size-3" /> Aguardando
       </span>
     );
   return (
