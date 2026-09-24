@@ -222,13 +222,15 @@ export function CapturaFacial({
               Prova de vida com piscada e movimento. A imagem fica em armazenamento privado.
             </p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="icon"
             onClick={onFechar}
-            className="ml-auto rounded-full border border-border p-2"
+            className="ml-auto rounded-full"
             aria-label="Cancelar biometria"
           >
             <X className="size-4" />
-          </button>
+          </Button>
         </div>
 
         {!iniciou ? (

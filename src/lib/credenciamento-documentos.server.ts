@@ -156,27 +156,40 @@ export async function aplicarDecisaoCredenciamento(params: {
   if (afetadas.includes("biometria")) {
     const atual = await supabaseAdmin.from("verificacoes_biometricas").select("id, status").eq("user_id", params.userId);
     estadoAnterior["biometria"] = atual.data ?? [];
-    if (params.acao !== "aprovar") {
+    if (params.acao === "excluir") {
+      await supabaseAdmin.from("verificacoes_biometricas").delete().eq("user_id", params.userId);
+    } else if (params.acao !== "aprovar") {
       await supabaseAdmin.from("verificacoes_biometricas").update({ status: params.acao === "rejeitar" ? "reprovada" : "em_analise", motivo }).eq("user_id", params.userId);
     }
   }
   if (afetadas.includes("documentos")) {
     const atual = await supabaseAdmin.from("credenciamento_documentos").select("id, status").eq("user_id", params.userId).neq("status", "excluido");
     estadoAnterior["documentos"] = atual.data ?? [];
-    const status = params.acao === "aprovar" ? "aprovado" : params.acao === "rejeitar" ? "rejeitado" : params.acao === "excluir" ? "excluido" : "correcao";
-    await supabaseAdmin.from("credenciamento_documentos").update({ status, motivo, decidido_por: params.adminId, decidido_em: new Date().toISOString() }).eq("user_id", params.userId).neq("status", "excluido");
+    if (params.acao === "excluir") {
+      const arquivos = (atual.data ?? []).map((item) => item.id);
+      const paths = await supabaseAdmin.from("credenciamento_documentos").select("arquivo_path").in("id", arquivos);
+      if ((paths.data ?? []).length) await supabaseAdmin.storage.from(BUCKET).remove((paths.data ?? []).map((item) => item.arquivo_path));
+      if (arquivos.length) await supabaseAdmin.from("credenciamento_documentos").delete().in("id", arquivos);
+    } else {
+      const status = params.acao === "aprovar" ? "aprovado" : params.acao === "rejeitar" ? "rejeitado" : "correcao";
+      await supabaseAdmin.from("credenciamento_documentos").update({ status, motivo, decidido_por: params.adminId, decidido_em: new Date().toISOString() }).eq("user_id", params.userId).neq("status", "excluido");
+    }
   }
   if (afetadas.includes("cnh")) {
     const atual = await supabaseAdmin.from("habilitacoes_motorista").select("id, status").eq("user_id", params.userId);
     estadoAnterior["cnh"] = atual.data ?? [];
-    if (params.acao !== "aprovar") {
+    if (params.acao === "excluir") {
+      await supabaseAdmin.from("habilitacoes_motorista").delete().eq("user_id", params.userId);
+    } else if (params.acao !== "aprovar") {
       await supabaseAdmin.from("habilitacoes_motorista").update({ status: params.acao === "rejeitar" ? "reprovado" : "pendente", pendencias: [motivo] }).eq("user_id", params.userId);
     }
   }
   if (afetadas.includes("veiculo")) {
     const atual = await supabaseAdmin.from("veiculos").select("id, status_verificacao").eq("user_id", params.userId);
     estadoAnterior["veiculo"] = atual.data ?? [];
-    if (params.acao !== "aprovar") {
+    if (params.acao === "excluir") {
+      await supabaseAdmin.from("veiculos").delete().eq("user_id", params.userId);
+    } else {
       await supabaseAdmin.from("veiculos").update({ status_verificacao: params.acao === "rejeitar" ? "reprovado" : "pendente" }).eq("user_id", params.userId);
     }
   }
