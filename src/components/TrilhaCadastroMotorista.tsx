@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { enviarHabilitacao } from "@/utils/habilitacao.functions";
 import { CATEGORIAS_CNH, FASES, avaliarHabilitacao } from "@/lib/habilitacao";
 import type { StatusVerificacao } from "@/lib/idoneidade";
+import { Button } from "@/components/ui/button";
 
 export interface Habilitacao {
   id: string;
@@ -150,6 +151,18 @@ export function TrilhaCadastroMotorista() {
   const qc = useQueryClient();
   const cred = useCredenciamentoMotorista();
   const [f, setF] = useState({ numero: "", categoria: "B", ear: true, validade: "", primeira: "" });
+  const [inicializado, setInicializado] = useState(false);
+
+  if (cred.habilitacao && !inicializado) {
+    setF({
+      numero: cred.habilitacao.numero,
+      categoria: cred.habilitacao.categoria,
+      ear: cred.habilitacao.ear,
+      validade: cred.habilitacao.validade ?? "",
+      primeira: cred.habilitacao.primeira_habilitacao ?? "",
+    });
+    setInicializado(true);
+  }
 
   const previa = avaliarHabilitacao({
     numero: f.numero,
@@ -195,6 +208,21 @@ export function TrilhaCadastroMotorista() {
       <p className="mt-1 text-sm text-muted-foreground">
         Cada fase só abre com a anterior aprovada — o veículo só pode ser cadastrado ao final.
       </p>
+      {!cred.carregando && (
+        <div className="mt-4 rounded-lg bg-secondary p-4">
+          <p className="text-xs font-semibold uppercase text-muted-foreground">Seu próximo passo</p>
+          <p className="mt-1 font-semibold">
+            {!cred.fase1Ok
+              ? "Conclua os dados pessoais e a biometria facial."
+              : !cred.fase2Ok
+                ? "Agora confira e envie os dados da sua CNH."
+                : "Cadastro liberado para incluir o veículo."}
+          </p>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-background">
+            <div className={`h-full bg-success transition-all ${cred.fase2Ok ? "w-full" : cred.fase1Ok ? "w-2/3" : "w-1/3"}`} />
+          </div>
+        </div>
+      )}
 
       {cred.liberacaoMaster && (
         <p className="mt-3 rounded-xl border border-success/40 bg-success/5 p-3 text-xs text-success">
@@ -289,12 +317,14 @@ export function TrilhaCadastroMotorista() {
 
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
                         <div>
-                          <label className={rotulo}>Número de registro da CNH</label>
+                          <label className={rotulo}>Número de registro da CNH (11 dígitos)</label>
                           <input
                             className={campo}
                             value={f.numero}
-                            onChange={(e) => setF({ ...f, numero: e.target.value })}
-                            placeholder="11 dígitos"
+                            inputMode="numeric"
+                            maxLength={11}
+                            onChange={(e) => setF({ ...f, numero: e.target.value.replace(/\D/g, "").slice(0, 11) })}
+                            placeholder="Somente números"
                           />
                         </div>
                         <div>
@@ -329,17 +359,20 @@ export function TrilhaCadastroMotorista() {
                             onChange={(e) => setF({ ...f, primeira: e.target.value })}
                           />
                         </div>
-                        <label className="flex items-center gap-2 text-sm sm:col-span-2">
+                        <label className="rounded-lg border border-border bg-secondary/50 p-3 text-sm sm:col-span-2">
+                          <span className="flex items-start gap-2">
                           <input
                             type="checkbox"
+                            className="mt-1"
                             checked={f.ear}
                             onChange={(e) => setF({ ...f, ear: e.target.checked })}
                           />
-                          A CNH tem a observação <strong>EAR</strong> (Exerce Atividade Remunerada)
+                          <span><strong>Minha CNH possui EAR</strong><span className="mt-1 block text-xs text-muted-foreground">EAR significa “Exerce Atividade Remunerada” e aparece no campo de observações da CNH.</span></span>
+                          </span>
                         </label>
                       </div>
 
-                      {f.numero && previa.pendencias.length > 0 && (
+                      {f.numero.length === 11 && previa.pendencias.length > 0 && (
                         <ul className="mt-3 space-y-1 rounded-xl bg-destructive/10 p-3">
                           {previa.pendencias.map((p) => (
                             <li key={p} className="text-xs text-destructive">
@@ -349,14 +382,15 @@ export function TrilhaCadastroMotorista() {
                         </ul>
                       )}
 
-                      <button
+                      <Button
                         onClick={() => enviar.mutate()}
-                        disabled={enviar.isPending || !f.numero || !f.validade}
-                        className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                        disabled={enviar.isPending || f.numero.length !== 11 || !f.validade || previa.pendencias.length > 0}
+                        className="mt-3"
                       >
                         {enviar.isPending && <Loader2 className="size-4 animate-spin" />} Enviar CNH
                         para análise
-                      </button>
+                      </Button>
+                      {(f.numero.length !== 11 || !f.validade) && <p className="mt-2 text-xs text-muted-foreground">Para enviar, informe os 11 dígitos e a validade da CNH.</p>}
                     </>
                   )}
                 </div>
