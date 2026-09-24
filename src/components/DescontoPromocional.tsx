@@ -45,7 +45,6 @@ export function DescontoPromocional({ rotas }: { rotas: RotaDesconto[] }) {
   const [percentual, setPercentual] = useState(10);
   const [trecho, setTrecho] = useState<TrechoDesconto>("ambos");
   const [fim, setFim] = useState("");
-  const [observacao, setObservacao] = useState("");
   const [salvando, setSalvando] = useState(false);
 
   const rota = rotas.find((r) => r.id === rotaId) ?? rotas[0] ?? null;
@@ -97,7 +96,6 @@ export function DescontoPromocional({ rotas }: { rotas: RotaDesconto[] }) {
           percentual,
           trecho,
           ...(fim ? { fim: new Date(fim).toISOString() } : {}),
-          ...(observacao.trim() ? { observacao: observacao.trim() } : {}),
         },
       });
       if ("error" in r) throw new Error(r.error as string);
@@ -187,19 +185,6 @@ export function DescontoPromocional({ rotas }: { rotas: RotaDesconto[] }) {
             className={campo}
             value={fim}
             onChange={(e) => setFim(e.target.value)}
-          />
-        </label>
-        <label className="block sm:col-span-2">
-          <span className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-            Mensagem para o passageiro (opcional)
-          </span>
-          <input
-            type="text"
-            maxLength={200}
-            className={campo}
-            placeholder="Ex.: Últimos lugares desta saída"
-            value={observacao}
-            onChange={(e) => setObservacao(e.target.value)}
           />
         </label>
       </div>
