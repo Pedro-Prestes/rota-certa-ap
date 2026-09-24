@@ -8,7 +8,6 @@ import { PRAZO_OFERTA_MIN } from "@/lib/preco-dinamico";
 import {
   aceitarOfertaComCreditos,
   cancelarPreReserva,
-  minhasPreReservas,
 } from "@/utils/pre-reserva.functions";
 import { CheckoutPix } from "@/components/CheckoutPix";
 import { useBipDeNovidades } from "@/hooks/use-bip";
@@ -36,6 +35,7 @@ interface Item {
     uf_origem: string | null;
     uf_destino: string | null;
     saida_ida: string | null;
+    saida_retorno: string | null;
     preco_assento: number | null;
     assentos: number | null;
   } | null;
@@ -84,7 +84,7 @@ export function PreReservas() {
       const { data, error } = await supabase
         .from("pre_reservas")
         .select(
-          "id, rota_id, data_viagem, assentos, assentos_bagagem, endereco, status, valor_ofertado, valor_base, taxa_desvio, fator_ocupacao, oferta_expira_em, trecho, reserva_par_id, desconto_percentual, rotas(origem, destino, uf_origem, uf_destino, saida_ida, preco_assento, assentos)",
+          "id, rota_id, data_viagem, assentos, assentos_bagagem, endereco, status, valor_ofertado, valor_base, taxa_desvio, fator_ocupacao, oferta_expira_em, trecho, reserva_par_id, desconto_percentual, rotas(origem, destino, uf_origem, uf_destino, saida_ida, saida_retorno, preco_assento, assentos)",
         )
         .order("data_viagem", { ascending: true });
       if (error) throw error;
@@ -175,7 +175,8 @@ export function PreReservas() {
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="size-3" /> {volta ? "Ponto B → Ponto A" : "Ponto A → Ponto B"} ·{" "}
                     {i.data_viagem} · saída{" "}
-                    {i.rotas?.saida_ida?.slice(0, 5) ?? "--:--"} · {i.assentos} assento(s)
+                    {(volta ? i.rotas?.saida_retorno : i.rotas?.saida_ida)?.slice(0, 5) ?? "--:--"} ·{" "}
+                    {i.assentos} assento(s)
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">Embarque: {i.endereco}</p>
                   {i.reserva_par_id && (
